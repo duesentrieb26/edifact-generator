@@ -13,8 +13,7 @@ use EDI\Generator\EdiFactNumber;
  * @package EDI\Generator\Traits
  * @mixin Base
  */
-trait Item
-{
+trait Item {
 
   /** @var array */
   protected $position;
@@ -54,38 +53,36 @@ trait Item
 
   /** @var array */
   protected $composeKeys
-    = [
-      'position',
-      'specificationText',
-      'additionalText',
-      'quantity',
-      'deliveryNoteDate',
-      'deliveryDate',
-      'invoiceDescription',
-      'grossPrice',
-      'netPrice',
-      'orderNumberWholesaler',
-      'deliveryNoteNumber',
-      'deliveryNotePosition',
-      'orderPosition',
-      'discount',
-      'discountFactor',
-    ];
+  = [
+    'position',
+    'specificationText',
+    'additionalText',
+    'quantity',
+    'deliveryNoteDate',
+    'deliveryDate',
+    'invoiceDescription',
+    'grossPrice',
+    'netPrice',
+    'orderNumberWholesaler',
+    'deliveryNoteNumber',
+    'deliveryNotePosition',
+    'orderPosition',
+    'discount',
+    'discountFactor',
+  ];
 
   /**
    * @return array
    * @throws \EDI\Generator\EdifactException
    */
-  public function compose()
-  {
+  public function compose() {
     return $this->composeByKeys($this->composeKeys);
   }
 
   /**
    * @return array
    */
-  public function getPosition()
-  {
+  public function getPosition() {
     return $this->position;
   }
 
@@ -96,8 +93,7 @@ trait Item
    *
    * @return Item
    */
-  public function setPosition($position, $articleNumber, $numberType = 'MF')
-  {
+  public function setPosition($position, $articleNumber, $numberType = 'MF') {
     $this->position = [
       'LIN',
       $position,
@@ -114,8 +110,7 @@ trait Item
   /**
    * @return array
    */
-  public function getQuantity()
-  {
+  public function getQuantity() {
     return $this->quantity;
   }
 
@@ -126,10 +121,10 @@ trait Item
    * @return Item
    * @throws \EDI\Generator\EdifactException
    */
-  public function setQuantity($quantity, $unit = 'PCE')
-  {
+  public function setQuantity($quantity, $unit = 'PCE') {
     $this->isAllowed(
-      $unit, [
+      $unit,
+      [
         'CMK',
         'CMQ',
         'CMT',
@@ -168,24 +163,28 @@ trait Item
   /**
    * @param        $description
    * @param string $type
-   * @param string $organisation
+   * @param string $organization
    *
    * @return array
    */
-  public static function addIMDSegment($description, $type = 'ZU', $organisation = '')
-  {
-    return [
+  public static function addIMDSegment($description, $type = 'ZU', $organization = '') {
+    $data =  [
       'IMD',
       '',
       '',
       [
         $type,
         '',
-        $organisation,
-        substr($description, 0, 35),
-        substr($description, 35, 5),
+        $organization,
+        substr(trim($description), 0, 35),
       ],
     ];
+
+    if (strlen($description) > 35) {
+      $data[3][] = substr(trim($description), 35, 35);
+    }
+
+    return $data;
   }
 
   /**
@@ -193,9 +192,8 @@ trait Item
    *
    * @return $this
    */
-  public function setAdditionalText($text)
-  {
-    if (!empty($text)){
+  public function setAdditionalText($text) {
+    if (!empty($text)) {
       $this->splitTexts('additionalText', $text, 320, 40, 'ZU');
     }
 
@@ -205,8 +203,7 @@ trait Item
   /**
    * @return array
    */
-  public function getAdditionalText()
-  {
+  public function getAdditionalText() {
     return $this->additionalText;
   }
 
@@ -216,8 +213,7 @@ trait Item
    *
    * @return $this
    */
-  public function setSpecificationText($text)
-  {
+  public function setSpecificationText($text) {
     $this->splitTexts('specificationText', $text, 80, 40, 'SP');
 
     return $this;
@@ -226,8 +222,7 @@ trait Item
   /**
    * @return array
    */
-  public function getSpecificationText()
-  {
+  public function getSpecificationText() {
     return $this->specificationText;
   }
 
@@ -237,8 +232,7 @@ trait Item
    *
    * @return $this
    */
-  public function setGeneratedText($text)
-  {
+  public function setGeneratedText($text) {
     $this->splitTexts('generatedText', $text, 70, 35);
 
     return $this;
@@ -247,8 +241,7 @@ trait Item
   /**
    * @return array
    */
-  public function getGeneratedText()
-  {
+  public function getGeneratedText() {
     return $this->generatedText;
   }
 
@@ -256,8 +249,7 @@ trait Item
   /**
    * @param $text
    */
-  public function setFeaturesText($text)
-  {
+  public function setFeaturesText($text) {
     $this->splitTexts('featuresText', $text, 70, 35);
   }
 
@@ -270,8 +262,7 @@ trait Item
    *
    * @return $this
    */
-  private function splitTexts($varName, $text, $maxLength, $lineLength, $type = 'ZU')
-  {
+  private function splitTexts($varName, $text, $maxLength, $lineLength, $type = 'ZU') {
     $data = str_split(mb_substr($this->clearUTF8chars($text), 0, $maxLength), $lineLength);
     $prop = &$this->{$varName};
     foreach ($data as $line) {
@@ -292,8 +283,7 @@ trait Item
    * clear all not printable characters from given string
    * @param string  $string
    */
-  public function clearUTF8chars( $string) 
-  {
+  public function clearUTF8chars($string) {
     return preg_replace('/[[:^print:]]/', '', ($string));
     // return preg_replace('/[\x00-\x1F\x80-\xFF]/', '', ($string));
   }
@@ -302,8 +292,7 @@ trait Item
   /**
    * @return array
    */
-  public function getOrderNumberWholesaler()
-  {
+  public function getOrderNumberWholesaler() {
     return $this->orderNumberWholesaler;
   }
 
@@ -312,8 +301,7 @@ trait Item
    *
    * @return Item
    */
-  public function setOrderNumberWholesaler($orderNumberWholesaler)
-  {
+  public function setOrderNumberWholesaler($orderNumberWholesaler) {
     $this->orderNumberWholesaler = $this->addRFFSegment('VN', $orderNumberWholesaler);
 
     return $this;
@@ -322,8 +310,7 @@ trait Item
   /**
    * @return array
    */
-  public function getOrderDate()
-  {
+  public function getOrderDate() {
     return $this->orderDate;
   }
 
@@ -333,8 +320,7 @@ trait Item
    * @return Item
    * @throws \EDI\Generator\EdifactException
    */
-  public function setOrderDate($orderDate)
-  {
+  public function setOrderDate($orderDate) {
     $this->orderDate = $this->addDTMSegment($orderDate, '4');
 
     return $this;
@@ -343,8 +329,7 @@ trait Item
   /**
    * @return array
    */
-  public function getOrderPosition()
-  {
+  public function getOrderPosition() {
     return $this->orderPosition;
   }
 
@@ -353,8 +338,7 @@ trait Item
    *
    * @return Item
    */
-  public function setOrderPosition($orderPosition)
-  {
+  public function setOrderPosition($orderPosition) {
     $this->orderPosition = $this->addRFFSegment('LI', $orderPosition);
 
     return $this;
@@ -363,8 +347,7 @@ trait Item
   /**
    * @return array
    */
-  public function getDeliveryNoteNumber()
-  {
+  public function getDeliveryNoteNumber() {
     return $this->deliveryNoteNumber;
   }
 
@@ -375,14 +358,14 @@ trait Item
    * @return Item
    * @throws \EDI\Generator\EdifactException
    */
-  public function setDeliveryNoteNumber($deliveryNoteNumber, $deliveryDate = null)
-  {
+  public function setDeliveryNoteNumber($deliveryNoteNumber, $deliveryDate = null) {
     $data = $this->addRFFSegment('AAJ', $deliveryNoteNumber);
-    if ($deliveryDate){
+    if ($deliveryDate) {
       $data = [
         $this->addRFFSegment('AAJ', $deliveryNoteNumber)
       ];
-      array_push($data,
+      array_push(
+        $data,
         $this->addDTMSegment(
           $deliveryDate,
           EdifactDate::TYPE_DELIVERY_DATE_REQUESTED,
@@ -398,8 +381,7 @@ trait Item
   /**
    * @return array
    */
-  public function getDeliveryNoteDate()
-  {
+  public function getDeliveryNoteDate() {
     return $this->deliveryNoteDate;
   }
 
@@ -410,7 +392,9 @@ trait Item
    *
    * @return Item
    */
-  public function setDeliveryNoteDate($deliveryNoteDate, $type = EdifactDate::TYPE_DELIVERY_DATE_REQUESTED,
+  public function setDeliveryNoteDate(
+    $deliveryNoteDate,
+    $type = EdifactDate::TYPE_DELIVERY_DATE_REQUESTED,
     $formatQuantifier = EdifactDate::DATE
   ) {
     $this->deliveryNoteDate = $this->addDTMSegment($deliveryNoteDate, $type, $formatQuantifier);
@@ -421,8 +405,7 @@ trait Item
   /**
    * @return array
    */
-  public function getDeliveryNotePosition()
-  {
+  public function getDeliveryNotePosition() {
     return $this->deliveryNotePosition;
   }
 
@@ -431,12 +414,9 @@ trait Item
    *
    * @return Item
    */
-  public function setDeliveryNotePosition($deliveryNotePosition)
-  {
+  public function setDeliveryNotePosition($deliveryNotePosition) {
     $this->deliveryNotePosition = $this->addRFFSegment('FI', $deliveryNotePosition);
 
     return $this;
   }
-
-
 }

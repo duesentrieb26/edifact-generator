@@ -2,6 +2,7 @@
 
 use EDI\Encoder;
 use EDI\Generator\Interchange;
+use EDI\Generator\Invoic;
 use EDI\Generator\Invoic\Item;
 
 $interchange = new Interchange(
@@ -11,6 +12,8 @@ $interchange = new Interchange(
 $interchange->setCharset('UNOC')
     ->setCharsetVersion('3');
 
+
+$invoice = new Invoic();
 $invoice
     ->setInvoiceNumber('INV12345')
     ->setInvoiceDate($this->getDateTime())

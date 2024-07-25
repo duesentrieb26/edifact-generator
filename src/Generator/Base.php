@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Sascha
@@ -14,8 +15,7 @@ namespace EDI\Generator;
  * @package EDI\Generator
  * @property array $composeKeys
  */
-class Base
-{
+class Base {
 
   /** @var array */
   protected $messageContent = [];
@@ -34,8 +34,7 @@ class Base
    * @param array|null  $array
    * @param null|string $position
    */
-  public function addKeyToCompose($keyName, &$array = null, $position = null)
-  {
+  public function addKeyToCompose($keyName, &$array = null, $position = null) {
     if (!$array) {
       $array = $this->composeKeys;
     }
@@ -59,8 +58,7 @@ class Base
    * @return array
    * @throws EdifactException
    */
-  public function composeByKeys($keys = null)
-  {
+  public function composeByKeys($keys = null) {
     if (is_null($keys)) {
       $keys = $this->composeKeys;
     }
@@ -76,7 +74,6 @@ class Base
                 $this->messageContent[] = $item;
               }
             }
-
           } else {
             throw new EdifactException("key " . $key . " returns no array structure");
           }
@@ -90,16 +87,14 @@ class Base
   /**
    * @return array
    */
-  public function getComposed()
-  {
+  public function getComposed() {
     return $this->composed;
   }
 
   /**
    * @return string
    */
-  public function getSender()
-  {
+  public function getSender() {
     return $this->sender;
   }
 
@@ -108,8 +103,7 @@ class Base
    *
    * @return $this
    */
-  public function setSender($sender)
-  {
+  public function setSender($sender) {
     $this->sender = $sender;
 
     return $this;
@@ -118,8 +112,7 @@ class Base
   /**
    * @return string
    */
-  public function getReceiver()
-  {
+  public function getReceiver() {
     return $this->receiver;
   }
 
@@ -128,8 +121,7 @@ class Base
    *
    * @return $this
    */
-  public function setReceiver($receiver)
-  {
+  public function setReceiver($receiver) {
     $this->receiver = $receiver;
 
     return $this;
@@ -142,8 +134,7 @@ class Base
    *
    * @return array|bool
    */
-  protected function addRFFSegment($functionCode, $identifier)
-  {
+  protected function addRFFSegment($functionCode, $identifier) {
     if (empty($identifier)) {
       return false;
     }
@@ -166,8 +157,7 @@ class Base
    * @throws EdifactException
    * @see https://www.stylusstudio.com/edifact/D94A/2379.htm
    */
-  public function addDTMSegment($dateString, $type, $formatQualifier = EdifactDate::DATE)
-  {
+  public function addDTMSegment($dateString, $type, $formatQualifier = EdifactDate::DATE) {
     $data = [];
     array_push($data, $type);
     if (!empty($dateString)) {
@@ -187,8 +177,7 @@ class Base
    *
    * @return array
    */
-  public static function addBGMSegment($documentNumber, $type, $x = Invoic::TYPE_ORIGINAL)
-  {
+  public static function addBGMSegment($documentNumber, $type, $x = Invoic::TYPE_ORIGINAL) {
     return [
       'BGM',
       [
@@ -209,13 +198,12 @@ class Base
    *
    * @return string
    */
-  protected static function maxChars($string, $length = 35)
-  {
+  protected static function maxChars($string, $length = 35) {
     if (empty($string)) {
       return '';
     }
 
-    return mb_substr($string, 0, $length);
+    return mb_substr(trim($string), 0, $length);
   }
 
   /**
@@ -226,8 +214,7 @@ class Base
    *
    * @throws EdifactException
    */
-  protected function isAllowed($value, $array, $errorMessage = null)
-  {
+  protected function isAllowed($value, $array, $errorMessage = null) {
     if (is_null($errorMessage)) {
       $errorMessage = 'value: ' . $value . ' is not in allowed values: ' .
         ' [' . implode(', ', $array) . '] in ' . get_class($this) . '->' .
@@ -245,8 +232,7 @@ class Base
    *
    * @return array
    */
-  public static function addMOASegment($qualifier, $value)
-  {
+  public static function addMOASegment($qualifier, $value) {
     return [
       'MOA',
       [
@@ -268,8 +254,7 @@ class Base
    *
    * @return array
    */
-  public static function addPATSegment($type, $value = self::PAT_TIME_INVOICE_DATE, $days = null)
-  {
+  public static function addPATSegment($type, $value = self::PAT_TIME_INVOICE_DATE, $days = null) {
     $valueArray = [
       $value,
     ];
@@ -298,8 +283,7 @@ class Base
    *
    * @return array
    */
-  public static function addPCDSegment($value)
-  {
+  public static function addPCDSegment($value) {
     return [
       'PCD',
       [
@@ -316,8 +300,7 @@ class Base
    *
    * @return array
    */
-  public static function addPIASegment($ean)
-  {
+  public static function addPIASegment($ean) {
     return [
       'PIA',
       [
@@ -329,6 +312,4 @@ class Base
       ],
     ];
   }
-
-
 }

@@ -3,3 +3,5 @@ codeCoverage/
 vendor/
 composer.phar
 phpunit.phar
+.phpunit.*
+cache/.*

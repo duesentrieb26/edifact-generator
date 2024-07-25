@@ -1,0 +1,6 @@
+services:
+  php:
+    build: ./config/php
+    # image: php:8.2-cli
+    volumes:
+      - .:/app
