@@ -12,8 +12,7 @@ use EDI\Generator\Traits\TransportData;
  * @url http://www.unece.org/trade/untdid/d96b/trmd/desadv_s.htm
  * @package EDI\Generator
  */
-class Desadv extends Message
-{
+class Desadv extends Message {
     use ContactPerson,
         NameAndAddress,
         TransportData;
@@ -32,6 +31,9 @@ class Desadv extends Message
     protected $deliveryDate;
     /** @var Item[] */
     protected $items;
+
+    /** */
+    protected $packageItems = [];
     /** @var array  */
     protected $composeKeys = [
         'deliveryNoteNumber',
@@ -64,8 +66,7 @@ class Desadv extends Message
         $release = '96B',
         $controllingAgency = 'UN',
         $association = 'ITEK35'
-    )
-    {
+    ) {
         parent::__construct(
             $identifier,
             $version,
@@ -80,11 +81,19 @@ class Desadv extends Message
     /**
      * @param $item Item
      */
-    public function addItem($item)
-    {
+    public function addItem($item) {
         $this->items[] = $item;
     }
 
+
+    /**
+     * @param $item PackageItem
+     */
+    public function addPackageItem($item) {
+        $this->packageItems[] = $item;
+
+        return $this;
+    }
 
     /**
      * Set deliver note number
@@ -93,8 +102,7 @@ class Desadv extends Message
      * @return $this
      * @throws EdifactException
      */
-    public function setDeliveryNoteNumber($documentType, $number)
-    {
+    public function setDeliveryNoteNumber($documentType, $number) {
         $this->isAllowed($documentType, [
             self::DELIVERY_ADVICE,
             self::DELIVER_NOTE,
@@ -107,16 +115,14 @@ class Desadv extends Message
     /**
      * @return array
      */
-    public function getDeliverNoteNumber()
-    {
+    public function getDeliverNoteNumber() {
         return $this->deliveryNoteNumber;
     }
 
     /**
      * @return array
      */
-    public function getShippingDate()
-    {
+    public function getShippingDate() {
         return $this->shippingDate;
     }
 
@@ -125,8 +131,7 @@ class Desadv extends Message
      * @return $this
      * @throws EdifactException
      */
-    public function setShippingDate($shippingDate)
-    {
+    public function setShippingDate($shippingDate) {
         $this->shippingDate = $this->addDTMSegment($shippingDate, '17');
         return $this;
     }
@@ -134,8 +139,7 @@ class Desadv extends Message
     /**
      * @return array
      */
-    public function getDeliveryDate()
-    {
+    public function getDeliveryDate() {
         return $this->deliveryDate;
     }
 
@@ -144,8 +148,7 @@ class Desadv extends Message
      * @return $this
      * @throws EdifactException
      */
-    public function setDeliveryDate($deliveryDate)
-    {
+    public function setDeliveryDate($deliveryDate) {
         $this->deliveryDate = $this->addDTMSegment($deliveryDate, '11');
         return $this;
     }
@@ -153,8 +156,7 @@ class Desadv extends Message
     /**
      * @return array
      */
-    public function getDeliveryNoteDate()
-    {
+    public function getDeliveryNoteDate() {
         return $this->deliveryNoteDate;
     }
 
@@ -163,8 +165,7 @@ class Desadv extends Message
      * @return $this
      * @throws EdifactException
      */
-    public function setDeliveryNoteDate($deliveryNoteDate)
-    {
+    public function setDeliveryNoteDate($deliveryNoteDate) {
         $this->deliveryNoteDate = $this->addDTMSegment($deliveryNoteDate, '137');
         return $this;
     }
@@ -175,11 +176,17 @@ class Desadv extends Message
      * @return $this
      * @throws EdifactException
      */
-    public function compose($msgStatus = null)
-    {
+    public function compose($msgStatus = null) {
         $this->composeByKeys();
 
         foreach ($this->items as $item) {
+            $composed = $item->compose();
+            foreach ($composed as $entry) {
+                $this->messageContent[] = $entry;
+            }
+        }
+
+        foreach ($this->packageItems as $item) {
             $composed = $item->compose();
             foreach ($composed as $entry) {
                 $this->messageContent[] = $entry;
