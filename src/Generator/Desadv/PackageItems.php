@@ -14,14 +14,36 @@ use function PHPSTORM_META\map;
  */
 class PackageItem extends Base {
 
+  protected $cas;
+
 
   protected $composeKeys = [
+    'cas',
     'packageQuantity',
     'packageNumber',
     'packageWeight',
-
   ];
 
+
+  /**
+   * 
+   * @param mixed $quantity 
+   * @return void 
+   */
+  public function setPackageQuantity($quantity) {
+    $this->cas = $this->addCPSSegment($quantity);
+
+    return $this;
+  }
+
+
+  /**
+   * @return array
+   * @throws \EDI\Generator\EdifactException
+   */
+  public function compose() {
+    return $this->composeByKeys($this->composeKeys);
+  }
 
   /**
    * Package number

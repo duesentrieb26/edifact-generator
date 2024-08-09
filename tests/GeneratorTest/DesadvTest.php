@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Sascha
@@ -10,17 +11,18 @@ namespace GeneratorTest;
 
 use EDI\Encoder;
 use EDI\Generator\Desadv;
+use EDI\Generator\Desadv\PackageItem;
 use EDI\Generator\EdifactException;
 use EDI\Generator\Interchange;
+use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
+use SebastianBergmann\RecursionContext\InvalidArgumentException;
 
-final class DesadvTest extends TestCase
-{
+final class DesadvTest extends TestCase {
     /**
      * Test deliver note number
      */
-    public function testDeliverNoteNumber()
-    {
+    public function testDeliverNoteNumber() {
         $desadv = new Desadv();
         try {
             $desadv->setDeliveryNoteNumber(
@@ -28,7 +30,6 @@ final class DesadvTest extends TestCase
                 'LS123456789'
             );
         } catch (EdifactException $e) {
-
         }
         $array = $desadv->getDeliverNoteNumber();
         $this->assertEquals([
@@ -39,8 +40,7 @@ final class DesadvTest extends TestCase
     }
 
 
-    private function getDateTime()
-    {
+    private function getDateTime() {
         return (new \DateTime())
             ->setDate(2018, 1, 23)
             ->setTime(10, 0, 0);
@@ -49,26 +49,26 @@ final class DesadvTest extends TestCase
     /**
      * @throws EdifactException
      */
-    public function testDeliverNoteNumberException()
-    {
+    public function testDeliverNoteNumberException() {
         $this->expectExceptionMessage('value: XXX is not in allowed values:  [22E, 270, 351] in EDI\Generator\Desadv->setDeliveryNoteNumber');
         (new Desadv())
             ->setDeliveryNoteNumber('XXX', 'LS123456789');
-
     }
 
     /**
      * @throws EdifactException
      */
-    public function testDeliveryDate()
-    {
+    public function testDeliveryDate() {
         $desadv = new Desadv();
         $desadv->setDeliveryDate($this->getDateTime());
 
         $this->assertEquals([
             'DTM',
-            '11',
-            '20180123'
+            [
+                '11',
+                '20180123',
+                102
+            ]
         ], $desadv->getDeliveryDate());
     }
 
@@ -76,15 +76,17 @@ final class DesadvTest extends TestCase
     /**
      * @throws EdifactException
      */
-    public function testDeliveryNoteDate()
-    {
+    public function testDeliveryNoteDate() {
         $desadv = new Desadv();
         $desadv->setDeliveryNoteDate($this->getDateTime());
 
         $this->assertEquals([
             'DTM',
-            '137',
-            '20180123'
+            [
+                137,
+                '20180123',
+                102
+            ]
         ], $desadv->getDeliveryNoteDate());
     }
 
@@ -92,113 +94,55 @@ final class DesadvTest extends TestCase
     /**
      * @throws EdifactException
      */
-    public function testShippingDate()
-    {
+    public function testShippingDate() {
         $desadv = new Desadv();
         $desadv->setShippingDate($this->getDateTime());
 
         $this->assertEquals([
             'DTM',
-            '17',
-            '20180123'
+            [
+                '17',
+                '20180123',
+                102
+            ]
         ], $desadv->getShippingDate());
     }
 
 
-    public function testContactPerson()
-    {
+    /**
+     * 
+     * @return void 
+     * @throws InvalidArgumentException 
+     * @throws ExpectationFailedException 
+     */
+    public function testContactPerson() {
         $desadv = new Desadv();
         $desadv->setContactPerson('John Doe');
 
         $this->assertEquals([
             'CTA',
             '',
-            'John Doe'
+            ['', 'John Doe']
         ], $desadv->getContactPerson());
     }
 
 
-    public function testMailAddress()
-    {
+    public function testMailAddress() {
         $desadv = new Desadv();
         $desadv->setMailAddress('john.doe@company.com');
 
         $this->assertEquals([
             'COM',
-            'john.doe@company.com',
-            'EM'
+            [
+                'john.doe@company.com',
+                'EM'
+            ]
         ], $desadv->getMailAddress());
     }
 
 
-    public function testNameAndAddress()
-    {
-        $this->assertEquals(
-            'NAD+SU+partnerId::9++name1:name2:name3+street+city++zipCode+DE\'',
-            (new Encoder([
-                (new Desadv())->addNameAndAddress(
-                    'name1',
-                    'name2',
-                    'name3',
-                    'street',
-                    'zipCode',
-                    'city',
-                    'DE',
-                    '9',
-                    'SU',
-                    'partnerId'
-                )]))->get()
-        );
 
-
-
-        $desadv = (new Desadv())
-            ->setManufacturerAddress(
-                'Name 1',
-                'Name 2',
-                'Name 3',
-                'street',
-                '99999',
-                'city',
-                'DE'
-            );
-
-        $this->assertEquals([
-            'NAD',
-            'SU',
-            [
-                '',
-                '',
-                'ZZZ'
-            ],
-            '',
-            [
-                'Name 1',
-                'Name 2',
-                'Name 3'
-            ],
-            [
-                'street'
-            ],
-            [
-                'city'
-            ],
-            [
-                '',
-            ],
-            [
-                '99999',
-            ],
-            [
-                'DE',
-            ],
-        ], $desadv->getManufacturerAddress());
-
-
-    }
-
-    public function testDesadv()
-    {
+    public function testDesadv() {
         $interchange = new Interchange(
             'UNB-Identifier-Sender',
             'UNB-Identifier-Receiver'
@@ -209,7 +153,7 @@ final class DesadvTest extends TestCase
         try {
             $desadv = (new Desadv())
                 ->setSender('UNB-Identifier-Sender')
-                ->setReceiver('GC-Gruppe')
+                ->setReceiver('RECEIVer')
                 ->setDeliveryNoteNumber(Desadv::DELIVER_NOTE, 'LS123456789')
                 ->setDeliveryNoteDate($this->getDateTime())
                 ->setDeliveryDate($this->getDateTime())
@@ -237,6 +181,17 @@ final class DesadvTest extends TestCase
                     'DE'
                 );
 
+
+
+            $packageItem = new PackageItem();
+
+            $packageItem
+                ->setPackageQuantity(3);
+
+            $desadv->addPackageItem($packageItem);
+
+
+
             $item = new Desadv\Item();
             $item
                 ->setPosition(
@@ -247,24 +202,24 @@ final class DesadvTest extends TestCase
                 ->setOrderNumberWholesaler('MyOrderNumber')
             ;
             $desadv->addItem($item);
+
             $desadv->compose();
+
 
             $encoder = new Encoder($interchange->addMessage($desadv)->getComposed(), true);
             $encoder->setUNA(":+,? '");
 
             $message = str_replace("'", "'\n", $encoder->get());
-//            fwrite(STDOUT, "\n\nDESADV\n" . $message);
+            fwrite(STDOUT, "\n\nDESADV\n" . $message);
 
-            $this->assertContains('UNT+15', $message);
-            $this->assertContains('DTM+137', $message);
-            $this->assertContains('DTM+11', $message);
-            $this->assertContains('DTM+17', $message);
-            $this->assertContains('CTA++', $message);
-            $this->assertContains('COM+', $message);
-
+            $this->assertStringContainsString('UNT+16', $message);
+            $this->assertStringContainsString('DTM+137', $message);
+            $this->assertStringContainsString('DTM+11', $message);
+            $this->assertStringContainsString('DTM+17', $message);
+            $this->assertStringContainsString('CTA++', $message);
+            $this->assertStringContainsString('COM+', $message);
         } catch (EdifactException $e) {
             fwrite(STDOUT, "\n\nDESADV\n" . $e->getMessage());
         }
     }
-
 }

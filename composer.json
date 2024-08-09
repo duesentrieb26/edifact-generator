@@ -4,7 +4,7 @@
   "type": "library",
   "version": "0.0.50",
   "scripts": {
-    "test": "phpunit tests/GeneratorTest/InvoicTest.php"
+    "test": "phpunit tests/GeneratorTest/DesadvTest.php"
   },
   "keywords": [
     "EDI",

@@ -32,7 +32,7 @@ class Desadv extends Message {
     /** @var Item[] */
     protected $items;
 
-    /** */
+    /** @var array */
     protected $packageItems = [];
     /** @var array  */
     protected $composeKeys = [
@@ -75,6 +75,7 @@ class Desadv extends Message {
             $messageId,
             $association
         );
+        $this->packageItems = [];
         $this->items = [];
     }
 
@@ -83,6 +84,8 @@ class Desadv extends Message {
      */
     public function addItem($item) {
         $this->items[] = $item;
+
+        return $this;
     }
 
 
