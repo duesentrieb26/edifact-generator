@@ -2,4 +2,4 @@
 FROM gitpod/workspace-full:latest
 
 # Change your version here
-RUN sudo update-alternatives --set php $(which php7.4)
+RUN sudo update-alternatives --set php $(which php8.2)
