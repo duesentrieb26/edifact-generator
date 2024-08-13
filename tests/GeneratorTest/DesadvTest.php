@@ -11,6 +11,7 @@ namespace GeneratorTest;
 
 use EDI\Encoder;
 use EDI\Generator\Desadv;
+use EDI\Generator\Desadv\Package;
 use EDI\Generator\Desadv\PackageItem;
 use EDI\Generator\EdifactException;
 use EDI\Generator\Interchange;
@@ -142,6 +143,10 @@ final class DesadvTest extends TestCase {
 
 
 
+    /**
+     * 
+     * @return void 
+     */
     public function testDesadv() {
         $interchange = new Interchange(
             'UNB-Identifier-Sender',
@@ -183,12 +188,21 @@ final class DesadvTest extends TestCase {
 
 
 
-            $packageItem = new PackageItem();
+            $cpsCount = 1;
+            $package = new Package($cpsCount);
+            $package
+                ->setPackageQuantity(3, 'CT')
+                ->setPackageNumber('00343107380000001051')
+                ->setPackageWeight(925.328);
 
-            $packageItem
-                ->setPackageQuantity(3);
 
-            $desadv->addPackageItem($packageItem);
+            $packageItem1 = new PackageItem();
+            $packageItem1
+                ->setPackageContent('1', '8290123', 'BJ', 3);
+            $package->addItem($packageItem1);
+
+
+            $desadv->addPackage($package);
 
 
 
@@ -212,7 +226,8 @@ final class DesadvTest extends TestCase {
             $message = str_replace("'", "'\n", $encoder->get());
             fwrite(STDOUT, "\n\nDESADV\n" . $message);
 
-            $this->assertStringContainsString('UNT+16', $message);
+            $this->assertStringContainsString('GIN+BJ:00343107380000001051', $message);
+            $this->assertStringContainsString('UNT+22', $message);
             $this->assertStringContainsString('DTM+137', $message);
             $this->assertStringContainsString('DTM+11', $message);
             $this->assertStringContainsString('DTM+17', $message);

@@ -1,14 +1,25 @@
 <?php
 
-class Bootstrap
-{
-    public static function init()
-    {
+/**
+ * Bootstrap
+ * @package 
+ */
+class Bootstrap {
+    /**
+     * init
+     * @return void 
+     * @throws TypeError 
+     */
+    public static function init() {
         static::initAutoloader();
     }
 
-    protected static function initAutoloader()
-    {
+    /**
+     * initAutoloader
+     * @return void 
+     * @throws TypeError 
+     */
+    protected static function initAutoloader() {
         $vendorPath = static::findParentPath('vendor');
         if (file_exists($vendorPath . '/autoload.php')) {
             include $vendorPath . '/autoload.php';
@@ -21,8 +32,13 @@ class Bootstrap
         });
     }
 
-    public static function findParentPath($path)
-    {
+    /**
+     * findParentPath
+     * @param  string $path 
+     * @return string|false 
+     * @throws TypeError 
+     */
+    public static function findParentPath($path) {
         $dir = __DIR__;
         $previousDir = '.';
         while (!is_dir($dir . '/' . $path)) {

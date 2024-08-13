@@ -2,7 +2,6 @@
 
 namespace EDI\Generator;
 
-use EDI\Generator\Desadv\Item;
 use EDI\Generator\Traits\ContactPerson;
 use EDI\Generator\Traits\NameAndAddress;
 use EDI\Generator\Traits\TransportData;
@@ -31,9 +30,8 @@ class Desadv extends Message {
     protected $deliveryDate;
     /** @var Item[] */
     protected $items;
-
     /** @var array */
-    protected $packageItems = [];
+    protected $packages = [];
     /** @var array  */
     protected $composeKeys = [
         'deliveryNoteNumber',
@@ -75,7 +73,7 @@ class Desadv extends Message {
             $messageId,
             $association
         );
-        $this->packageItems = [];
+        $this->packages = [];
         $this->items = [];
     }
 
@@ -90,10 +88,10 @@ class Desadv extends Message {
 
 
     /**
-     * @param $item PackageItem
+     * @param $item Package
      */
-    public function addPackageItem($item) {
-        $this->packageItems[] = $item;
+    public function addPackage($item) {
+        $this->packages[] = $item;
 
         return $this;
     }
@@ -189,7 +187,7 @@ class Desadv extends Message {
             }
         }
 
-        foreach ($this->packageItems as $item) {
+        foreach ($this->packages as $item) {
             $composed = $item->compose();
             foreach ($composed as $entry) {
                 $this->messageContent[] = $entry;

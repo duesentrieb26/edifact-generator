@@ -4,9 +4,7 @@ namespace EDI\Generator\Desadv;
 
 
 use EDI\Generator\Base;
-use EDI\Generator\EdiFactNumber;
 
-use function PHPSTORM_META\map;
 
 /**
  * Class Item
@@ -14,28 +12,65 @@ use function PHPSTORM_META\map;
  */
 class PackageItem extends Base {
 
-  protected $cas;
 
+  protected $quantity;
+
+  protected $content;
 
   protected $composeKeys = [
-    'cas',
-    'packageQuantity',
-    'packageNumber',
-    'packageWeight',
+    'quantity',
+    'content',
+    'itemQuantity'
   ];
+
+
+
+  public function __construct() {
+  }
+
+
+
 
 
   /**
    * 
-   * @param mixed $quantity 
-   * @return void 
+   * @param int $position 
+   * @param string $content 
+   * @param string $type 
+   * @return $this 
    */
-  public function setPackageQuantity($quantity) {
-    $this->cas = $this->addCPSSegment($quantity);
+  public function setPackageContent($position, $content, $type, $quantity = 1) {
+    $this->content = $this->setPosition($position, $content, $type);
+    $this->quantity = $this->addQTYSegment($quantity);
 
     return $this;
   }
 
+
+
+
+  /**
+   * @param integer $position 
+   * @param string $content EAN nummer oder manufacturer articleNumber
+   * @param string $type EN|MF
+   *
+   * @return self
+   */
+  public function setPosition($position, $content, $type = 'MF') {
+    return [
+      'LIN',
+      $position,
+      '',
+      [
+        $content,
+        $type,
+        '',
+        89
+      ],
+    ];
+
+    return $this;
+  }
 
   /**
    * @return array
@@ -45,84 +80,19 @@ class PackageItem extends Base {
     return $this->composeByKeys($this->composeKeys);
   }
 
-  /**
-   * Package number
-   * @param string $number 
-   * @return (string|array)[] 
-   */
-  public static function addCPSSegment($number) {
-    return [
-      'CPS',
-      [
-        '1',
-        $number,
-      ],
-    ];
-  }
 
 
   /**
-   * Package quantity and type
-   * @param float $quantity 
-   * @param string $type BB, BG, BH, BK, CF, CG, CH, CT, PA, PC, PG, PN, PU, SC, TU
-   * @return (string|array)[] 
+   * 
+   * @param string $quantity 
+   * @return (string|(string|int)[])[] 
    */
-  public static function addPACSegment($quantity, $type = 'PK') {
+  public static function addQTYSegment($quantity) {
     return [
-      'PAC',
+      'QTY',
       [
+        '12',
         $quantity,
-        $type,
-      ],
-    ];
-  }
-
-  /**
-   * Weight 
-   * @param float $weight 
-   * @param string $unit  
-   * @param string $type AAI, ABJ, BW, DI, DP, DW, FN, HT, LN, VW, WD
-   * @return (string|string[])[] 
-   */
-  public static function addMEASegment($weight, $unit = 'KGM', $type = 'BW') {
-    return [
-      'MEA',
-      [
-        'AAE', // Dimension
-        $type,
-        $unit,
-        EdiFactNumber::convert($weight),
-      ],
-    ];
-  }
-
-  /**
-   * Package signature
-   * @param string $signature 33E, 12
-   * @return (string|string[])[] 
-   */
-  public static function addPCISegment($code = '33E') {
-    return [
-      'PCI',
-      [
-        '1',
-        $code
-      ],
-    ];
-  }
-
-  /**
-   * Goods item number
-   * @param string $trackingCode 
-   * @param string $type 
-   * @return (string|array)[] 
-   */
-  public static function addGINSegment($trackingCode, $type = 'BJ') {
-    return [
-      'GIN',
-      [
-        $type,
-        $trackingCode,
       ],
     ];
   }
