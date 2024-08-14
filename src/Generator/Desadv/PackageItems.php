@@ -12,23 +12,43 @@ use EDI\Generator\Base;
  */
 class PackageItem extends Base {
 
+  protected $cps;
 
   protected $quantity;
 
   protected $content;
 
+  protected $cpsMainCounter;
+
+  protected $cpsCounter;
+
+
   protected $composeKeys = [
+    'cps',
     'quantity',
     'content',
-    'itemQuantity'
   ];
 
 
 
-  public function __construct() {
+  /**
+   * 
+   * @param int &$cpsCounter 
+   * @param int &$cpsMainCounter  
+   * @return void 
+   */
+  public function __construct(&$cpsMainCounter, &$cpsCounter, $totalPackages) {
+    // if (!$cpsMainCounter) {
+    //   throw new \InvalidArgumentException('CPS main counter is required');
+    // }
+
+    // if (!$cpsCounter) {
+    //   throw new \InvalidArgumentException('CPS counter is required');
+    // }
+
+    // $this->cps = Package::addCPSSegment($cpsCounter, $cpsMainCounter);
+    // $cpsCounter++;
   }
-
-
 
 
 
@@ -65,7 +85,7 @@ class PackageItem extends Base {
         $content,
         $type,
         '',
-        89
+        '89'
       ],
     ];
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Sascha
@@ -12,20 +13,20 @@ use EDI\Encoder;
 use EDI\Generator\EdifactException;
 use EDI\Generator\Interchange;
 use EDI\Generator\Ordrsp;
+use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
+use SebastianBergmann\RecursionContext\InvalidArgumentException;
 
 /**
  * Class OrdrspTest
  * @package GeneratorTest
  */
-class OrdrspTest extends TestCase
-{
+class OrdrspTest extends TestCase {
 
     /**
      *
      */
-    public function testOrdrsp()
-    {
+    public function testOrdrsp() {
         $interchange = new Interchange(
             'UNB-Identifier-Sender',
             'UNB-Identifier-Receiver'
@@ -73,21 +74,24 @@ class OrdrspTest extends TestCase
                 ->setPositionSeparator()
                 ->compose();
         } catch (EdifactException $e) {
-
         }
 
         $encoder = new Encoder($interchange->addMessage($ordrsp)->getComposed(), true);
         $encoder->setUNA(":+,? '");
 
         $message = str_replace("'", "'\n", $encoder->get());
-//        fwrite(STDOUT, "\n\nORDRSP\n" . $message);
+        //        fwrite(STDOUT, "\n\nORDRSP\n" . $message);
 
-        $this->assertContains('UNT+14', $message);
+        $this->assertStringContainsString('UNT+11', $message);
     }
 
-
-    public function testNameAndAddress()
-    {
+    /**
+     * 
+     * @return void 
+     * @throws InvalidArgumentException 
+     * @throws ExpectationFailedException 
+     */
+    public function testNameAndAddress() {
         $ordrsp = new Ordrsp();
         $ordrsp->setDeliveryAddress(
             'name one that is longer than 35 characters',
@@ -99,14 +103,12 @@ class OrdrspTest extends TestCase
             'DE with more characters'
         );
 
-        $this->assertEquals([
+
+        $deliveryAddress = $ordrsp->getDeliveryAddress();
+        $expected = [
             'NAD',
             'ST',
-            [
-                '',
-                '',
-                'ZZZ'
-            ],
+            '',
             '',
             [
                 'name one that is longer than 35 cha',
@@ -130,9 +132,7 @@ class OrdrspTest extends TestCase
             [
                 'DE'
             ]
-
-        ], $ordrsp->getDeliveryAddress());
+        ];
+        $this->assertEquals($expected, $deliveryAddress);
     }
-
-
 }

@@ -2,6 +2,7 @@
 
 namespace EDI\Generator;
 
+use EDI\Generator\Desadv\Package;
 use EDI\Generator\Traits\ContactPerson;
 use EDI\Generator\Traits\NameAndAddress;
 use EDI\Generator\Traits\TransportData;
@@ -187,10 +188,20 @@ class Desadv extends Message {
             }
         }
 
-        foreach ($this->packages as $item) {
-            $composed = $item->compose();
+        $totalPackages = count($this->packages);
+        $totalWeight = 0;
+        foreach ($this->packages as $package) {
+            $composed = $package->compose();
             foreach ($composed as $entry) {
                 $this->messageContent[] = $entry;
+            }
+            foreach ($package->getItems() as $packageItem) {
+                $composed = $packageItem->compose();
+
+                $this->messageContent[] = Package::addCPSSegment(3, 2);
+                foreach ($composed as $entry) {
+                    $this->messageContent[] = $entry;
+                }
             }
         }
 

@@ -15,6 +15,7 @@ use EDI\Generator\Desadv\Package;
 use EDI\Generator\Desadv\PackageItem;
 use EDI\Generator\EdifactException;
 use EDI\Generator\Interchange;
+use Exception;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 use SebastianBergmann\RecursionContext\InvalidArgumentException;
@@ -188,34 +189,70 @@ final class DesadvTest extends TestCase {
 
 
 
-            $cpsCount = 1;
-            $package = new Package($cpsCount);
+
+            $desadv->setTransportData(16789, 30, '31S');
+
+            $mainCpsCounter = 1;
+            $cpsCounter = 1;
+            $totalPackages = 2;
+            $pos = 1;
+            $package = new Package($mainCpsCounter, $cpsCounter, $totalPackages, 1426.562);
             $package
                 ->setPackageQuantity(3, 'CT')
                 ->setPackageNumber('00343107380000001051')
                 ->setPackageWeight(925.328);
 
 
-            $packageItem1 = new PackageItem();
+            $packageItem1 = new PackageItem($mainCpsCounter, $cpsCounter, $totalPackages);
             $packageItem1
-                ->setPackageContent('1', '8290123', 'BJ', 3);
+                ->setPackageContent($pos++, '8290123XX', 'BJ', 3);
             $package->addItem($packageItem1);
 
 
+            $packageItem2 = new PackageItem($mainCpsCounter, $cpsCounter, $totalPackages);
+            $packageItem2
+                ->setPackageContent($pos++, '8290123YY', 'BJ', 20);
+            $package->addItem($packageItem2);
             $desadv->addPackage($package);
 
 
+            $package2 = new Package($mainCpsCounter, $cpsCounter);
+            $package2
+                ->setPackageQuantity(5, 'PN')
+                ->setPackageNumber('12345678900001')
+                ->setPackageWeight(501.234);
 
-            $item = new Desadv\Item();
-            $item
-                ->setPosition(
-                    '1',
-                    '8290123'
-                )
-                ->setQuantity('3')
-                ->setOrderNumberWholesaler('MyOrderNumber')
-            ;
-            $desadv->addItem($item);
+
+            $packageItem3 = new PackageItem($mainCpsCounter, $cpsCounter, $totalPackages);
+            $packageItem3
+                ->setPackageContent($pos++, '4250659500284', 'EN', 5);
+            $package2->addItem($packageItem3);
+
+            $packageItem4 = new PackageItem($mainCpsCounter, $cpsCounter, $totalPackages);
+            $packageItem4
+                ->setPackageContent($pos++, '4250659500285', 'EN', 5);
+            $package2->addItem($packageItem4);
+
+
+            $packageItem5 = new PackageItem($mainCpsCounter, $cpsCounter, $totalPackages);
+            $packageItem5
+                ->setPackageContent($pos++, '4250659500286', 'EN', 5);
+            $package2->addItem($packageItem5);
+
+
+            $package3 = new Package($mainCpsCounter, $cpsCounter);
+            $package3
+                ->setPackageQuantity(5, 'PN')
+                ->setPackageNumber('12345678900002')
+                ->setPackageWeight(501.234);
+
+
+            $packageItem6 = new PackageItem($mainCpsCounter, $cpsCounter, $totalPackages);
+            $packageItem6
+                ->setPackageContent($pos++, '4250659500287', 'EN', 5);
+
+            $desadv->addPackage($package2);
+
 
             $desadv->compose();
 
@@ -226,15 +263,24 @@ final class DesadvTest extends TestCase {
             $message = str_replace("'", "'\n", $encoder->get());
             fwrite(STDOUT, "\n\nDESADV\n" . $message);
 
-            $this->assertStringContainsString('GIN+BJ:00343107380000001051', $message);
-            $this->assertStringContainsString('UNT+22', $message);
+            $this->assertStringContainsString('TDT+13+16789+30+31S', $message);
             $this->assertStringContainsString('DTM+137', $message);
             $this->assertStringContainsString('DTM+11', $message);
             $this->assertStringContainsString('DTM+17', $message);
             $this->assertStringContainsString('CTA++', $message);
             $this->assertStringContainsString('COM+', $message);
+            $this->assertStringContainsString('CPS+1', $message);
+            $this->assertStringContainsString('CPS+2:1', $message);
+            $this->assertStringContainsString('PAC+5:PN', $message);
+            $this->assertStringContainsString('GIN+BJ:00343107380000001051', $message);
+            $this->assertStringContainsString('GIN+BJ:12345678900001', $message);
+            $this->assertStringContainsString('CPS+3:1', $message);
+            $this->assertStringContainsString('QTY+12:3', $message);
+            $this->assertStringContainsString('LIN+2++8290123YY:BJ::89', $message);
+            $this->assertStringContainsString('LIN+3++4250659500284:EN::89', $message);
         } catch (EdifactException $e) {
             fwrite(STDOUT, "\n\nDESADV\n" . $e->getMessage());
+            fwrite(STDOUT, "\n\nDESADV\n" . $e->getTraceAsString());
         }
     }
 }

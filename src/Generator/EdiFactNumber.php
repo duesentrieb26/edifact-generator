@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Sascha
@@ -12,8 +13,7 @@ namespace EDI\Generator;
  * Class EdiFactNumber
  * @package EDI\Generator
  */
-class EdiFactNumber
-{
+class EdiFactNumber {
     const DECIMAL_COMMA = ',';
     const DECIMAL_POINT = '.';
 
@@ -23,13 +23,14 @@ class EdiFactNumber
      * @param string $format
      * @return string
      */
-    public static function convert($value, $decimals = 2, $format = self::DECIMAL_COMMA)
-    {
+    public static function convert($value, $decimals = 2, $format = self::DECIMAL_COMMA) {
+        if ($value === null) {
+            return '0,00';
+        }
         if (!is_numeric($value)) {
             $value = floatval(str_replace(',', '.', $value));
         }
 
         return number_format($value, $decimals, $format, '');
     }
-
 }

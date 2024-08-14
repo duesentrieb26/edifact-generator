@@ -70,12 +70,16 @@ class Base {
             if (is_string($value[0])) {
               $this->messageContent[] = $value;
             } else {
+              if (!is_array($value)) {
+                throw new EdifactException("key " . $key . " returns no array structure");
+              }
+
               foreach ($value as $item) {
                 $this->messageContent[] = $item;
               }
             }
           } else {
-            throw new EdifactException("key " . $key . " returns no array structure");
+            throw new EdifactException("key " . $key . " returns null");
           }
         }
       }

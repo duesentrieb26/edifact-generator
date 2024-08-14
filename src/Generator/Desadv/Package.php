@@ -7,7 +7,6 @@ use EDI\Generator\EdiFactNumber;
 
 class Package extends Base {
 
-
   protected $cas;
 
   protected $packageQuantity;
@@ -24,30 +23,82 @@ class Package extends Base {
 
   protected $cps;
 
+  protected $globalCps;
+
+  protected $totalPackages;
+
+  protected $totalWeight;
+
   protected $composeKeys = [
+    'globalCps',
+    'totalPackages',
+    'totalWeight',
     'cps',
+    'packageQuantity',
     'packageWeight',
     'packageHasNVE',
     'packageNumber',
     'packageSignature',
-    'packageQuantity',
-    'items'
   ];
 
 
-  protected $cpsCount = 1;
-
-
-  public function __construct($initialCpsCount) {
-    $this->cps = $this->addCPSSegment($this->cpsCount);
-  }
 
   /**
    * 
-   * @param mixed $quantity 
+   * @param int &$cpsCount Counter for CPS segments
+   * @param int &$cpsMainCounter Counter for main CPS segment
+   * @param int $totalPackages
+   * @return void 
+   */
+  public function __construct(&$cpsMainCounter, &$cpsCounter, $totalPackages = null, $totalWeight = null, $totalWeightUnit = 'KGM') {
+    if (!$cpsMainCounter) {
+      throw new \InvalidArgumentException('CPS main counter is required');
+    }
+
+    if (!$cpsCounter) {
+      throw new \InvalidArgumentException('CPS counter is required');
+    }
+
+    if ($cpsMainCounter === 1) {
+      if (!$totalPackages) {
+        throw new \InvalidArgumentException('Total packages is required on first package');
+      }
+      $this->globalCps = self::addCPSSegment($cpsMainCounter);
+      $this->totalPackages = self::addPACSegment($totalPackages);
+      $this->totalWeight = self::addMEASegment($totalWeight, 'AAE', 'BW', $totalWeightUnit);
+      $cpsMainCounter++;
+    }
+    $this->cps = self::addCPSSegment($cpsCounter, $cpsMainCounter);
+    $cpsMainCounter++;
+  }
+
+  /**
+   * Set Package quantity and unit
+   * @param int $quantity 
+   * @param string $unit [BB, BG, BH, BK, CF, CG, CH, CT, PA, PC, PG, PN, PU, SC, TU]
    * @return self 
    */
-  public function setPackageQuantity($quantity, $unit) {
+  public function setPackageQuantity(int $quantity, string $unit) {
+    $allowedUnits = [
+      'BB',
+      'BG',
+      'BH',
+      'BK',
+      'CF',
+      'CG',
+      'CH',
+      'CT',
+      'PA',
+      'PC',
+      'PG',
+      'PN',
+      'PU',
+      'SC',
+      'TU'
+    ];
+    if (!in_array($unit, $allowedUnits)) {
+      throw new \InvalidArgumentException('Invalid unit ' . $unit . ' for package quantity. Only these are allowed ' . implode(', ', $allowedUnits));
+    }
     $this->packageQuantity = $this->addPACSegment($quantity, $unit);
 
     return $this;
@@ -80,33 +131,19 @@ class Package extends Base {
    * @return $this 
    */
   public function setPackageWeight($weight) {
-    $this->packageWeight = $this->addMEASegment($weight);
+    $this->packageWeight = $this->addMEASegment($weight, 'AAE', 'BW', 'KGM');
 
     return $this;
   }
 
 
-  /**
-   * @param integer $position 
-   * @param string $content EAN nummer oder manufacturer articleNumber
-   * @param string $type EN|MF
-   *
-   * @return self
-   */
-  public function setPosition($position, $content, $type = 'MF') {
-    return [
-      'LIN',
-      $position,
-      '',
-      [
-        $content,
-        $type,
-        '',
-        89
-      ],
-    ];
 
-    return $this;
+  /**
+   * 
+   * @return array 
+   */
+  public function getItems() {
+    return $this->items;
   }
 
   /**
@@ -119,16 +156,20 @@ class Package extends Base {
 
   /**
    * Package number
-   * @param string $number 
+   * @param integer $number 
    * @return (string|array)[] 
    */
-  public static function addCPSSegment($number) {
+  public static function addCPSSegment(int $counter, int $mainCounter = 1) {
+    $array = [
+      $mainCounter,
+    ];
+    if ($mainCounter > 1) {
+      array_push($array, $counter);
+    }
+
     return [
       'CPS',
-      [
-        '1',
-        $number,
-      ],
+      $array
     ];
   }
 
@@ -150,19 +191,68 @@ class Package extends Base {
   }
 
   /**
-   * Weight 
-   * @param float $weight 
-   * @param string $unit  
-   * @param string $type AAI, ABJ, BW, DI, DP, DW, FN, HT, LN, VW, WD
+   * Weight and dimensions
+   * @param float $weight weight with max 3 decimal places and a comma as decimal separator
+   * @param string $dimension [AAE]
+   * @param string $unit [AAI, ABJ, BW, DI, DP, DW, FN, HT, LN, VW, WD]  
+   * @param string $qualifier [CMK, CMQ, CMT, DZN, GRM, HLT, KGM, KTM, LTR, MMT, MTK, MTQ, NRL, MTR, PCE, PR, SET, TNE] 
    * @return (string|string[])[] 
    */
-  public static function addMEASegment($weight, $unit = 'KGM', $type = 'BW') {
+  public static function addMEASegment($weight, $dimension = 'AAE', $unit = 'BW', $qualifier = 'KGM') {
+    $allowedDimensions = [
+      'AAE',
+    ];
+    if (!in_array($dimension, $allowedDimensions)) {
+      throw new \InvalidArgumentException('Invalid dimension ' . $dimension .
+        ' for package weight. Only these are allowed ' . implode(', ', $allowedDimensions));
+    }
+    $allowedUnits = [
+      'AAI',
+      'ABJ',
+      'BW',
+      'DI',
+      'DP',
+      'DW',
+      'FN',
+      'HT',
+      'LN',
+      'VW',
+      'WD',
+    ];
+    if (!in_array($unit, $allowedUnits)) {
+      throw new \InvalidArgumentException('Invalid unit ' . $unit .
+        ' for package weight. Only these are allowed ' . implode(', ', $allowedUnits));
+    }
+    $allowedQualifiers = [
+      'CMK',
+      'CMQ',
+      'CMT',
+      'DZN',
+      'GRM',
+      'HLT',
+      'KGM',
+      'KTM',
+      'LTR',
+      'MMT',
+      'MTK',
+      'MTQ',
+      'NRL',
+      'MTR',
+      'PCE',
+      'PR',
+      'SET',
+      'TNE',
+    ];
+    if (!in_array($qualifier, $allowedQualifiers)) {
+      throw new \InvalidArgumentException('Invalid qualifier ' . $qualifier . ' for package weight. Only these are allowed ' . implode(', ', $allowedQualifiers));
+    }
+
     return [
       'MEA',
       [
-        'AAE', // Dimension
-        $type,
+        $dimension,
         $unit,
+        $qualifier,
         EdiFactNumber::convert($weight),
       ],
     ];

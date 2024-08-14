@@ -13,6 +13,11 @@
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   "forwardPorts": [8080],
+  "containerEnv": {
+    "XDEBUG_CONFIG": "client_host=host.docker.internal discover_client_host=0 start_with_request=yes",
+    "XDEBUG_MODE": "develop,debug",
+    "XDEBUG_SESSION": "PHPSTORM"
+  },
   "features": {
     "ghcr.io/devcontainers-contrib/features/composer:1": {}
   }
