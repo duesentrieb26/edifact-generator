@@ -9,6 +9,7 @@
 
 namespace GeneratorTest;
 
+use DateInterval;
 use EDI\Encoder;
 use EDI\Generator\Desadv;
 use EDI\Generator\Desadv\Package;
@@ -16,6 +17,7 @@ use EDI\Generator\Desadv\PackageItem;
 use EDI\Generator\EdifactException;
 use EDI\Generator\Interchange;
 use Exception;
+use InvalidArgumentException as GlobalInvalidArgumentException;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 use SebastianBergmann\RecursionContext\InvalidArgumentException;
@@ -163,14 +165,14 @@ final class DesadvTest extends TestCase {
                 ->setDeliveryNoteNumber(Desadv::DELIVER_NOTE, 'LS123456789')
                 ->setDeliveryNoteDate($this->getDateTime())
                 ->setDeliveryDate($this->getDateTime())
-                ->setShippingDate($this->getDateTime())
+                ->setShippingDate($this->getDateTime()->add(new DateInterval('P1D')))
                 ->setWholesalerAddress(
-                    'Name 1',
-                    'Name 2',
-                    'Name 3',
-                    'Street',
+                    'Name 1 WS',
+                    'Name 2 WS',
+                    'Name 3 WS',
+                    'Street WS',
                     '99999',
-                    'city',
+                    'city WS',
                     'DE'
                 )
                 ->setContactPerson('John Doe')
@@ -178,12 +180,12 @@ final class DesadvTest extends TestCase {
                 ->setPhoneNumber('+49123456789')
                 ->setFaxNumber('+49123456789-11')
                 ->setDeliveryAddress(
-                    'Name 1',
-                    'Name 2',
-                    'Name 3',
-                    'Street',
+                    'Name 1 DA',
+                    'Name 2 DA',
+                    'Name 3 DA',
+                    'Street DA',
                     '99999',
-                    'city',
+                    'city DA',
                     'DE'
                 );
 
@@ -192,62 +194,60 @@ final class DesadvTest extends TestCase {
 
             $desadv->setTransportData(16789, 30, '31S');
 
-            $mainCpsCounter = 1;
-            $cpsCounter = 1;
-            $totalPackages = 2;
             $pos = 1;
-            $package = new Package($mainCpsCounter, $cpsCounter, $totalPackages, 1426.562);
+            $package = new Package();
             $package
                 ->setPackageQuantity(3, 'CT')
                 ->setPackageNumber('00343107380000001051')
                 ->setPackageWeight(925.328);
 
 
-            $packageItem1 = new PackageItem($mainCpsCounter, $cpsCounter, $totalPackages);
+            $packageItem1 = new PackageItem();
             $packageItem1
                 ->setPackageContent($pos++, '8290123XX', 'BJ', 3);
             $package->addItem($packageItem1);
 
 
-            $packageItem2 = new PackageItem($mainCpsCounter, $cpsCounter, $totalPackages);
+            $packageItem2 = new PackageItem();
             $packageItem2
                 ->setPackageContent($pos++, '8290123YY', 'BJ', 20);
             $package->addItem($packageItem2);
             $desadv->addPackage($package);
 
 
-            $package2 = new Package($mainCpsCounter, $cpsCounter);
+            $package2 = new Package();
             $package2
                 ->setPackageQuantity(5, 'PN')
                 ->setPackageNumber('12345678900001')
                 ->setPackageWeight(501.234);
 
 
-            $packageItem3 = new PackageItem($mainCpsCounter, $cpsCounter, $totalPackages);
+            $packageItem3 = new PackageItem();
             $packageItem3
                 ->setPackageContent($pos++, '4250659500284', 'EN', 5);
             $package2->addItem($packageItem3);
 
-            $packageItem4 = new PackageItem($mainCpsCounter, $cpsCounter, $totalPackages);
+            $packageItem4 = new PackageItem();
             $packageItem4
                 ->setPackageContent($pos++, '4250659500285', 'EN', 5);
             $package2->addItem($packageItem4);
 
 
-            $packageItem5 = new PackageItem($mainCpsCounter, $cpsCounter, $totalPackages);
+            $packageItem5 = new PackageItem();
             $packageItem5
-                ->setPackageContent($pos++, '4250659500286', 'EN', 5);
+                ->setPackageContent($pos++, '4250659500286', 'EN', 5)
+                ->setDeliveryNoteNumber('123444', 10, $this->getDateTime()->add(new DateInterval('P10D')));
             $package2->addItem($packageItem5);
 
 
-            $package3 = new Package($mainCpsCounter, $cpsCounter);
+            $package3 = new Package();
             $package3
                 ->setPackageQuantity(5, 'PN')
                 ->setPackageNumber('12345678900002')
                 ->setPackageWeight(501.234);
 
 
-            $packageItem6 = new PackageItem($mainCpsCounter, $cpsCounter, $totalPackages);
+            $packageItem6 = new PackageItem();
             $packageItem6
                 ->setPackageContent($pos++, '4250659500287', 'EN', 5);
 
@@ -272,15 +272,46 @@ final class DesadvTest extends TestCase {
             $this->assertStringContainsString('CPS+1', $message);
             $this->assertStringContainsString('CPS+2:1', $message);
             $this->assertStringContainsString('PAC+5:PN', $message);
+            $this->assertStringContainsString('MEA+AAE:BW:KGM:1426,56', $message);
             $this->assertStringContainsString('GIN+BJ:00343107380000001051', $message);
             $this->assertStringContainsString('GIN+BJ:12345678900001', $message);
             $this->assertStringContainsString('CPS+3:1', $message);
+            $this->assertStringContainsString('CPS+7:3', $message);
+            $this->assertStringContainsString('CPS+8:3', $message);
             $this->assertStringContainsString('QTY+12:3', $message);
+            $this->assertStringContainsString("RFF+AAJ:123444'\nRFF+LI:10'\nDTM+2:20180202:102", $message);
             $this->assertStringContainsString('LIN+2++8290123YY:BJ::89', $message);
             $this->assertStringContainsString('LIN+3++4250659500284:EN::89', $message);
         } catch (EdifactException $e) {
             fwrite(STDOUT, "\n\nDESADV\n" . $e->getMessage());
             fwrite(STDOUT, "\n\nDESADV\n" . $e->getTraceAsString());
         }
+    }
+
+
+
+    /**
+     * 
+     * @return void 
+     * @throws GlobalInvalidArgumentException 
+     */
+    public function testAllowedUnitsOnMEASegment() {
+        $this->expectExceptionMessage('Invalid unit BMW for package weight. Only these are allowed AAI, ABJ, BW, DI, DP, DW, FN, HT, LN, VW, WD');
+        $data = Package::addMEASegment(1426.56, 'AAE', 'BMW', 'KGM');
+    }
+
+    /**
+     * 
+     * @return void 
+     * @throws GlobalInvalidArgumentException 
+     */
+    public function testAllowedDimensionsOnMEASegment() {
+        $this->expectExceptionMessage('Invalid dimension AAF for package weight. Only these are allowed AAE');
+        $data = Package::addMEASegment(1426.56, 'AAF', 'BW', 'KGM');
+    }
+
+    public function testAllowedQualifiersOnMEASegment() {
+        $this->expectExceptionMessage('Invalid qualifier KMG for package weight. Only these are allowed CMK, CMQ, CMT, DZN, GRM, HLT, KGM, KTM, LTR, MMT, MTK, MTQ, NRL, MTR, PCE, PR, SET, TNE');
+        $data = Package::addMEASegment(1426.56, 'AAE', 'BW', 'KMG');
     }
 }

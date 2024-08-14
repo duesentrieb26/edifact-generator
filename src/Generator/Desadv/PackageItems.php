@@ -4,7 +4,8 @@ namespace EDI\Generator\Desadv;
 
 
 use EDI\Generator\Base;
-
+use EDI\Generator\EdifactDate;
+use EDI\Generator\EdifactException;
 
 /**
  * Class Item
@@ -22,32 +23,24 @@ class PackageItem extends Base {
 
   protected $cpsCounter;
 
+  protected $weight;
+
+  protected $deliveryNoteNumber;
 
   protected $composeKeys = [
     'cps',
     'quantity',
     'content',
+    'deliveryNoteNumber'
   ];
 
 
 
   /**
    * 
-   * @param int &$cpsCounter 
-   * @param int &$cpsMainCounter  
    * @return void 
    */
-  public function __construct(&$cpsMainCounter, &$cpsCounter, $totalPackages) {
-    // if (!$cpsMainCounter) {
-    //   throw new \InvalidArgumentException('CPS main counter is required');
-    // }
-
-    // if (!$cpsCounter) {
-    //   throw new \InvalidArgumentException('CPS counter is required');
-    // }
-
-    // $this->cps = Package::addCPSSegment($cpsCounter, $cpsMainCounter);
-    // $cpsCounter++;
+  public function __construct() {
   }
 
 
@@ -115,5 +108,36 @@ class PackageItem extends Base {
         $quantity,
       ],
     ];
+  }
+
+
+  /**
+   * 
+   * @param mixed $deliveryNoteNumber 
+   * @param mixed $deliveryDate 
+   * @return $this 
+   * @throws EdifactException 
+   */
+  public function setDeliveryNoteNumber($deliveryNoteNumber, $positon = null, $deliveryDate = null) {
+    $data[] = $this->addRFFSegment('AAJ', $deliveryNoteNumber);
+
+
+    if ($positon) {
+      $data[] = $this->addRFFSegment('LI', $positon);
+    }
+
+    if ($deliveryDate) {
+      array_push(
+        $data,
+        $this->addDTMSegment(
+          $deliveryDate,
+          EdifactDate::TYPE_DELIVERY_DATE_REQUESTED,
+          EdifactDate::DATE
+        )
+      );
+    }
+    $this->deliveryNoteNumber = $data;
+
+    return $this;
   }
 }

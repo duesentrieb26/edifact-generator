@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Sascha
@@ -12,7 +13,5 @@ namespace EDI\Generator;
  * Class EdifactException
  * @package EDI\Generator
  */
-class EdifactException extends \Exception
-{
-
+class EdifactException extends \Exception {
 }

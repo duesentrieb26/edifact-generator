@@ -8,6 +8,12 @@ See [SAMPLES.md](SAMPLES.md) for code examples using this library.
 
 
 
+start vscode in a dev container
+to run  the tests
+```bash
+composer test
+```
+
 
 Generator for ediFACT messages
 =

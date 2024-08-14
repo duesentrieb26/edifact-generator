@@ -7,8 +7,7 @@ namespace EDI\Generator;
  *
  * @package EDI\Generator
  */
-class Interchange
-{
+class Interchange {
   /**
    * Interchange header parameters
    */
@@ -54,8 +53,7 @@ class Interchange
    * @param null   $time
    * @param null   $interchangeCode
    */
-  public function __construct($sender, $receiver, $date = null, $time = null, $interchangeCode = null)
-  {
+  public function __construct($sender, $receiver, $date = null, $time = null, $interchangeCode = null) {
     $this->messages = [];
 
     if ($interchangeCode === null) {
@@ -83,8 +81,7 @@ class Interchange
    *
    * @return $this
    */
-  public function setCharset($charset)
-  {
+  public function setCharset($charset) {
     $this->charset = $charset;
     return $this;
   }
@@ -94,8 +91,7 @@ class Interchange
    *
    * @return Interchange
    */
-  public function setCharsetVersion($charsetVersion)
-  {
+  public function setCharsetVersion($charsetVersion) {
     $this->charsetVersion = $charsetVersion;
     return $this;
   }
@@ -108,8 +104,7 @@ class Interchange
    *
    * @return Interchange
    */
-  public function addMessage($msg)
-  {
+  public function addMessage($msg) {
     $this->messages[] = $msg;
 
     return $this;
@@ -120,8 +115,7 @@ class Interchange
    *
    * @return Interchange
    */
-  public function compose()
-  {
+  public function compose() {
     $temp = [];
     $sender = $this->sender;
     $receiver = $this->receiver;
@@ -173,8 +167,7 @@ class Interchange
    *
    * @return array
    */
-  public function getComposed()
-  {
+  public function getComposed() {
     if ($this->composed === null) {
       $this->compose();
     }
@@ -184,8 +177,7 @@ class Interchange
   /**
    * @return string
    */
-  public function getSenderQualifier()
-  {
+  public function getSenderQualifier() {
     return $this->senderQualifier;
   }
 
@@ -194,8 +186,7 @@ class Interchange
    *
    * @return Interchange
    */
-  public function setSenderQualifier($senderQualifier)
-  {
+  public function setSenderQualifier($senderQualifier) {
     $this->senderQualifier = $senderQualifier;
     return $this;
   }
@@ -203,8 +194,7 @@ class Interchange
   /**
    * @return string
    */
-  public function getReceiverQualifier()
-  {
+  public function getReceiverQualifier() {
     return $this->receiverQualifier;
   }
 
@@ -213,11 +203,8 @@ class Interchange
    *
    * @return Interchange
    */
-  public function setReceiverQualifier($receiverQualifier)
-  {
+  public function setReceiverQualifier($receiverQualifier) {
     $this->receiverQualifier = $receiverQualifier;
     return $this;
   }
-
-
 }

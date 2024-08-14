@@ -1,8 +1,8 @@
 <?php
+
 namespace EDI\Generator;
 
-class Coprar extends Message
-{
+class Coprar extends Message {
     private $vessel;
     private $port;
     private $messageCA;
@@ -11,8 +11,7 @@ class Coprar extends Message
 
     private $containers;
 
-    public function __construct($messageID = null, $identifier = 'COPRAR', $version = 'D', $release = '95B', $controllingAgency = 'UN', $association = 'SMDG16')
-    {
+    public function __construct($messageID = null, $identifier = 'COPRAR', $version = 'D', $release = '95B', $controllingAgency = 'UN', $association = 'SMDG16') {
         parent::__construct($identifier, $version, $release, $controllingAgency, $messageID, $association);
 
         $this->containers = [];
@@ -21,8 +20,7 @@ class Coprar extends Message
     /*
      * $line: Master Liner Codes List
      */
-    public function setCarrier($line)
-    {
+    public function setCarrier($line) {
         $this->messageCA = ['NAD', 'CA', [$line, 160, 20]];
         return $this;
     }
@@ -31,8 +29,7 @@ class Coprar extends Message
      * Vessel call information
      *
      */
-    public function setVessel($extVoyage, $line, $vslName, $callsign)
-    {
+    public function setVessel($extVoyage, $line, $vslName, $callsign) {
         $this->vessel = self::tdtSegment(20, $extVoyage, 1, '', [$line, 172, 20], '', '', [$callsign, 103, '', $vslName]);
         $this->callsign = self::rffSegment('VM', $callsign);
         return $this;
@@ -41,8 +38,7 @@ class Coprar extends Message
     /*
      * $type = 9 (port of loading), 11 (port of discharge)
      */
-    public function setPort($type, $locode, $terminal = null)
-    {
+    public function setPort($type, $locode, $terminal = null) {
         if ($terminal === null) {
             $this->port = self::locSegment($type, [$locode, 139, 6]);
         } else {
@@ -55,8 +51,7 @@ class Coprar extends Message
      * Estimated Time of Arrival
      *
      */
-    public function setEta($dtm)
-    {
+    public function setEta($dtm) {
         $this->eta = self::dtmSegment(132, $dtm);
         return $this;
     }
@@ -65,14 +60,12 @@ class Coprar extends Message
      * Estimated Time of Departure
      *
      */
-    public function setEtd($dtm)
-    {
+    public function setEtd($dtm) {
         $this->etd = self::dtmSegment(133, $dtm);
         return $this;
     }
 
-    public function addContainer(Coprar\Container $container)
-    {
+    public function addContainer(Coprar\Container $container) {
         $this->containers[] = $container;
         return $this;
     }
@@ -81,8 +74,7 @@ class Coprar extends Message
      * $documentCode = 43 (discharge), 45 (loading)
      * $msgStatus = 9 (original), 5 (replacement)
      */
-    public function compose($msgStatus = 9, $documentCode = 45)
-    {
+    public function compose($msgStatus = 9, $documentCode = 45) {
         $this->messageContent = [
             ['BGM', $documentCode, $this->messageID, $msgStatus],
             self::rffSegment('XXX', 1)

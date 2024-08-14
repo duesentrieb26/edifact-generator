@@ -7,8 +7,7 @@ namespace EDI\Generator;
  *
  * @package EDI\Generator
  */
-class Message extends Base
-{
+class Message extends Base {
   /** @var string */
   protected $messageID;
   /** @var array string */
@@ -24,8 +23,13 @@ class Message extends Base
    * @param null $messageID
    * @param null $association
    */
-  public function __construct($identifier, $version, $release = null, $controllingAgency = null,
-    $messageID = null, $association = null
+  public function __construct(
+    $identifier,
+    $version,
+    $release = null,
+    $controllingAgency = null,
+    $messageID = null,
+    $association = null
   ) {
     $this->messageType = [
       $identifier,
@@ -57,8 +61,7 @@ class Message extends Base
    * @return $this
    * @throws EdifactException
    */
-  public function compose($msgStatus = null)
-  {
+  public function compose($msgStatus = null) {
     $temp = [];
     $temp[] = [
       'UNH',
@@ -73,7 +76,7 @@ class Message extends Base
       $temp[] = $i;
     }
 
-//    fwrite(STDOUT, var_export($this->messageContent));
+    //    fwrite(STDOUT, var_export($this->messageContent));
 
     $temp[] = [
       'UNT',
@@ -91,8 +94,7 @@ class Message extends Base
    * $type = 7 (actual date time), 132 (estimated date time), 137 (message date time), 798 (weight date time)
    * $format = 203 (CCYYMMDDHHII)
    */
-  public static function dtmSegment($type, $dtmString, $format = 203)
-  {
+  public static function dtmSegment($type, $dtmString, $format = 203) {
     return [
       'DTM',
       [
@@ -108,8 +110,7 @@ class Message extends Base
    * $functionCode = DE 1153
    * $identifier = max 35 alphanumeric chars
    */
-  public static function rffSegment($functionCode, $identifier)
-  {
+  public static function rffSegment($functionCode, $identifier) {
     return [
       'RFF',
       [
@@ -125,8 +126,7 @@ class Message extends Base
    * $firstLoc = preferred [locode, 139, 6]
    * $secondaryLoc = preferred [locode, 139, 6] (if needed)
    */
-  public static function locSegment($qualifier, $firstLoc, $secondaryLoc = null)
-  {
+  public static function locSegment($qualifier, $firstLoc, $secondaryLoc = null) {
     $loc = [
       'LOC',
       $qualifier,
@@ -147,7 +147,12 @@ class Message extends Base
    * $statusCode = DE 8249
    * $fullEmptyIndicatorCode = DE 8169
    */
-  public static function eqdSegment($eqpType, $eqpIdentification, $dimension, $supplier = null, $statusCode = null,
+  public static function eqdSegment(
+    $eqpType,
+    $eqpIdentification,
+    $dimension,
+    $supplier = null,
+    $statusCode = null,
     $fullEmptyIndicatorCode = null
   ) {
     $eqd = [
@@ -179,8 +184,15 @@ class Message extends Base
    * $$excessTransportation = DE 8457 (not used)
    * $transportationIdentification
    */
-  public static function tdtSegment($stageQualifier, $journeyIdentifier, $modeOfTransport, $transportMeans, $carrier,
-    $transitDirection, $excessTransportation, $transportationIdentification
+  public static function tdtSegment(
+    $stageQualifier,
+    $journeyIdentifier,
+    $modeOfTransport,
+    $transportMeans,
+    $carrier,
+    $transitDirection,
+    $excessTransportation,
+    $transportationIdentification
   ) {
     return [
       'TDT',
@@ -203,8 +215,7 @@ class Message extends Base
    *
    * @return array
    */
-  public static function tdtShortSegment($stageQualifier, $journeyIdentifier, $modeOfTransport, $transportMeans)
-  {
+  public static function tdtShortSegment($stageQualifier, $journeyIdentifier, $modeOfTransport, $transportMeans) {
     return [
       'TDT',
       $stageQualifier,
@@ -221,8 +232,7 @@ class Message extends Base
    *
    * @return array
    */
-  public static function addFTXSegment($text, $qualifier, $reference = '')
-  {
+  public static function addFTXSegment($text, $qualifier, $reference = '') {
     $textLines = str_split($text, 70);
     if (count($textLines) > 5) {
       $textLines = array_slice($textLines, 0, 5);
@@ -239,5 +249,4 @@ class Message extends Base
       $textLines,
     ];
   }
-
 }

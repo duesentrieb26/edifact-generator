@@ -1,6 +1,7 @@
 <?php
 
 namespace EDI\Generator\Traits;
+
 use EDI\Generator\EdiFactNumber;
 
 
@@ -18,8 +19,7 @@ trait ItemPrice {
      * @param string $priceBaseUnit
      * @return array
      */
-    public static function addPRISegment($qualifier, $value, $priceBase = 1, $priceBaseUnit = 'PCE')
-    {
+    public static function addPRISegment($qualifier, $value, $priceBase = 1, $priceBaseUnit = 'PCE') {
         return [
             'PRI',
             [
@@ -36,8 +36,7 @@ trait ItemPrice {
     /**
      * @return array
      */
-    public function getGrossPrice()
-    {
+    public function getGrossPrice() {
         return $this->grossPrice;
     }
 
@@ -45,8 +44,7 @@ trait ItemPrice {
      * @param string $grossPrice
      * @return Item
      */
-    public function setGrossPrice($grossPrice)
-    {
+    public function setGrossPrice($grossPrice) {
         $this->grossPrice = self::addPRISegment('GRP', $grossPrice);
         $this->addKeyToCompose('grossPrice');
         return $this;
@@ -55,8 +53,7 @@ trait ItemPrice {
     /**
      * @return array
      */
-    public function getNetPrice()
-    {
+    public function getNetPrice() {
         return $this->netPrice;
     }
 
@@ -64,8 +61,7 @@ trait ItemPrice {
      * @param string $netPrice
      * @return Item
      */
-    public function setNetPrice($netPrice)
-    {
+    public function setNetPrice($netPrice) {
         $this->netPrice = self::addPRISegment('NTP', $netPrice);
         $this->addKeyToCompose('netPrice');
         return $this;

@@ -1,8 +1,8 @@
 <?php
+
 namespace EDI\Generator;
 
-class Copino extends Message
-{
+class Copino extends Message {
     private $sender;
     private $receiver;
     private $transporter;
@@ -13,16 +13,14 @@ class Copino extends Message
     private $cntr;
     private $measures;
 
-    public function __construct($messageID = null, $identifier = 'COPINO', $version = 'D', $release = '95B', $controllingAgency = 'UN', $association = 'ITG13')
-    {
+    public function __construct($messageID = null, $identifier = 'COPINO', $version = 'D', $release = '95B', $controllingAgency = 'UN', $association = 'ITG13') {
         parent::__construct($identifier, $version, $release, $controllingAgency, $messageID, $association);
 
         $this->cntr = [];
         $this->measures = [];
     }
 
-    public function setSenderAndReceiver($sender, $receiver)
-    {
+    public function setSenderAndReceiver($sender, $receiver) {
         $this->sender = ['NAD', 'MS', $sender];
         $this->receiver = ['NAD', 'MR', $receiver];
         return $this;
@@ -31,8 +29,7 @@ class Copino extends Message
     /*
      * trucker
      */
-    public function setTransporter($transRef, $modeOfTransport, $meansOfTransport, $carrierName, $plate, $driver)
-    {
+    public function setTransporter($transRef, $modeOfTransport, $meansOfTransport, $carrierName, $plate, $driver) {
         $this->transporter = self::tdtSegment(1, $transRef, $modeOfTransport, $meansOfTransport, $carrierName, '', '', [$plate, 146, '', $driver]);
         return $this;
     }
@@ -41,17 +38,15 @@ class Copino extends Message
      * vessel
      */
 
-    public function setVessel($carrierName, $callsign, $vesselName)
-    {
-        $this->vessel=self::tdtSegment(20, '', 1, 13, $carrierName, '', '', [$callsign, 103, '', $vesselName]);
+    public function setVessel($carrierName, $callsign, $vesselName) {
+        $this->vessel = self::tdtSegment(20, '', 1, 13, $carrierName, '', '', [$callsign, 103, '', $vesselName]);
         return $this;
     }
 
     /*
      *$type = 7 (actual date time), 132 (estimated date time)
      */
-    public function setDTM($dtm)
-    {
+    public function setDTM($dtm) {
         $this->dtm = self::dtmSegment(132, $dtm);
         return $this;
     }
@@ -60,13 +55,12 @@ class Copino extends Message
      * $size = 22G1, 42G1, ecc
      * 2 = export, 5 = full
      */
-    public function setContainer($number, $size, $booking, $sequence)
-    {
+    public function setContainer($number, $size, $booking, $sequence) {
         $cntr = [];
         $cntr[] = ['SGP', $number];
         $cntr[] = self::eqdSegment('CN', $number, [$size, '102', '5'], '', 2, 5);
-        $cntr[]= self::rffSegment('BN', $booking);
-        $cntr[]= self::rffSegment('SQ', $sequence);
+        $cntr[] = self::rffSegment('BN', $booking);
+        $cntr[] = self::rffSegment('SQ', $sequence);
         $this->cntr = $cntr;
         return $this;
     }
@@ -76,8 +70,7 @@ class Copino extends Message
      * $weight = free text
      * $unit = KGM or LBS
      */
-    public function setMeasures($weightMode, $weight, $unit = 'KGM')
-    {
+    public function setMeasures($weightMode, $weight, $unit = 'KGM') {
         $this->measures = ['MEA', 'AAE', $weightMode, [$unit, $weight]];
         return $this;
     }
@@ -85,8 +78,7 @@ class Copino extends Message
     /*
      * $type = 88 (place of receipt)
      */
-    public function setPort($locode, $terminal)
-    {
+    public function setPort($locode, $terminal) {
         $this->port = self::locSegment(88, [$locode, 139, 6], [$terminal, 72, 306]);
         return $this;
     }
@@ -94,8 +86,7 @@ class Copino extends Message
     /*
      * $type = 7 (place of delivery)
      */
-    public function setDestination($locode)
-    {
+    public function setDestination($locode) {
         $this->destination = self::locSegment(7, [$locode, 139, 6]);
         return $this;
     }
@@ -103,8 +94,7 @@ class Copino extends Message
     /*
      * $documentCode = 660 (delivery) / 661 (pickup)
      */
-    public function compose($msgStatus = 9, $documentCode = 661)
-    {
+    public function compose($msgStatus = 9, $documentCode = 661) {
         $this->messageContent = [
             ['BGM', $documentCode, $this->messageID, $msgStatus],
             self::rffSegment('XXX', 1)

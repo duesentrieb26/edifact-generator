@@ -1,16 +1,15 @@
 <?php
+
 namespace EDI\Generator;
 
-class Codeco extends Message
-{
+class Codeco extends Message {
     private $sender;
     private $receiver;
     private $messageCF;
 
     private $containers;
 
-    public function __construct($messageID = null, $identifier = 'CODECO', $version = 'D', $release = '95B', $controllingAgency = 'UN', $association = null)
-    {
+    public function __construct($messageID = null, $identifier = 'CODECO', $version = 'D', $release = '95B', $controllingAgency = 'UN', $association = null) {
         parent::__construct($identifier, $version, $release, $controllingAgency, $messageID, $association);
 
         $this->containers = [];
@@ -19,8 +18,7 @@ class Codeco extends Message
     /*
      *
      */
-    public function setSenderAndReceiver($sender, $receiver)
-    {
+    public function setSenderAndReceiver($sender, $receiver) {
         $this->sender = ['NAD', 'MS', $sender];
         $this->receiver = ['NAD', 'MR', $receiver];
         return $this;
@@ -29,14 +27,12 @@ class Codeco extends Message
     /*
      * $line: Master Liner Codes List
      */
-    public function setCarrier($line)
-    {
+    public function setCarrier($line) {
         $this->messageCF = ['NAD', 'CF', [$line, 160, 166]];
         return $this;
     }
 
-    public function addContainer(Codeco\Container $container)
-    {
+    public function addContainer(Codeco\Container $container) {
         $this->containers[] = $container;
         return $this;
     }
@@ -44,8 +40,7 @@ class Codeco extends Message
     /*
      * $documentCode = 34 (gate in), 36 (gate out)
      */
-    public function compose($msgStatus = 5, $documentCode = 34)
-    {
+    public function compose($msgStatus = 5, $documentCode = 34) {
         $this->messageContent = [
             ['BGM', $documentCode, $this->messageID, $msgStatus]
         ];

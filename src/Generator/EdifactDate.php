@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Sascha
@@ -13,8 +14,7 @@ namespace EDI\Generator;
  *
  * @package EDI\Generator
  */
-class EdifactDate
-{
+class EdifactDate {
   const DATE = 102;
   const DATE_FORMAT = 'Ymd';
 
@@ -43,8 +43,7 @@ class EdifactDate
    * @return string
    * @throws EdifactException
    */
-  public static function get($string, $format = self::DATE)
-  {
+  public static function get($string, $format = self::DATE) {
     if (empty($string)) {
       return "";
     }
@@ -82,8 +81,7 @@ class EdifactDate
    *
    * @return bool|\DateTime
    */
-  public static function parseFormat($string, $format = self::DATE)
-  {
+  public static function parseFormat($string, $format = self::DATE) {
     if ($string instanceof \DateTime) {
       return $string;
     }
@@ -106,5 +104,4 @@ class EdifactDate
 
     return \DateTime::createFromFormat($parseFormat, $string);
   }
-
 }

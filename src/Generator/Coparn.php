@@ -1,8 +1,8 @@
 <?php
+
 namespace EDI\Generator;
 
-class Coparn extends Message
-{
+class Coparn extends Message {
     private $dtmSend;
     private $messageSender;
     private $messageReceiver;
@@ -25,8 +25,7 @@ class Coparn extends Message
     private $temperature;
     private $dimensions;
 
-    public function __construct($messageID = null, $identifier = 'COPARN', $version = 'D', $release = '00B', $controllingAgency = 'UN', $association = 'SMDG20')
-    {
+    public function __construct($messageID = null, $identifier = 'COPARN', $version = 'D', $release = '00B', $controllingAgency = 'UN', $association = 'SMDG20') {
         parent::__construct($identifier, $version, $release, $controllingAgency, $messageID, $association);
 
         $this->dtmSend = self::dtmSegment(137, date('YmdHi'));
@@ -37,8 +36,7 @@ class Coparn extends Message
     /*
      * $line: Master Liner Codes List
      */
-    public function setCarrier($line)
-    {
+    public function setCarrier($line) {
         $this->messageSender = ['NAD', 'MS', [$line, 160, 'ZZZ']];
         $this->messageCF = ['NAD', 'CF', [$line, 160, 166]];
         return $this;
@@ -48,8 +46,7 @@ class Coparn extends Message
      * Date of the message submission
      *
      */
-    public function setDTMMessageSendingTime($dtm)
-    {
+    public function setDTMMessageSendingTime($dtm) {
         $this->dtmSend = self::dtmSegment(137, $dtm);
         return $this;
     }
@@ -58,8 +55,7 @@ class Coparn extends Message
      * Date of the message submission
      *
      */
-    public function setBooking($booking, $sequence)
-    {
+    public function setBooking($booking, $sequence) {
         $this->booking = self::rffSegment('BN', $booking);
         $this->bookingSequence = self::rffSegment('SQ', $sequence);
         return $this;
@@ -69,8 +65,7 @@ class Coparn extends Message
      * Date of the message submission
      *
      */
-    public function setRFFOrder($atx)
-    {
+    public function setRFFOrder($atx) {
         $this->rffAcceptOrder = self::rffSegment('ATX', $atx);
         return $this;
     }
@@ -79,8 +74,7 @@ class Coparn extends Message
      * Vessel call information
      *
      */
-    public function setVessel($extVoyage, $line, $vslName, $callsign)
-    {
+    public function setVessel($extVoyage, $line, $vslName, $callsign) {
         $this->vessel = self::tdtSegment(20, $extVoyage, '', '', [$line, 172, 20], '', '', [$callsign, 146, 11, $vslName]);
         $this->callsign = self::rffSegment('VM', $callsign);
         return $this;
@@ -90,8 +84,7 @@ class Coparn extends Message
      * Estimated Time of Arrival
      *
      */
-    public function setETA($dtm)
-    {
+    public function setETA($dtm) {
         $this->eta = self::dtmSegment(132, $dtm);
         return $this;
     }
@@ -100,8 +93,7 @@ class Coparn extends Message
      * Estimated Time of Departure
      *
      */
-    public function setETD($dtm)
-    {
+    public function setETD($dtm) {
         $this->etd = self::dtmSegment(133, $dtm);
         return $this;
     }
@@ -110,8 +102,7 @@ class Coparn extends Message
      * Port of Loading
      *
      */
-    public function setPOL($loc)
-    {
+    public function setPOL($loc) {
         $this->pol = self::locSegment(9, [$loc, 139, 6]);
         return $this;
     }
@@ -120,8 +111,7 @@ class Coparn extends Message
      * Port of Discharge
      *
      */
-    public function setPOD($loc)
-    {
+    public function setPOD($loc) {
         $this->pod = self::locSegment(11, [$loc, 139, 6]);
         return $this;
     }
@@ -130,8 +120,7 @@ class Coparn extends Message
      * Final destination
      *
      */
-    public function setFND($loc)
-    {
+    public function setFND($loc) {
         $this->fnd = self::locSegment(7, [$loc, 139, 6]);
         return $this;
     }
@@ -139,8 +128,7 @@ class Coparn extends Message
     /*
      * $size = 22G1, 42G1, etc
      */
-    public function setContainer($number, $size)
-    {
+    public function setContainer($number, $size) {
         $this->cntr = self::eqdSegment('CN', $number, [$size, '102', '5'], '', 2, 5);
         return $this;
     }
@@ -149,8 +137,7 @@ class Coparn extends Message
      * How many containers need to be released
      *
      */
-    public function setEquipmentQuantity($total)
-    {
+    public function setEquipmentQuantity($total) {
         $this->cntrAmount = ['EQN', $total];
         return $this;
     }
@@ -159,8 +146,7 @@ class Coparn extends Message
      * VGM information
      *
      */
-    public function setVGM($weight, $weightTime)
-    {
+    public function setVGM($weight, $weightTime) {
         $this->weight = ['MEA', 'AAE', 'VGM', ['KGM', $weight]];
         $this->weightTime = self::dtmSegment(798, $weightTime);
         return $this;
@@ -170,8 +156,7 @@ class Coparn extends Message
      * Weight information
      *
      */
-    public function setGrossWeight($weight)
-    {
+    public function setGrossWeight($weight) {
         $this->weight = ['MEA', 'AAE', 'G', ['KGM', $weight]];
         return $this;
     }
@@ -180,8 +165,7 @@ class Coparn extends Message
      * Cargo category
      *
      */
-    public function setCargoCategory($text)
-    {
+    public function setCargoCategory($text) {
         $this->cargo = ['FTX', 'AAA', '', '', $text];
         return $this;
     }
@@ -189,14 +173,12 @@ class Coparn extends Message
     /*
      * DEPRECATED
      */
-    public function setDangerous($hazardClass, $hazardCode)
-    {
+    public function setDangerous($hazardClass, $hazardCode) {
         $this->addDangerous($hazardClass, $hazardCode);
         return $this;
     }
 
-    public function addDangerous($hazardClass, $hazardCode, $flashpoint = null, $packingGroup = null)
-    {
+    public function addDangerous($hazardClass, $hazardCode, $flashpoint = null, $packingGroup = null) {
         if ($this->dangerous === null) {
             $this->dangerous = [];
         }
@@ -208,19 +190,17 @@ class Coparn extends Message
                 $dgs[] = [$packingGroup, 'CEL'];
             }
         }
-        
+
         $this->dangerous[] = $dgs;
         return $this;
     }
 
-    public function setTemperature($setDegrees)
-    {
+    public function setTemperature($setDegrees) {
         $this->temperature = ['TMP', '2', [$setDegrees, 'CEL']];
         return $this;
     }
 
-    public function setOverDimensions($front = '', $back = '', $right = '', $left = '', $height = '')
-    {
+    public function setOverDimensions($front = '', $back = '', $right = '', $left = '', $height = '') {
         $this->dim = [];
         if ($front !== '') {
             $this->dimensions[] = ['DIM', '5', ['CMT', $front]];
@@ -240,8 +220,7 @@ class Coparn extends Message
         return $this;
     }
 
-    public function compose($msgStatus = 5, $documentCode = 126)
-    {
+    public function compose($msgStatus = 5, $documentCode = 126) {
         $this->messageContent = [
             ['BGM', $documentCode, $this->messageID, $msgStatus, 'AB']
         ];

@@ -45,35 +45,14 @@ class Package extends Base {
 
   /**
    * 
-   * @param int &$cpsCount Counter for CPS segments
-   * @param int &$cpsMainCounter Counter for main CPS segment
-   * @param int $totalPackages
    * @return void 
    */
-  public function __construct(&$cpsMainCounter, &$cpsCounter, $totalPackages = null, $totalWeight = null, $totalWeightUnit = 'KGM') {
-    if (!$cpsMainCounter) {
-      throw new \InvalidArgumentException('CPS main counter is required');
-    }
-
-    if (!$cpsCounter) {
-      throw new \InvalidArgumentException('CPS counter is required');
-    }
-
-    if ($cpsMainCounter === 1) {
-      if (!$totalPackages) {
-        throw new \InvalidArgumentException('Total packages is required on first package');
-      }
-      $this->globalCps = self::addCPSSegment($cpsMainCounter);
-      $this->totalPackages = self::addPACSegment($totalPackages);
-      $this->totalWeight = self::addMEASegment($totalWeight, 'AAE', 'BW', $totalWeightUnit);
-      $cpsMainCounter++;
-    }
-    $this->cps = self::addCPSSegment($cpsCounter, $cpsMainCounter);
-    $cpsMainCounter++;
+  public function __construct() {
   }
 
   /**
    * Set Package quantity and unit
+   * 
    * @param int $quantity 
    * @param string $unit [BB, BG, BH, BK, CF, CG, CH, CT, PA, PC, PG, PN, PU, SC, TU]
    * @return self 
@@ -136,11 +115,19 @@ class Package extends Base {
     return $this;
   }
 
+  /**
+   * 
+   * @return (string|string[])[] 
+   */
+  public function getPackageWeight() {
+    return $this->packageWeight;
+  }
+
 
 
   /**
    * 
-   * @return array 
+   * @return PackageItem[]
    */
   public function getItems() {
     return $this->items;

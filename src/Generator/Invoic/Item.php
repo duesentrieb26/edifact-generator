@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Sascha
@@ -20,8 +21,7 @@ use EDI\Generator\Message;
  *
  * @package EDI\Generator\Invoic
  */
-class Item extends Base
-{
+class Item extends Base {
   const DISCOUNT_TYPE_PERCENT = 'percent';
   const DISCOUNT_TYPE_ABSOLUTE = 'absolute';
 
@@ -49,8 +49,7 @@ class Item extends Base
   /**
    * @return array
    */
-  public function getInvoiceDescription()
-  {
+  public function getInvoiceDescription() {
     return $this->invoiceDescription;
   }
 
@@ -59,8 +58,7 @@ class Item extends Base
    *
    * @return Item
    */
-  public function setInvoiceDescription($invoiceDescription)
-  {
+  public function setInvoiceDescription($invoiceDescription) {
     $this->invoiceDescription = Message::addFTXSegment($invoiceDescription, 'INV');
     return $this;
   }
@@ -74,8 +72,7 @@ class Item extends Base
    *
    * @return array
    */
-  public static function addPRISegment($qualifier, $value, $priceBase = 1, $priceBaseUnit = 'PCE')
-  {
+  public static function addPRISegment($qualifier, $value, $priceBase = 1, $priceBaseUnit = 'PCE') {
     return [
       'PRI',
       [
@@ -92,8 +89,7 @@ class Item extends Base
   /**
    * @return array
    */
-  public function getGrossPrice()
-  {
+  public function getGrossPrice() {
     return $this->grossPrice;
   }
 
@@ -102,8 +98,7 @@ class Item extends Base
    *
    * @return Item
    */
-  public function setGrossPrice($grossPrice)
-  {
+  public function setGrossPrice($grossPrice) {
     $this->grossPrice = self::addPRISegment('GRP', $grossPrice);
     return $this;
   }
@@ -111,8 +106,7 @@ class Item extends Base
   /**
    * @return array
    */
-  public function getNetPrice()
-  {
+  public function getNetPrice() {
     return $this->netPrice;
   }
 
@@ -121,8 +115,7 @@ class Item extends Base
    *
    * @return Item
    */
-  public function setNetPrice($netPrice)
-  {
+  public function setNetPrice($netPrice) {
     $this->netPrice = self::addPRISegment('NTP', $netPrice);
 
     return $this;
@@ -153,7 +146,8 @@ class Item extends Base
     }
 
     array_push(
-      $this->discount, [
+      $this->discount,
+      [
         'ALC',
         floatval($value) > 0 ? 'C' : 'A',
         '',
@@ -169,7 +163,8 @@ class Item extends Base
     );
 
     array_push(
-      $this->discount, [
+      $this->discount,
+      [
         'PCD',
         [
           '3',
@@ -198,11 +193,10 @@ class Item extends Base
    * @return $this
    * @throws EdifactException
    */
-  public function addDiscountFactor($valueAfterDiscount, $valueBeforeDiscount)
-  {
+  public function addDiscountFactor($valueAfterDiscount, $valueBeforeDiscount) {
     $this->discountFactor = [];
     if ($valueBeforeDiscount == 0) {
-      if ($valueAfterDiscount > 0){
+      if ($valueAfterDiscount > 0) {
         throw new EdifactException('valueBeforeDiscount cannot be 0, if valueAfterDiscount > 0');
       }
 
@@ -211,7 +205,8 @@ class Item extends Base
     $factor = $valueAfterDiscount / $valueBeforeDiscount;
 
     array_push(
-      $this->discountFactor, [
+      $this->discountFactor,
+      [
         'ALC',
         floatval($factor) > 1 ? 'C' : 'A',
         '',
@@ -224,7 +219,8 @@ class Item extends Base
     );
 
     array_push(
-      $this->discountFactor, [
+      $this->discountFactor,
+      [
         'PCD',
         [
           '1',
@@ -249,8 +245,7 @@ class Item extends Base
    * @param     $total
    * @param int $segment
    */
-  public function setTotal($total, $segment = 8)
-  {
+  public function setTotal($total, $segment = 8) {
     $index = 'discount' . $this->discountIndex++;
     $this->{$index} = self::addMOASegment($segment, $total);
     $this->addKeyToCompose($index);
@@ -264,8 +259,7 @@ class Item extends Base
    *
    * @return self
    */
-  public function addProductInformation($ean)
-  {
+  public function addProductInformation($ean) {
     $this->productInformation = self::addPIASegment($ean);
     $this->addKeyToCompose('productInformation');
 
@@ -280,12 +274,13 @@ class Item extends Base
    * @return $this
    * @throws \EDI\Generator\EdifactException
    */
-  public function setDeliveryDate($deliveryDate, $type = EdifactDate::TYPE_DELIVERY_DATE_ACTUAL,
+  public function setDeliveryDate(
+    $deliveryDate,
+    $type = EdifactDate::TYPE_DELIVERY_DATE_ACTUAL,
     $formatQuantifier = EdifactDate::DATE
   ) {
     $this->deliveryDate = $this->addDTMSegment($deliveryDate, $type, $formatQuantifier);
 
     return $this;
   }
-
 }

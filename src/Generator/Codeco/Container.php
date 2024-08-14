@@ -1,8 +1,8 @@
 <?php
+
 namespace EDI\Generator\Codeco;
 
-class Container
-{
+class Container {
 
     private $cntr;
     private $bkg;
@@ -13,9 +13,7 @@ class Container
 
     private $modeOfTransport;
 
-    public function __construct()
-    {
-
+    public function __construct() {
     }
 
     /*
@@ -23,8 +21,7 @@ class Container
      * $statusCode = 1 (Continental), 2 (Export), 3 (Import)
      * $fullEmptyIndicator = 4 (Empty), 5 (Full)
      */
-    public function setContainer($number, $size, $statusCode, $fullEmptyIndicator)
-    {
+    public function setContainer($number, $size, $statusCode, $fullEmptyIndicator) {
         $this->cntr = \EDI\Generator\Message::eqdSegment('CN', $number, [$size, '6346', '306'], '', $statusCode, $fullEmptyIndicator);
         return $this;
     }
@@ -32,8 +29,7 @@ class Container
     /*
      *
      */
-    public function setBooking($booking, $sequence = null)
-    {
+    public function setBooking($booking, $sequence = null) {
         $this->bkg = \EDI\Generator\Message::rffSegment('BN', $booking);
         return $this;
     }
@@ -41,8 +37,7 @@ class Container
     /*
      *
      */
-    public function setBillOfLading($bl)
-    {
+    public function setBillOfLading($bl) {
         $this->bkg = \EDI\Generator\Message::rffSegment('BM', $bl);
         return $this;
     }
@@ -51,8 +46,7 @@ class Container
      * $seal = free text
      * $sealIssuer = DE 9303
      */
-    public function setSeal($seal, $sealIssuer)
-    {
+    public function setSeal($seal, $sealIssuer) {
         $this->seal = ['SEL', [$seal, $sealIssuer]];
         return $this;
     }
@@ -60,8 +54,7 @@ class Container
     /*
      * Date of the equipment event
      */
-    public function setEffectiveDate($date = null)
-    {
+    public function setEffectiveDate($date = null) {
         if ($date === null) {
             $date = date('YmdHi');
         }
@@ -73,8 +66,7 @@ class Container
      * $transportMode = DE 8067 (2 = rail, 3 = road)
      * $transportMeans = DE 8179 (25 = train, 31 = truck)
      */
-    public function setModeOfTransport($transportMode, $transportMeans)
-    {
+    public function setModeOfTransport($transportMode, $transportMeans) {
         $this->modeOfTransport = \EDI\Generator\Message::tdtShortSegment(1, '', $transportMode, $transportMeans);
         return $this;
     }
@@ -82,8 +74,7 @@ class Container
     /*
      * $type = 165 (place of delivery)
      */
-    public function setLocation($locode)
-    {
+    public function setLocation($locode) {
         $this->destination = \EDI\Generator\Message::locSegment(165, [$locode, 139, 6]);
         return $this;
     }
@@ -93,14 +84,12 @@ class Container
      * $type = G (gross mass), VGM (verified gross mass)
      *
      */
-    public function setWeight($type, $weight)
-    {
+    public function setWeight($type, $weight) {
         $this->weight = ['MEA', 'AAE', $type, ['KGM', $weight]];
         return $this;
     }
 
-    public function compose()
-    {
+    public function compose() {
         $composed = [$this->cntr];
         if ($this->bkg !== null) {
             $composed[] = $this->bkg;

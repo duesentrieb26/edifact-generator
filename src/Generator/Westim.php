@@ -1,8 +1,8 @@
 <?php
+
 namespace EDI\Generator;
 
-class Westim extends Message
-{
+class Westim extends Message {
     private $_day;
     private $_estimateReference;
 
@@ -22,10 +22,9 @@ class Westim extends Message
     /*
      * messageID needs to be the estimate reference number
      */
-    public function __construct($estimateReference = null, $identifier = 'WESTIM', $version = '0', $release = null, $controllingAgency = null, $association = null)
-    {
+    public function __construct($estimateReference = null, $identifier = 'WESTIM', $version = '0', $release = null, $controllingAgency = null, $association = null) {
         parent::__construct($identifier, $version, $release, $controllingAgency, $estimateReference, $association);
-        
+
         $this->_estimateReference = $estimateReference;
 
         $this->_damages = [];
@@ -34,8 +33,7 @@ class Westim extends Message
     /*
      * $day = YYMMDD (used also in RFF+EST)
      */
-    public function setTransactionDate($day, $time = null)
-    {
+    public function setTransactionDate($day, $time = null) {
         $this->_day = $day;
         $dt = $day;
         if ($time !== null) {
@@ -48,8 +46,7 @@ class Westim extends Message
     /*
      * $currency = XXX (three letter code)
      */
-    public function setCurrency($currency)
-    {
+    public function setCurrency($currency) {
         $this->_currency = ['ACA', $currency, ['STD', 0]];
         return $this;
     }
@@ -57,8 +54,7 @@ class Westim extends Message
     /*
      * $labourRate = \d+.\d{2}
      */
-    public function setLabourRate($labourRate)
-    {
+    public function setLabourRate($labourRate) {
         $this->_labourRate = ['LBR', $labourRate];
         return $this;
     }
@@ -66,8 +62,7 @@ class Westim extends Message
     /*
      * Can be equal to the sender and receiver ID in UNH
      */
-    public function setPartners($from, $to)
-    {
+    public function setPartners($from, $to) {
         $this->_nadDED = ['NAD', 'DED', $from];
         $this->_nadLED = ['NAD', 'LED', $to];
         return $this;
@@ -76,8 +71,7 @@ class Westim extends Message
     /*
      * Container number separated between letters and numbers
      */
-    public function setContainer($ownerCode, $serial, $isoSize, $maximumGrossWeight = 0)
-    {
+    public function setContainer($ownerCode, $serial, $isoSize, $maximumGrossWeight = 0) {
         $this->_equipment = ['EQF', 'CON', [$ownerCode, $serial], $isoSize, ['MGW', $maximumGrossWeight, 'KGM']];
         return $this;
     }
@@ -85,8 +79,7 @@ class Westim extends Message
     /*
      * Full or Empty
      */
-    public function setFullEmpty($fullEmpty)
-    {
+    public function setFullEmpty($fullEmpty) {
         $this->_fullEmpty = ['CUI', '', '', 'E'];
         return $this;
     }
@@ -94,8 +87,7 @@ class Westim extends Message
     /*
      * Full or Empty
      */
-    public function addDamage(Westim\Damage $damage)
-    {
+    public function addDamage(Westim\Damage $damage) {
         $this->_damages[] = $damage;
         return $this;
     }
@@ -103,8 +95,7 @@ class Westim extends Message
     /*
      *
      */
-    public function setCostTotals($responsibility, $labour, $material, $handling, $tax, $invoiceAmount)
-    {
+    public function setCostTotals($responsibility, $labour, $material, $handling, $tax, $invoiceAmount) {
         $this->_costTotals = ['CTO', $responsibility, $labour, $material, $handling, $tax, $invoiceAmount];
         return $this;
     }
@@ -112,8 +103,7 @@ class Westim extends Message
     /*
      *
      */
-    public function setTotalMessageAmounts($grandTotal, $authorizedAmount = null, $taxRate = null)
-    {
+    public function setTotalMessageAmounts($grandTotal, $authorizedAmount = null, $taxRate = null) {
         $this->_totalMessageAmounts = ['TMA', $grandTotal];
         if ($authorizedAmount !== null) {
             $this->_totalMessageAmounts[] = ['TMA', $grandTotal, '', '', '', '', $authorizedAmount];
@@ -124,10 +114,8 @@ class Westim extends Message
         return $this;
     }
 
-    public function compose($msgStatus = null)
-    {
-        $this->messageContent = [
-        ];
+    public function compose($msgStatus = null) {
+        $this->messageContent = [];
 
         $this->messageContent[] = $this->_dtmATR;
         $this->messageContent[] = ['RFF', 'EST', $this->_estimateReference, $this->_day];

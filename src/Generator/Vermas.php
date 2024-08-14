@@ -1,8 +1,8 @@
 <?php
+
 namespace EDI\Generator;
 
-class Vermas extends Message
-{
+class Vermas extends Message {
     private $dtmSend;
 
     private $messageLine = '';
@@ -12,8 +12,7 @@ class Vermas extends Message
 
     private $containers;
 
-    public function __construct($messageID = null, $identifier = 'VERMAS', $version = 'D', $release = '16A', $controllingAgency = 'UN', $association = 'SMDG10')
-    {
+    public function __construct($messageID = null, $identifier = 'VERMAS', $version = 'D', $release = '16A', $controllingAgency = 'UN', $association = 'SMDG10') {
         parent::__construct($identifier, $version, $release, $controllingAgency, $messageID, $association);
 
         $this->dtmSend = self::dtmSegment(137, date('YmdHi'));
@@ -25,8 +24,7 @@ class Vermas extends Message
      * Date of the message submission
      *
      */
-    public function setDTMMessageSendingTime($dtm)
-    {
+    public function setDTMMessageSendingTime($dtm) {
         $this->dtmSend = self::dtmSegment(137, $dtm);
         return $this;
     }
@@ -34,8 +32,7 @@ class Vermas extends Message
     /*
      * $line: Master Liner Codes List
      */
-    public function setCarrier($line)
-    {
+    public function setCarrier($line) {
         $this->messageLine = ['NAD', 'CA', [$line, 'LINES', 306]];
         return $this;
     }
@@ -45,8 +42,7 @@ class Vermas extends Message
      * $cntIdentifier: free text
      * $cntName: free text
      */
-    public function setMessageSenderCompany($companyName)
-    {
+    public function setMessageSenderCompany($companyName) {
         $this->messageSenderCompany = ['NAD', 'TB',  $companyName];
         return $this;
     }
@@ -56,8 +52,7 @@ class Vermas extends Message
      * $cntIdentifier: free text
      * $cntName: free text
      */
-    public function setMessageSender($cntFunctionCode, $cntIdentifier, $cntName)
-    {
+    public function setMessageSender($cntFunctionCode, $cntIdentifier, $cntName) {
         $this->messageSender = ['CTA', $cntFunctionCode, [$cntIdentifier, $cntName]];
         return $this;
     }
@@ -66,20 +61,17 @@ class Vermas extends Message
      * $comType: DE 3155
      * $comData: free text
      */
-    public function setMessageSenderInformation($comType, $comData)
-    {
+    public function setMessageSenderInformation($comType, $comData) {
         $this->messageSenderInformation = ['COM', [$comData, $comType]];
         return $this;
     }
 
-    public function addContainer(Vermas\Container $container)
-    {
+    public function addContainer(Vermas\Container $container) {
         $this->containers[] = $container;
         return $this;
     }
 
-    public function compose($msgStatus = 5, $documentCode = 749)
-    {
+    public function compose($msgStatus = 5, $documentCode = 749) {
         $this->messageContent = [
             ['BGM', $documentCode, $this->messageID, $msgStatus]
         ];

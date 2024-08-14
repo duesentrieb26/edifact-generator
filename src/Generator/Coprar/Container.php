@@ -1,8 +1,8 @@
 <?php
+
 namespace EDI\Generator\Coprar;
 
-class Container
-{
+class Container {
 
     private $cntr;
     private $bkg;
@@ -18,9 +18,7 @@ class Container
     private $dimensions;
     private $containerOperator;
 
-    public function __construct()
-    {
-
+    public function __construct() {
     }
 
     /*
@@ -28,8 +26,7 @@ class Container
      * $statusCode = 1 (Continental), 2 (Export), 3 (Import)
      * $fullEmptyIndicator = 4 (Empty), 5 (Full)
      */
-    public function setContainer($number, $size, $statusCode, $fullEmptyIndicator)
-    {
+    public function setContainer($number, $size, $statusCode, $fullEmptyIndicator) {
         $this->cntr = \EDI\Generator\Message::eqdSegment('CN', $number, [$size, '102', '5'], '', $statusCode, $fullEmptyIndicator);
         return $this;
     }
@@ -37,8 +34,7 @@ class Container
     /*
      *
      */
-    public function setBooking($booking, $sequence = null)
-    {
+    public function setBooking($booking, $sequence = null) {
         $this->bkg = \EDI\Generator\Message::rffSegment('BN', $booking);
         return $this;
     }
@@ -46,8 +42,7 @@ class Container
     /*
      *
      */
-    public function setBillOfLading($bl)
-    {
+    public function setBillOfLading($bl) {
         $this->bkg = \EDI\Generator\Message::rffSegment('BM', $bl);
         return $this;
     }
@@ -56,8 +51,7 @@ class Container
      * Port of Discharge
      *
      */
-    public function setPOL($loc)
-    {
+    public function setPOL($loc) {
         $this->pol = \EDI\Generator\Message::locSegment(9, [$loc, 139, 6]);
         return $this;
     }
@@ -66,8 +60,7 @@ class Container
      * Port of Discharge
      *
      */
-    public function setPOD($loc)
-    {
+    public function setPOD($loc) {
         $this->pod = \EDI\Generator\Message::locSegment(11, [$loc, 139, 6]);
         return $this;
     }
@@ -76,8 +69,7 @@ class Container
      * Final destination
      *
      */
-    public function setFND($loc)
-    {
+    public function setFND($loc) {
         $this->fnd = \EDI\Generator\Message::locSegment(7, [$loc, 139, 6]);
         return $this;
     }
@@ -86,8 +78,7 @@ class Container
      * VGM information
      *
      */
-    public function setVGM($weight, $weightTime)
-    {
+    public function setVGM($weight, $weightTime) {
         $this->weight = ['MEA', 'AAE', 'VGM', ['KGM', $weight]];
         $this->weightTime = \EDI\Generator\Message::dtmSegment(798, $weightTime);
         return $this;
@@ -97,8 +88,7 @@ class Container
      * Weight information
      *
      */
-    public function setGrossWeight($weight)
-    {
+    public function setGrossWeight($weight) {
         $this->weight = ['MEA', 'AAE', 'G', ['KGM', $weight]];
         return $this;
     }
@@ -107,8 +97,7 @@ class Container
      * $seal = free text
      * $sealIssuer = DE 9303
      */
-    public function setSeal($seal, $sealIssuer)
-    {
+    public function setSeal($seal, $sealIssuer) {
         $this->seal = ['SEL', [$seal, $sealIssuer]];
         return $this;
     }
@@ -118,8 +107,7 @@ class Container
      * Cargo category
      *
      */
-    public function setCargoCategory($text)
-    {
+    public function setCargoCategory($text) {
         $this->cargo = ['FTX', 'AAA', '', '', $text];
         return $this;
     }
@@ -127,14 +115,12 @@ class Container
     /*
      * DEPRECATED
      */
-    public function setDangerous($hazardClass, $hazardCode)
-    {
+    public function setDangerous($hazardClass, $hazardCode) {
         $this->addDangerous($hazardClass, $hazardCode);
         return $this;
     }
 
-    public function addDangerous($hazardClass, $hazardCode, $flashpoint = null, $packingGroup = null)
-    {
+    public function addDangerous($hazardClass, $hazardCode, $flashpoint = null, $packingGroup = null) {
         if ($this->dangerous === null) {
             $this->dangerous = [];
         }
@@ -146,19 +132,17 @@ class Container
                 $dgs[] = [$packingGroup, 'CEL'];
             }
         }
-        
+
         $this->dangerous[] = $dgs;
         return $this;
     }
 
-    public function setTemperature($setDegrees)
-    {
+    public function setTemperature($setDegrees) {
         $this->temperature = ['TMP', '2', [$setDegrees, 'CEL']];
         return $this;
     }
 
-    public function setOverDimensions($front = '', $back = '', $right = '', $left = '', $height = '')
-    {
+    public function setOverDimensions($front = '', $back = '', $right = '', $left = '', $height = '') {
         $this->dim = [];
         if ($front !== '') {
             $this->dimensions[] = ['DIM', '5', ['CMT', $front]];
@@ -181,14 +165,12 @@ class Container
     /*
      * $line: Master Liner Codes List
      */
-    public function setContainerOperator($line)
-    {
+    public function setContainerOperator($line) {
         $this->containerOperator = ['NAD', 'CF', [$line, 160, 20]];
         return $this;
     }
 
-    public function compose()
-    {
+    public function compose() {
         $composed = [$this->cntr];
         if ($this->bkg !== null) {
             $composed[] = $this->bkg;

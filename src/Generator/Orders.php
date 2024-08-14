@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Sascha
@@ -19,12 +20,10 @@ use EDI\Generator\Traits\TransportData;
  * @url http://www.unece.org/trade/untdid/d96b/trmd/orders_s.htm
  * @package EDI\Generator
  */
-class Orders extends Message
-{
+class Orders extends Message {
     use ContactPerson,
         NameAndAddress,
-        TransportData
-        ;
+        TransportData;
 
     /** @var array */
     protected $orderNumber;
@@ -90,8 +89,7 @@ class Orders extends Message
         $release = '96B',
         $controllingAgency = 'UN',
         $association = 'ITEK35'
-    )
-    {
+    ) {
         parent::__construct(
             $identifier,
             $version,
@@ -106,8 +104,7 @@ class Orders extends Message
     /**
      * @param $item Item
      */
-    public function addItem($item)
-    {
+    public function addItem($item) {
         $this->items[] = $item;
     }
 
@@ -116,8 +113,7 @@ class Orders extends Message
      * @return $this
      * @throws EdifactException
      */
-    public function compose($msgStatus = null)
-    {
+    public function compose($msgStatus = null) {
         $this->composeByKeys();
 
         foreach ($this->items as $item) {
@@ -134,8 +130,7 @@ class Orders extends Message
     /**
      * @return array
      */
-    public function getOrderNumber()
-    {
+    public function getOrderNumber() {
         return $this->orderNumber;
     }
 
@@ -145,10 +140,20 @@ class Orders extends Message
      * @return Orders
      * @throws EdifactException
      */
-    public function setOrderNumber($orderNumber, $documentType = '120')
-    {
+    public function setOrderNumber($orderNumber, $documentType = '120') {
         $this->isAllowed($documentType, [
-            '120', '220', '221', '226', '227', '228', '126', 'YA8', 'YS8', 'YK8', '248', '447'
+            '120',
+            '220',
+            '221',
+            '226',
+            '227',
+            '228',
+            '126',
+            'YA8',
+            'YS8',
+            'YK8',
+            '248',
+            '447'
         ]);
         $this->orderNumber = ['BGM', $documentType, $orderNumber];
         return $this;
@@ -157,8 +162,7 @@ class Orders extends Message
     /**
      * @return array
      */
-    public function getOrderDate()
-    {
+    public function getOrderDate() {
         return $this->orderDate;
     }
 
@@ -167,8 +171,7 @@ class Orders extends Message
      * @return Orders
      * @throws EdifactException
      */
-    public function setOrderDate($orderDate)
-    {
+    public function setOrderDate($orderDate) {
         $this->orderDate = $this->addDTMSegment($orderDate, '4');
         return $this;
     }
@@ -176,8 +179,7 @@ class Orders extends Message
     /**
      * @return array
      */
-    public function getDeliveryDate()
-    {
+    public function getDeliveryDate() {
         return $this->deliveryDate;
     }
 
@@ -186,8 +188,7 @@ class Orders extends Message
      * @return $this
      * @throws EdifactException
      */
-    public function setDeliveryDate($deliveryDate)
-    {
+    public function setDeliveryDate($deliveryDate) {
         $this->deliveryDate = $this->addDTMSegment($deliveryDate, '2');
         return $this;
     }
@@ -195,8 +196,7 @@ class Orders extends Message
     /**
      * @return array
      */
-    public function getCollectiveOrderNumber()
-    {
+    public function getCollectiveOrderNumber() {
         return $this->collectiveOrderNumber;
     }
 
@@ -205,8 +205,7 @@ class Orders extends Message
      * @param string $collectiveOrderNumber
      * @return Orders
      */
-    public function setCollectiveOrderNumber($collectiveOrderNumber)
-    {
+    public function setCollectiveOrderNumber($collectiveOrderNumber) {
         $this->collectiveOrderNumber = $this->addRFFSegment('ACD', $collectiveOrderNumber);
         return $this;
     }
@@ -214,8 +213,7 @@ class Orders extends Message
     /**
      * @return array
      */
-    public function getInternalIdentifier()
-    {
+    public function getInternalIdentifier() {
         return $this->internalIdentifier;
     }
 
@@ -224,8 +222,7 @@ class Orders extends Message
      * @param string $internalIdentifier
      * @return Orders
      */
-    public function setInternalIdentifier($internalIdentifier)
-    {
+    public function setInternalIdentifier($internalIdentifier) {
         $this->internalIdentifier = $this->addRFFSegment('AAS', $internalIdentifier);
         return $this;
     }
@@ -233,8 +230,7 @@ class Orders extends Message
     /**
      * @return array
      */
-    public function getObjectNumber()
-    {
+    public function getObjectNumber() {
         return $this->objectNumber;
     }
 
@@ -243,8 +239,7 @@ class Orders extends Message
      * @param string $objectNumber
      * @return Orders
      */
-    public function setObjectNumber($objectNumber)
-    {
+    public function setObjectNumber($objectNumber) {
         $this->objectNumber = $this->addRFFSegment('AEP', $objectNumber);
         return $this;
     }
@@ -252,8 +247,7 @@ class Orders extends Message
     /**
      * @return array
      */
-    public function getObjectDescription1()
-    {
+    public function getObjectDescription1() {
         return $this->objectDescription1;
     }
 
@@ -262,8 +256,7 @@ class Orders extends Message
      * @param string $objectDescription1
      * @return Orders
      */
-    public function setObjectDescription1($objectDescription1)
-    {
+    public function setObjectDescription1($objectDescription1) {
         $this->objectDescription1 = $this->addRFFSegment('AFO', $objectDescription1);
         return $this;
     }
@@ -271,8 +264,7 @@ class Orders extends Message
     /**
      * @return array
      */
-    public function getObjectDescription2()
-    {
+    public function getObjectDescription2() {
         return $this->objectDescription2;
     }
 
@@ -281,8 +273,7 @@ class Orders extends Message
      * @param string $objectDescription2
      * @return Orders
      */
-    public function setObjectDescription2($objectDescription2)
-    {
+    public function setObjectDescription2($objectDescription2) {
         $this->objectDescription2 = $this->addRFFSegment('AFP', $objectDescription2);
         return $this;
     }
@@ -290,8 +281,7 @@ class Orders extends Message
     /**
      * @return array
      */
-    public function getOrderDescription()
-    {
+    public function getOrderDescription() {
         return $this->orderDescription;
     }
 
@@ -299,8 +289,7 @@ class Orders extends Message
      * @param string $orderDescription
      * @return Orders
      */
-    public function setOrderDescription($orderDescription)
-    {
+    public function setOrderDescription($orderDescription) {
         $this->orderDescription = self::addFTXSegment($orderDescription, 'ORI');
         return $this;
     }
@@ -308,8 +297,7 @@ class Orders extends Message
     /**
      * @return array
      */
-    public function getOrderNotification()
-    {
+    public function getOrderNotification() {
         return $this->orderNotification;
     }
 
@@ -317,8 +305,7 @@ class Orders extends Message
      * @param string $orderNotification
      * @return Orders
      */
-    public function setOrderNotification($orderNotification)
-    {
+    public function setOrderNotification($orderNotification) {
         $this->orderNotification = self::addFTXSegment($orderNotification, 'DIN');
         return $this;
     }
@@ -326,8 +313,7 @@ class Orders extends Message
     /**
      * @return array
      */
-    public function getDeliveryTerms()
-    {
+    public function getDeliveryTerms() {
         return $this->deliveryTerms;
     }
 
@@ -336,8 +322,7 @@ class Orders extends Message
      * @return Orders
      * @throws EdifactException
      */
-    public function setDeliveryTerms($deliveryTerms)
-    {
+    public function setDeliveryTerms($deliveryTerms) {
         $this->isAllowed(
             $deliveryTerms,
             ['CAF', 'DDP', 'DAF', 'FCA', 'CAI', 'ZZZ']
@@ -345,6 +330,4 @@ class Orders extends Message
         $this->deliveryTerms = ['TOD', '6', '', $deliveryTerms];
         return $this;
     }
-
-
 }

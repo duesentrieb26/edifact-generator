@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Sascha
@@ -17,8 +18,7 @@ use EDI\Generator\Traits\NameAndAddress;
  *
  * @package EDI\Generator
  */
-class Ordrsp extends Message
-{
+class Ordrsp extends Message {
   use ContactPerson,
     NameAndAddress;
 
@@ -54,37 +54,37 @@ class Ordrsp extends Message
   protected $items = [];
   /** @var array */
   protected $composeKeys
-    = [
-      'orderConfirmationNumber',
-      'orderConfirmationDate',
-      'deliveryDate',
-      'orderNumber',
-      'orderInstruction',
-      'additionalReferenceNumber',
-      'transportDocumentNumber',
-      'beneficiaryReference',
-      'beneficiaryReference2',
-      'orderInstruction',
-      'manufacturerAddress',
-      'manufacturerAddressContactPerson',
-      'manufacturerAddressMailAddress',
-      'manufacturerAddressPhoneNumber',
-      'manufacturerAddressFaxNumber',
-      'wholesalerAddress',
-      'wholesalerAddressContactPerson',
-      'wholesalerAddressMailAddress',
-      'wholesalerAddressPhoneNumber',
-      'wholesalerAddressFaxNumber',
-      'deliveryAddress',
-      'deliveryAddressContactPerson',
-      'deliveryAddressMailAddress',
-      'deliveryAddressPhoneNumber',
-      'deliveryAddressFaxNumber',
-      'allowanceOrCharge',
-      'allowanceOrChargeMoa',
-      'transportData',
-      'positionSeparator',
-    ];
+  = [
+    'orderConfirmationNumber',
+    'orderConfirmationDate',
+    'deliveryDate',
+    'orderNumber',
+    'orderInstruction',
+    'additionalReferenceNumber',
+    'transportDocumentNumber',
+    'beneficiaryReference',
+    'beneficiaryReference2',
+    'orderInstruction',
+    'manufacturerAddress',
+    'manufacturerAddressContactPerson',
+    'manufacturerAddressMailAddress',
+    'manufacturerAddressPhoneNumber',
+    'manufacturerAddressFaxNumber',
+    'wholesalerAddress',
+    'wholesalerAddressContactPerson',
+    'wholesalerAddressMailAddress',
+    'wholesalerAddressPhoneNumber',
+    'wholesalerAddressFaxNumber',
+    'deliveryAddress',
+    'deliveryAddressContactPerson',
+    'deliveryAddressMailAddress',
+    'deliveryAddressPhoneNumber',
+    'deliveryAddressFaxNumber',
+    'allowanceOrCharge',
+    'allowanceOrChargeMoa',
+    'transportData',
+    'positionSeparator',
+  ];
 
   /**
    * Ordrsp constructor.
@@ -118,8 +118,7 @@ class Ordrsp extends Message
   /**
    * @param $item Item
    */
-  public function addItem($item)
-  {
+  public function addItem($item) {
     $this->items[] = $item;
   }
 
@@ -129,8 +128,7 @@ class Ordrsp extends Message
    * @return $this
    * @throws EdifactException
    */
-  public function compose($msgStatus = null)
-  {
+  public function compose($msgStatus = null) {
     $this->composeByKeys();
 
     foreach ($this->items as $item) {
@@ -151,8 +149,7 @@ class Ordrsp extends Message
   /**
    * @return array
    */
-  public function getOrderConfirmationNumber()
-  {
+  public function getOrderConfirmationNumber() {
     return $this->orderConfirmationNumber;
   }
 
@@ -163,8 +160,7 @@ class Ordrsp extends Message
    *
    * @return Ordrsp
    */
-  public function setOrderConfirmationNumber($orderConfirmationNumber, $documentType = '231')
-  {
+  public function setOrderConfirmationNumber($orderConfirmationNumber, $documentType = '231') {
     $this->orderConfirmationNumber = [
       'BGM',
       $documentType,
@@ -176,8 +172,7 @@ class Ordrsp extends Message
   /**
    * @return array
    */
-  public function getOrderConfirmationDate()
-  {
+  public function getOrderConfirmationDate() {
     return $this->orderConfirmationDate;
   }
 
@@ -187,8 +182,7 @@ class Ordrsp extends Message
    * @return Ordrsp
    * @throws EdifactException
    */
-  public function setOrderConfirmationDate($orderConfirmationDate)
-  {
+  public function setOrderConfirmationDate($orderConfirmationDate) {
     $this->orderConfirmationDate = $this->addDTMSegment($orderConfirmationDate, '4');
     return $this;
   }
@@ -196,8 +190,7 @@ class Ordrsp extends Message
   /**
    * @return array
    */
-  public function getDeliveryDate()
-  {
+  public function getDeliveryDate() {
     return $this->deliveryDate;
   }
 
@@ -209,7 +202,9 @@ class Ordrsp extends Message
    * @return Ordrsp
    * @throws EdifactException
    */
-  public function setDeliveryDate($deliveryDate, $type = EdifactDate::TYPE_DELIVERY_DATE_REQUESTED,
+  public function setDeliveryDate(
+    $deliveryDate,
+    $type = EdifactDate::TYPE_DELIVERY_DATE_REQUESTED,
     $formatQuantifier = EdifactDate::DATE
   ) {
     $this->deliveryDate = $this->addDTMSegment($deliveryDate, $type, $formatQuantifier);
@@ -219,8 +214,7 @@ class Ordrsp extends Message
   /**
    * @return array
    */
-  public function getOrderNumber()
-  {
+  public function getOrderNumber() {
     return $this->orderNumber;
   }
 
@@ -229,8 +223,7 @@ class Ordrsp extends Message
    *
    * @return Ordrsp
    */
-  public function setOrderNumber($orderNumber)
-  {
+  public function setOrderNumber($orderNumber) {
     $this->orderNumber = $this->addRFFSegment('VN', $orderNumber);
     return $this;
   }
@@ -238,16 +231,14 @@ class Ordrsp extends Message
   /**
    * @return array
    */
-  public function getPositionSeparator()
-  {
+  public function getPositionSeparator() {
     return $this->positionSeparator;
   }
 
   /**
    * @return Ordrsp
    */
-  public function setPositionSeparator()
-  {
+  public function setPositionSeparator() {
     $this->positionSeparator = [
       'UNS',
       'S',
@@ -258,8 +249,7 @@ class Ordrsp extends Message
   /**
    * @return array
    */
-  public function getOrderInstruction()
-  {
+  public function getOrderInstruction() {
     return $this->orderInstruction;
   }
 
@@ -268,8 +258,7 @@ class Ordrsp extends Message
    *
    * @return Ordrsp
    */
-  public function setOrderInstruction($orderInstruction)
-  {
+  public function setOrderInstruction($orderInstruction) {
     $this->orderInstruction = self::addFTXSegment($orderInstruction, 'ORI');
     return $this;
   }
@@ -277,8 +266,7 @@ class Ordrsp extends Message
   /**
    * @return array
    */
-  public function getAdditionalReferenceNumber()
-  {
+  public function getAdditionalReferenceNumber() {
     return $this->additionalReferenceNumber;
   }
 
@@ -287,8 +275,7 @@ class Ordrsp extends Message
    *
    * @return Ordrsp
    */
-  public function setAdditionalReferenceNumber($additionalReferenceNumber)
-  {
+  public function setAdditionalReferenceNumber($additionalReferenceNumber) {
     $this->additionalReferenceNumber = self::addRFFSegment('ACD', $additionalReferenceNumber);
     return $this;
   }
@@ -296,8 +283,7 @@ class Ordrsp extends Message
   /**
    * @return array
    */
-  public function getTransportDocumentNumber()
-  {
+  public function getTransportDocumentNumber() {
     return $this->transportDocumentNumber;
   }
 
@@ -306,8 +292,7 @@ class Ordrsp extends Message
    *
    * @return Ordrsp
    */
-  public function setTransportDocumentNumber($transportDocumentNumber)
-  {
+  public function setTransportDocumentNumber($transportDocumentNumber) {
     $this->transportDocumentNumber = self::addRFFSegment('AAS', $transportDocumentNumber);
     return $this;
   }
@@ -315,8 +300,7 @@ class Ordrsp extends Message
   /**
    * @return array
    */
-  public function getProjectNumber()
-  {
+  public function getProjectNumber() {
     return $this->projectNumber;
   }
 
@@ -325,8 +309,7 @@ class Ordrsp extends Message
    *
    * @return Ordrsp
    */
-  public function setProjectNumber($projectNumber)
-  {
+  public function setProjectNumber($projectNumber) {
     $this->projectNumber = self::addRFFSegment('AEP', $projectNumber);
     return $this;
   }
@@ -334,8 +317,7 @@ class Ordrsp extends Message
   /**
    * @return array
    */
-  public function getBeneficiaryReference()
-  {
+  public function getBeneficiaryReference() {
     return $this->beneficiaryReference;
   }
 
@@ -344,8 +326,7 @@ class Ordrsp extends Message
    *
    * @return Ordrsp
    */
-  public function setBeneficiaryReference($beneficiaryReference)
-  {
+  public function setBeneficiaryReference($beneficiaryReference) {
     $this->beneficiaryReference = self::addRFFSegment('AFO', $beneficiaryReference);
     return $this;
   }
@@ -353,8 +334,7 @@ class Ordrsp extends Message
   /**
    * @return array
    */
-  public function getBeneficiaryReference2()
-  {
+  public function getBeneficiaryReference2() {
     return $this->beneficiaryReference2;
   }
 
@@ -363,8 +343,7 @@ class Ordrsp extends Message
    *
    * @return Ordrsp
    */
-  public function setBeneficiaryReference2($beneficiaryReference2)
-  {
+  public function setBeneficiaryReference2($beneficiaryReference2) {
     $this->beneficiaryReference2 = self::addRFFSegment('AFP', $beneficiaryReference2);
     return $this;
   }
@@ -372,8 +351,7 @@ class Ordrsp extends Message
   /**
    * @return array
    */
-  public function getAllowanceOrCharge()
-  {
+  public function getAllowanceOrCharge() {
     return $this->allowanceOrCharge;
   }
 
@@ -382,8 +360,7 @@ class Ordrsp extends Message
    *
    * @return Ordrsp
    */
-  public function setAllowanceOrCharge($value)
-  {
+  public function setAllowanceOrCharge($value) {
     $this->allowanceOrCharge = [
       'ALC',
       floatval($value) > 0 ? 'C' : 'A',
@@ -400,8 +377,7 @@ class Ordrsp extends Message
   /**
    * @return array
    */
-  public function getTransportData()
-  {
+  public function getTransportData() {
     return $this->transportData;
   }
 
@@ -412,8 +388,7 @@ class Ordrsp extends Message
    *
    * @return Ordrsp
    */
-  public function setTransportData($modeOfTransport, $stageQualifier = 13)
-  {
+  public function setTransportData($modeOfTransport, $stageQualifier = 13) {
     $this->transportData = [
       'TDT',
       $stageQualifier,
@@ -423,5 +398,4 @@ class Ordrsp extends Message
 
     return $this;
   }
-
 }
