@@ -253,9 +253,7 @@ final class DesadvTest extends TestCase {
 
             $desadv->addPackage($package2);
 
-
             $desadv->compose();
-
 
             $encoder = new Encoder($interchange->addMessage($desadv)->getComposed(), true);
             $encoder->setUNA(":+,? '");

@@ -111,6 +111,7 @@ class Desadv extends Message {
             self::DELIVERY_NOTE_ADVICE
         ]);
         $this->deliveryNoteNumber = ['BGM', $documentType, $number];
+
         return $this;
     }
 
@@ -135,6 +136,7 @@ class Desadv extends Message {
      */
     public function setShippingDate($shippingDate) {
         $this->shippingDate = $this->addDTMSegment($shippingDate, '17');
+
         return $this;
     }
 
@@ -152,6 +154,7 @@ class Desadv extends Message {
      */
     public function setDeliveryDate($deliveryDate) {
         $this->deliveryDate = $this->addDTMSegment($deliveryDate, '11');
+
         return $this;
     }
 
@@ -169,6 +172,7 @@ class Desadv extends Message {
      */
     public function setDeliveryNoteDate($deliveryNoteDate) {
         $this->deliveryNoteDate = $this->addDTMSegment($deliveryNoteDate, '137');
+
         return $this;
     }
 
@@ -223,6 +227,7 @@ class Desadv extends Message {
         }
 
         parent::compose();
+
         return $this;
     }
 }

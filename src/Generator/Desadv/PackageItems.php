@@ -60,8 +60,6 @@ class PackageItem extends Base {
   }
 
 
-
-
   /**
    * @param integer $position 
    * @param string $content EAN nummer oder manufacturer articleNumber

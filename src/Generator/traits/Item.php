@@ -4,7 +4,6 @@ namespace EDI\Generator\Traits;
 
 use EDI\Generator\Base;
 use EDI\Generator\EdifactDate;
-use EDI\Generator\EdiFactNumber;
 
 
 /**
