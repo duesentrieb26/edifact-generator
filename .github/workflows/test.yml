@@ -13,6 +13,7 @@ jobs:
       uses: php-actions/phpunit@v3
       with:
         php-version: '8.2'
+        version: '9'
         composer-cache: true
         working-directory: ./tests
         args: --colors=always --coverage-text --coverage-clover=coverage.xml
