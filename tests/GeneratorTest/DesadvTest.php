@@ -30,7 +30,7 @@ final class DesadvTest extends TestCase {
         $desadv = new Desadv();
         try {
             $desadv->setDeliveryNoteNumber(
-                Desadv::DELIVER_NOTE,
+                Desadv::DELIVERY_NOTE,
                 'LS123456789'
             );
         } catch (EdifactException $e) {
@@ -162,7 +162,7 @@ final class DesadvTest extends TestCase {
             $desadv = (new Desadv())
                 ->setSender('UNB-Identifier-Sender')
                 ->setReceiver('RECEIVer')
-                ->setDeliveryNoteNumber(Desadv::DELIVER_NOTE, 'LS123456789')
+                ->setDeliveryNoteNumber(Desadv::DELIVERY_NOTE, 'LS123456789')
                 ->setDeliveryNoteDate($this->getDateTime())
                 ->setDeliveryDate($this->getDateTime())
                 ->setShippingDate($this->getDateTime()->add(new DateInterval('P1D')))
@@ -224,6 +224,7 @@ final class DesadvTest extends TestCase {
 
             $packageItem3 = new PackageItem();
             $packageItem3
+                ->setPackageType('PG', 1)
                 ->setPackageContent($pos++, '4250659500284', 'EN', 5);
             $package2->addItem($packageItem3);
 
@@ -277,6 +278,7 @@ final class DesadvTest extends TestCase {
             $this->assertStringContainsString('CPS+7:3', $message);
             $this->assertStringContainsString('CPS+8:3', $message);
             $this->assertStringContainsString('QTY+12:3', $message);
+            $this->assertStringContainsString('PAC+1:PG', $message);
             $this->assertStringContainsString("RFF+AAJ:123444'\nRFF+LI:10'\nDTM+2:20180202:102", $message);
             $this->assertStringContainsString('LIN+2++8290123YY:BJ::89', $message);
             $this->assertStringContainsString('LIN+3++4250659500284:EN::89', $message);

@@ -188,10 +188,14 @@ trait NameAndAddress {
    */
   public function setManufacturerAddressGln($gln) {
     $this->manufacturerAddress = $this->addAddressGln($gln, 'SU');
+
+    return $this;
   }
 
   public function setWholesalerAddressGln($gln) {
     $this->wholesalerAddress = $this->addAddressGln($gln, 'WS');
+
+    return $this;
   }
 
   /**
@@ -199,6 +203,8 @@ trait NameAndAddress {
    */
   public function setDeliveryAddressGln($gln) {
     $this->deliveryAddress = $this->addAddressGln($gln, 'ST');
+
+    return $this;
   }
 
   /**
@@ -206,6 +212,8 @@ trait NameAndAddress {
    */
   public function setInvoiceAddressGln($gln) {
     $this->invoiceAddress = $this->addAddressGln($gln, 'IV');
+
+    return $this;
   }
 
   /**

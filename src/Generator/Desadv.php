@@ -18,7 +18,7 @@ class Desadv extends Message {
         TransportData;
 
     const DELIVERY_ADVICE = '22E';
-    const DELIVER_NOTE = '270';
+    const DELIVERY_NOTE = '270';
     const DELIVERY_NOTE_ADVICE = '351';
 
     /** @var array */
@@ -107,7 +107,7 @@ class Desadv extends Message {
     public function setDeliveryNoteNumber($documentType, $number) {
         $this->isAllowed($documentType, [
             self::DELIVERY_ADVICE,
-            self::DELIVER_NOTE,
+            self::DELIVERY_NOTE,
             self::DELIVERY_NOTE_ADVICE
         ]);
         $this->deliveryNoteNumber = ['BGM', $documentType, $number];

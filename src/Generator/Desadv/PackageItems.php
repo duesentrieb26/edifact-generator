@@ -27,8 +27,11 @@ class PackageItem extends Base {
 
   protected $deliveryNoteNumber;
 
+  protected $pac;
+
   protected $composeKeys = [
     'cps',
+    'pac',
     'quantity',
     'content',
     'deliveryNoteNumber'
@@ -55,6 +58,19 @@ class PackageItem extends Base {
   public function setPackageContent($position, $content, $type, $quantity = 1) {
     $this->content = $this->setPosition($position, $content, $type);
     $this->quantity = $this->addQTYSegment($quantity);
+
+    return $this;
+  }
+
+
+  /**
+   * 
+   * @param string $type [BB, BG, BH, BK, CF, CG, CH, CT, PA, PC, PG, PN, PU, SC, TU]
+   * @param int $quantity 
+   * @return $this 
+   */
+  public function setPackageType($type, $quantity = 1) {
+    $this->pac = Package::addPACSegment($quantity, $type);
 
     return $this;
   }

@@ -3,7 +3,7 @@
 <phpunit bootstrap="tests/Bootstrap.php" colors="true">
   <testsuites>
     <testsuite name="EdiFact-Generator">
-      <directory>./tests/GeneratorTest/</directory>
+      <directory>tests/GeneratorTest/</directory>
     </testsuite>
   </testsuites>
 </phpunit>
