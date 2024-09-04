@@ -14,3 +14,4 @@ jobs:
       with:
         php-version: '8.2'
         version: '9'
+        configuration: 'phpunit.xml'
