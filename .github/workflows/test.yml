@@ -1,0 +1,18 @@
+name: test
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: PHPUnit tests
+      uses: php-actions/phpunit@v3
+      with:
+        php-version: '8.2'
+        composer-cache: true
+        working-directory: ./tests
+        args: --colors=always --coverage-text --coverage-clover=coverage.xml
