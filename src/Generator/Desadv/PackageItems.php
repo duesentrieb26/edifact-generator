@@ -32,8 +32,8 @@ class PackageItem extends Base {
   protected $composeKeys = [
     'cps',
     'pac',
-    'quantity',
     'content',
+    'quantity',
     'deliveryNoteNumber'
   ];
 
@@ -70,6 +70,26 @@ class PackageItem extends Base {
    * @return $this 
    */
   public function setPackageType($type, $quantity = 1) {
+    $allowedUnits = [
+      'BB',
+      'BG',
+      'BH',
+      'BK',
+      'CF',
+      'CG',
+      'CH',
+      'CT',
+      'PA',
+      'PC',
+      'PG',
+      'PN',
+      'PU',
+      'SC',
+      'TU',
+    ];
+    if (!in_array($type, $allowedUnits)) {
+      throw new EdifactException('Invalid package type ' . $type . '. Only these are allowed ' . implode(', ', $allowedUnits));
+    }
     $this->pac = Package::addPACSegment($quantity, $type);
 
     return $this;
