@@ -310,7 +310,7 @@ final class DesadvTest extends TestCase {
     }
 
     public function testAllowedQualifiersOnMEASegment() {
-        $this->expectExceptionMessage('Invalid qualifier KMG for package weight. Only these are allowed CMK, CMQ, CMT, DZN, GRM, HLT, KGM, KTM, LTR, MMT, MTK, MTQ, NRL, MTR, PCE, PR, SET, TNE');
+        $this->expectExceptionMessage('Invalid qualifier KMG for package weight. Onlygset these are allowed CMK, CMQ, CMT, DZN, GRM, HLT, KGM, KTM, LTR, MMT, MTK, MTQ, NRL, MTR, PCE, PR, SET, TNE');
         $data = Package::addMEASegment(1426.56, 'AAE', 'BW', 'KMG');
     }
 }
