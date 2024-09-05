@@ -202,13 +202,13 @@ final class DesadvTest extends TestCase {
 
             $packageItem1 = new PackageItem();
             $packageItem1
-                ->setPackageContent($pos++, '8290123XX', 'BJ', 3);
+                ->setPackageContent($pos++, '8290123XX', 'MF', 3);
             $package->addItem($packageItem1);
 
 
             $packageItem2 = new PackageItem();
             $packageItem2
-                ->setPackageContent($pos++, '8290123YY', 'BJ', 20);
+                ->setPackageContent($pos++, '8290123YY', 'EN', 20);
             $package->addItem($packageItem2);
             $desadv->addPackage($package);
 
@@ -279,14 +279,14 @@ final class DesadvTest extends TestCase {
             $this->assertStringContainsString('PAC+1++PG', $message);
             $this->assertStringContainsString('PCI+33E', $message);
             $this->assertStringContainsString("RFF+AAJ:123444'\nRFF+LI:10'\nDTM+2:20180202:102", $message);
-            $this->assertStringContainsString('LIN+2++8290123YY:BJ::89', $message);
-            $this->assertStringContainsString('LIN+3++4250659500284:EN::89', $message);
+            $this->assertStringContainsString('LIN+1++8290123XX:MF', $message);
+            $this->assertStringContainsString('LIN+2++8290123YY:EN', $message);
+            $this->assertStringContainsString('LIN+3++4250659500284:EN', $message);
         } catch (EdifactException $e) {
             fwrite(STDOUT, "\n\nDESADV\n" . $e->getMessage());
             fwrite(STDOUT, "\n\nDESADV\n" . $e->getTraceAsString());
         }
     }
-
 
 
     /**
