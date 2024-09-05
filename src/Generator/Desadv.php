@@ -40,12 +40,12 @@ class Desadv extends Message {
         'deliveryDate',
         'shippingDate',
         'manufacturerAddress',
+        'wholesalerAddress',
+        'deliveryAddress',
         'contactPerson',
         'mailAddress',
         'phoneNumber',
         'faxNumber',
-        'wholesalerAddress',
-        'deliveryAddress',
         'transportData'
     ];
 
@@ -201,7 +201,7 @@ class Desadv extends Message {
         foreach ($this->packages as $package) {
             $segment = $package->getPackageWeight();
             if ($segment[0] === 'MEA') {
-                $totalWeight += (float)str_replace(',', '.', $segment[1][3]);
+                $totalWeight += (float)str_replace(',', '.', $segment[3][1]);
             }
         }
 

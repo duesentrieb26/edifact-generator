@@ -147,17 +147,20 @@ class Package extends Base {
    * @return (string|array)[] 
    */
   public static function addCPSSegment(int $counter, int $mainCounter = 1) {
-    $array = [
-      $mainCounter,
-    ];
+    $sublevel = null;
     if ($mainCounter > 1) {
-      array_push($array, $counter);
+      $sublevel = [$counter];
     }
 
-    return [
+    $result = [
       'CPS',
-      $array
+      $mainCounter,
     ];
+
+    if ($sublevel) {
+      $result[] = $sublevel;
+    }
+    return $result;
   }
 
 
@@ -172,8 +175,9 @@ class Package extends Base {
       'PAC',
       [
         $quantity,
-        $type,
       ],
+      '',
+      $type,
     ];
   }
 
@@ -236,11 +240,11 @@ class Package extends Base {
 
     return [
       'MEA',
+      $dimension,
+      $unit,
       [
-        $dimension,
-        $unit,
         $qualifier,
-        EdiFactNumber::convert($weight),
+        EdiFactNumber::convert($weight)
       ],
     ];
   }
@@ -254,7 +258,6 @@ class Package extends Base {
     return [
       'PCI',
       [
-        '1',
         $code
       ],
     ];
@@ -269,8 +272,8 @@ class Package extends Base {
   public static function addGINSegment($trackingCode, $type = 'BJ') {
     return [
       'GIN',
+      $type,
       [
-        $type,
         $trackingCode,
       ],
     ];
@@ -285,8 +288,8 @@ class Package extends Base {
   public static function addQTYSegment($quantity) {
     return [
       'QTY',
+      '12',
       [
-        '12',
         $quantity,
       ],
     ];

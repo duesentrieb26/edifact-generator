@@ -190,8 +190,6 @@ final class DesadvTest extends TestCase {
                 );
 
 
-
-
             $desadv->setTransportData(16789, 30, '31S');
 
             $pos = 1;
@@ -269,16 +267,17 @@ final class DesadvTest extends TestCase {
             $this->assertStringContainsString('CTA++', $message);
             $this->assertStringContainsString('COM+', $message);
             $this->assertStringContainsString('CPS+1', $message);
-            $this->assertStringContainsString('CPS+2:1', $message);
-            $this->assertStringContainsString('PAC+5:PN', $message);
-            $this->assertStringContainsString('MEA+AAE:BW:KGM:1426,56', $message);
-            $this->assertStringContainsString('GIN+BJ:00343107380000001051', $message);
-            $this->assertStringContainsString('GIN+BJ:12345678900001', $message);
-            $this->assertStringContainsString('CPS+3:1', $message);
-            $this->assertStringContainsString('CPS+7:3', $message);
-            $this->assertStringContainsString('CPS+8:3', $message);
+            $this->assertStringContainsString('CPS+2+1', $message);
+            $this->assertStringContainsString('PAC+5++PN', $message);
+            $this->assertStringContainsString('MEA+AAE+BW+KGM:1426,56', $message);
+            $this->assertStringContainsString('GIN+BJ+00343107380000001051', $message);
+            $this->assertStringContainsString('GIN+BJ+12345678900001', $message);
+            $this->assertStringContainsString('CPS+3+1', $message);
+            $this->assertStringContainsString('CPS+7+3', $message);
+            $this->assertStringContainsString('CPS+8+3', $message);
             $this->assertStringContainsString('QTY+12:3', $message);
-            $this->assertStringContainsString('PAC+1:PG', $message);
+            $this->assertStringContainsString('PAC+1++PG', $message);
+            $this->assertStringContainsString('PCI+33E', $message);
             $this->assertStringContainsString("RFF+AAJ:123444'\nRFF+LI:10'\nDTM+2:20180202:102", $message);
             $this->assertStringContainsString('LIN+2++8290123YY:BJ::89', $message);
             $this->assertStringContainsString('LIN+3++4250659500284:EN::89', $message);
