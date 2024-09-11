@@ -8,8 +8,10 @@ namespace EDI\Generator;
  * @package EDI\Generator
  */
 class Message extends Base {
+
   /** @var string */
   protected $messageID;
+
   /** @var array string */
   protected $messageType;
 

@@ -178,8 +178,7 @@ class PackageItem extends Base {
    */
   public function setDeliveryNoteNumber($deliveryNoteNumber, $positon, $deliveryDate = null) {
     $data[] = $this->addRFFSegment('AAJ', $deliveryNoteNumber);
-
-    $data[] = $this->addRFFSegment('LI', $positon);
+    $data[] = $this->addRFFSegment('FI', $positon);
 
     if ($deliveryDate) {
       array_push(
