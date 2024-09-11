@@ -171,14 +171,19 @@ class Package extends Base {
    * @return (string|array)[] 
    */
   public static function addPACSegment($quantity, $type = 'PK') {
-    return [
+    $result =  [
       'PAC',
       [
         $quantity,
       ],
-      '',
-      $type,
     ];
+
+    if ($type) {
+      $result[] = '';
+      $result[] = $type;
+    }
+
+    return $result;
   }
 
   /**

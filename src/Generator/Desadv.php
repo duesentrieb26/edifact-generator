@@ -206,11 +206,12 @@ class Desadv extends Message {
         }
 
         $this->messageContent[] = Package::addCPSSegment($packageNumber);
-        $this->messageContent[] = Package::addPACSegment($totalPackages, 'PG');
+        $this->messageContent[] = Package::addPACSegment($totalPackages, '');
         $this->messageContent[] = Package::addMEASegment($totalWeight, 'AAE', 'BW');
 
         foreach ($this->packages as $package) {
             $this->messageContent[] = Package::addCPSSegment(1, ++$packageNumber);
+
             $composed = $package->compose();
             foreach ($composed as $entry) {
                 $this->messageContent[] = $entry;
@@ -218,7 +219,7 @@ class Desadv extends Message {
             foreach ($package->getItems() as $packageItem) {
                 $composed = $packageItem->compose();
 
-                // $this->messageContent[] = Package::addCPSSegment($packageNumber, $packageItemNumber++);
+                // $this->messageContent[] = Package::addCPSSegment($packageItemNumber++, $packageNumber);
                 foreach ($composed as $entry) {
                     $this->messageContent[] = $entry;
                 }

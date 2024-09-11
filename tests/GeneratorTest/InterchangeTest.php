@@ -26,7 +26,7 @@ class InterchangeTest extends TestCase {
       $encoder->setUNA(":+,? '");
 
       $message = str_replace("'", "'\n", $encoder->get());
-      $this->assertStringContainsString('UNB+UNOC:3+1234567890128:14+4260352060008:14+' . date('ymd') . ':' . date('hi'), $message);
+      $this->assertStringContainsString('UNB+UNOC:3+1234567890128:14+4260352060008:14+' . date('ymd') . ':' . date('Hi'), $message);
     } catch (EdifactException $e) {
       fwrite(STDOUT, "\n\nINTERCHANGE\n" . $message);
     }

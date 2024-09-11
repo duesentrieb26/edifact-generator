@@ -280,22 +280,18 @@ final class DesadvTest extends TestCase {
             $this->assertStringContainsString('DTM+17', $message);
             $this->assertStringContainsString('CTA++', $message);
             $this->assertStringContainsString('COM+', $message);
-            $this->assertStringContainsString('CPS+1', $message);
+            $this->assertStringContainsString("CPS+1'\nPAC+2", $message);
             $this->assertStringContainsString('MEA+AAE+BW+KGM:1426,56', $message);
             $this->assertStringContainsString('GIN+BJ+00343107380000001051', $message);
             $this->assertStringContainsString('GIN+BJ+12345678900001', $message);
             $this->assertStringContainsString("CPS+1'\nPAC+2", $message);
             $this->assertStringContainsString("CPS+2+1'\nPAC+3++CT", $message);
-            $this->assertStringContainsString('CPS+3+1', $message);
-            $this->assertStringContainsString('QTY+12:3:PCE', $message);
-            $this->assertStringContainsString('PAC+1++PG', $message);
-            $this->assertStringContainsString('PCI+33E', $message);
+            $this->assertStringContainsString("CPS+3+1'\nPAC+5++PN'\nMEA+AAE+BW+KGM:501,23'\nPCI+33E'", $message);
             $this->assertStringContainsString("RFF+AAJ:123444'\nRFF+LI:10'\nDTM+2:20180202:102", $message);
-            $this->assertStringContainsString('LIN+1++8290123XX:MF', $message);
-            $this->assertStringContainsString('RFF+VN:123456789', $message);
-            $this->assertStringContainsString('RFF+LI:50', $message);
-            $this->assertStringContainsString('LIN+2++8290123YY:EN', $message);
-            $this->assertStringContainsString('LIN+3++4250659500284:EN', $message);
+            $this->assertStringContainsString("LIN+1++8290123XX:MF'\nQTY+12:3:PCE'\nRFF+VN:123456789'\nRFF+LI:10'\nRFF+AAJ:123444'\nRFF+LI:10", $message);
+            $this->assertStringContainsString("LIN+2++8290123YY:EN'\n", $message);
+            $this->assertStringContainsString("LIN+3++4250659500284:EN'\n", $message);
+            $this->assertStringContainsString("LIN+5++4250659500286:EN'\nQTY+12:5:PCE'\nRFF+VN:123456789'\nRFF+LI:60'\nRFF+AAJ:123444'\nRFF+LI:60'", $message);
         } catch (EdifactException $e) {
             fwrite(STDOUT, "\n\nDESADV\n" . $e->getMessage());
             fwrite(STDOUT, "\n\nDESADV\n" . $e->getTraceAsString());
