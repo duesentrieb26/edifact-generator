@@ -10,6 +10,7 @@
 namespace GeneratorTest;
 
 use DateInterval;
+use DateTime;
 use EDI\Encoder;
 use EDI\Generator\Desadv;
 use EDI\Generator\Desadv\Package;
@@ -43,7 +44,10 @@ final class DesadvTest extends TestCase {
         ], $array);
     }
 
-
+    /**
+     * 
+     * @return DateTime 
+     */
     private function getDateTime() {
         return (new \DateTime())
             ->setDate(2018, 1, 23)
@@ -162,7 +166,7 @@ final class DesadvTest extends TestCase {
             $desadv = (new Desadv())
                 ->setSender('UNB-Identifier-Sender')
                 ->setReceiver('RECEIVer')
-                ->setDeliveryNoteNumber(Desadv::DELIVERY_NOTE, 'LS123456789')
+                ->setDeliveryNoteNumber(Desadv::DELIVERY_NOTE_ADVICE, 'LS123456789')
                 ->setDeliveryNoteDate($this->getDateTime())
                 ->setDeliveryDate($this->getDateTime())
                 ->setShippingDate($this->getDateTime()->add(new DateInterval('P1D')))
@@ -202,13 +206,17 @@ final class DesadvTest extends TestCase {
 
             $packageItem1 = new PackageItem();
             $packageItem1
-                ->setPackageContent($pos++, '8290123XX', 'MF', 3);
+                ->setPackageContent($pos++, '8290123XX', 'MF', 3)
+                ->setDeliveryNoteNumber('123444', 10, $this->getDateTime()->add(new DateInterval('P10D')))
+                ->setOrderNumber('123456789', 10);
             $package->addItem($packageItem1);
 
 
             $packageItem2 = new PackageItem();
             $packageItem2
-                ->setPackageContent($pos++, '8290123YY', 'EN', 20);
+                ->setPackageContent($pos++, '8290123YY', 'EN', 20)
+                ->setDeliveryNoteNumber('123444', 20, $this->getDateTime()->add(new DateInterval('P10D')))
+                ->setOrderNumber('123456789', 20);
             $package->addItem($packageItem2);
             $desadv->addPackage($package);
 
@@ -223,19 +231,24 @@ final class DesadvTest extends TestCase {
             $packageItem3 = new PackageItem();
             $packageItem3
                 ->setPackageType('PG', 1)
-                ->setPackageContent($pos++, '4250659500284', 'EN', 5);
+                ->setPackageContent($pos++, '4250659500284', 'EN', 5)
+                ->setDeliveryNoteNumber('123444', 30, $this->getDateTime()->add(new DateInterval('P10D')))
+                ->setOrderNumber('123456789', 30);
             $package2->addItem($packageItem3);
 
             $packageItem4 = new PackageItem();
             $packageItem4
-                ->setPackageContent($pos++, '4250659500285', 'EN', 5);
+                ->setPackageContent($pos++, '4250659500285', 'EN', 5)
+                ->setDeliveryNoteNumber('123444', 50, $this->getDateTime()->add(new DateInterval('P10D')))
+                ->setOrderNumber('123456789', 50);
             $package2->addItem($packageItem4);
 
 
             $packageItem5 = new PackageItem();
             $packageItem5
                 ->setPackageContent($pos++, '4250659500286', 'EN', 5)
-                ->setDeliveryNoteNumber('123444', 10, $this->getDateTime()->add(new DateInterval('P10D')));
+                ->setDeliveryNoteNumber('123444', 60, $this->getDateTime()->add(new DateInterval('P10D')))
+                ->setOrderNumber('123456789', 60);
             $package2->addItem($packageItem5);
 
 
@@ -258,8 +271,9 @@ final class DesadvTest extends TestCase {
             $encoder->setUNA(":+,? '");
 
             $message = str_replace("'", "'\n", $encoder->get());
-            fwrite(STDOUT, "\n\nDESADV\n" . $message);
+            // fwrite(STDOUT, "\n\nDESADV\n" . $message);
 
+            $this->assertStringContainsString('BGM+351+LS123456789', $message);
             $this->assertStringContainsString('TDT+13+16789+30+31S', $message);
             $this->assertStringContainsString('DTM+137', $message);
             $this->assertStringContainsString('DTM+11', $message);
@@ -267,19 +281,19 @@ final class DesadvTest extends TestCase {
             $this->assertStringContainsString('CTA++', $message);
             $this->assertStringContainsString('COM+', $message);
             $this->assertStringContainsString('CPS+1', $message);
-            $this->assertStringContainsString('CPS+2+1', $message);
-            $this->assertStringContainsString('PAC+5++PN', $message);
             $this->assertStringContainsString('MEA+AAE+BW+KGM:1426,56', $message);
             $this->assertStringContainsString('GIN+BJ+00343107380000001051', $message);
             $this->assertStringContainsString('GIN+BJ+12345678900001', $message);
+            $this->assertStringContainsString("CPS+1'\nPAC+2", $message);
+            $this->assertStringContainsString("CPS+2+1'\nPAC+3++CT", $message);
             $this->assertStringContainsString('CPS+3+1', $message);
-            $this->assertStringContainsString('CPS+7+3', $message);
-            $this->assertStringContainsString('CPS+8+3', $message);
-            $this->assertStringContainsString('QTY+12:3', $message);
+            $this->assertStringContainsString('QTY+12:3:PCE', $message);
             $this->assertStringContainsString('PAC+1++PG', $message);
             $this->assertStringContainsString('PCI+33E', $message);
             $this->assertStringContainsString("RFF+AAJ:123444'\nRFF+LI:10'\nDTM+2:20180202:102", $message);
             $this->assertStringContainsString('LIN+1++8290123XX:MF', $message);
+            $this->assertStringContainsString('RFF+VN:123456789', $message);
+            $this->assertStringContainsString('RFF+LI:50', $message);
             $this->assertStringContainsString('LIN+2++8290123YY:EN', $message);
             $this->assertStringContainsString('LIN+3++4250659500284:EN', $message);
         } catch (EdifactException $e) {
@@ -309,8 +323,13 @@ final class DesadvTest extends TestCase {
         $data = Package::addMEASegment(1426.56, 'AAF', 'BW', 'KGM');
     }
 
+    /**
+     * 
+     * @return void 
+     * @throws GlobalInvalidArgumentException 
+     */
     public function testAllowedQualifiersOnMEASegment() {
-        $this->expectExceptionMessage('Invalid qualifier KMG for package weight. Onlygset these are allowed CMK, CMQ, CMT, DZN, GRM, HLT, KGM, KTM, LTR, MMT, MTK, MTQ, NRL, MTR, PCE, PR, SET, TNE');
+        $this->expectExceptionMessage('Invalid qualifier KMG for package weight. Only these are allowed CMK, CMQ, CMT, DZN, GRM, HLT, KGM, KTM, LTR, MMT, MTK, MTQ, NRL, MTR, PCE, PR, SET, TNE');
         $data = Package::addMEASegment(1426.56, 'AAE', 'BW', 'KMG');
     }
 }

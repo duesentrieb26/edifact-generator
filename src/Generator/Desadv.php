@@ -193,8 +193,8 @@ class Desadv extends Message {
         }
 
         $totalPackages = count($this->packages);
-        $packageNumber = 2;
-        $packageItemNumber = $totalPackages + 2;
+        $packageNumber = 1;
+        $packageItemNumber = 1; //$totalPackages + 2;
         $totalWeight = 0;
 
         /* Calulate the total weight of all packages */
@@ -205,12 +205,12 @@ class Desadv extends Message {
             }
         }
 
-        $this->messageContent[] = Package::addCPSSegment(1);
+        $this->messageContent[] = Package::addCPSSegment($packageNumber);
         $this->messageContent[] = Package::addPACSegment($totalPackages, 'PG');
         $this->messageContent[] = Package::addMEASegment($totalWeight, 'AAE', 'BW');
 
         foreach ($this->packages as $package) {
-            $this->messageContent[] = Package::addCPSSegment(1, $packageNumber);
+            $this->messageContent[] = Package::addCPSSegment(1, ++$packageNumber);
             $composed = $package->compose();
             foreach ($composed as $entry) {
                 $this->messageContent[] = $entry;
@@ -218,12 +218,11 @@ class Desadv extends Message {
             foreach ($package->getItems() as $packageItem) {
                 $composed = $packageItem->compose();
 
-                $this->messageContent[] = Package::addCPSSegment($packageNumber, $packageItemNumber++);
+                // $this->messageContent[] = Package::addCPSSegment($packageNumber, $packageItemNumber++);
                 foreach ($composed as $entry) {
                     $this->messageContent[] = $entry;
                 }
             }
-            $packageNumber++;
         }
 
         parent::compose();

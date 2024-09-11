@@ -25,7 +25,13 @@ class PackageItem extends Base {
 
   protected $weight;
 
+  protected $orderNumber;
+
+  protected $orderNumberPosition;
+
   protected $deliveryNoteNumber;
+
+  protected $deliveryNotePosition;
 
   protected $pac;
 
@@ -34,7 +40,10 @@ class PackageItem extends Base {
     'pac',
     'content',
     'quantity',
-    'deliveryNoteNumber'
+    'orderNumber',
+    'orderNumberPosition',
+    'deliveryNoteNumber',
+    'deliveryNotePosition'
   ];
 
 
@@ -134,31 +143,43 @@ class PackageItem extends Base {
    * @param string $quantity 
    * @return (string|(string|int)[])[] 
    */
-  public static function addQTYSegment($quantity) {
+  public static function addQTYSegment($quantity, $unit = 'PCE') {
     return [
       'QTY',
       [
         '12',
         $quantity,
+        $unit,
       ],
     ];
   }
 
 
+
+  /**
+   * Order Number
+   * @param string $orderNumber 
+   * @param string $orderNumberPosition 
+   * @return $this 
+   */
+  public function setOrderNumber($orderNumber, $orderNumberPosition) {
+    $this->orderNumber = $this->addRFFSegment('VN', $orderNumber);
+    $this->orderNumberPosition = $this->addRFFSegment('LI', $orderNumberPosition);
+
+    return $this;
+  }
+
   /**
    * 
-   * @param mixed $deliveryNoteNumber 
-   * @param mixed $deliveryDate 
+   * @param string $deliveryNoteNumber 
+   * @param string $deliveryDate 
    * @return $this 
    * @throws EdifactException 
    */
-  public function setDeliveryNoteNumber($deliveryNoteNumber, $positon = null, $deliveryDate = null) {
+  public function setDeliveryNoteNumber($deliveryNoteNumber, $positon, $deliveryDate = null) {
     $data[] = $this->addRFFSegment('AAJ', $deliveryNoteNumber);
 
-
-    if ($positon) {
-      $data[] = $this->addRFFSegment('LI', $positon);
-    }
+    $data[] = $this->addRFFSegment('LI', $positon);
 
     if ($deliveryDate) {
       array_push(
