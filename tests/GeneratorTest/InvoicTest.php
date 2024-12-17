@@ -389,7 +389,22 @@ final class InvoicTest extends TestCase {
           ' DE ',
           ' 9 ',
           ' 42507241123123 '
-        );
+        )
+        ->setInvoiceAddress(
+          ' Name 1',
+          ' Name 2 ',
+          ' Name 3 ',
+          ' Street ',
+          ' 99999 ',
+          ' City ',
+          ' DE ',
+          ' 9 ',
+          ' 42507241123123 '
+        )
+        ->setInvoiceAddressVatId('XXX-12333--DD')
+        ->setInvoiceAddressFiscalNumber('DE12343122')
+      ;
+
 
 
       $item = new Invoic\Item();
@@ -404,6 +419,7 @@ final class InvoicTest extends TestCase {
         ->setNetPrice(22.50)
         ->setGrossPrice(26.775)
         ->setOrderNumberWholeSaler('545.SWEB-05622249-002')
+        ->setOrderPosition(22)
         ->setOrderDate($this->getDateTime())
         ->setDeliveryNotePosition(20)
         ->setDeliveryNoteNumber('deliverNoteNumber')
@@ -423,12 +439,27 @@ final class InvoicTest extends TestCase {
       );
 
       $this->assertStringContainsString(
-        "IMD+++SP:::ERSS Typ 200 Wei'",
+        "NAD+IV+42507241123123::9++Name 1:Name 2:Name 3+Street+City++99999+DE'\n"  .
+          "RFF+VA:XXX-12333--DD'\n" .
+          "RFF+FC:DE12343122'",
         $message
       );
+
       $this->assertStringContainsString(
-        "IMD+++ZU:::Brauchwasserspeicher  - EEK?: B'",
-        $message
+        "LIN+1++articleId:MF'\n" .
+          "IMD+++SP:::ERSS Typ 200 Wei'\n" .
+          "IMD+++ZU:::Brauchwasserspeicher  - EEK?: B'\n" .
+          "QTY+12:5:PCE'\n" .
+          "DTM+2:20180123:102'\n" .
+          "DTM+35:20180123:102'\n" .
+          "FTX+INV++::89+this is a longer description for testing inside item position'\n" .
+          "PRI+GRP:26,78:::1:PCE'\n" .
+          "PRI+NTP:22,50:::1:PCE'\n" .
+          "RFF+VN:545.SWEB-05622249-002'\n" .
+          "RFF+AAJ:deliverNoteNumber'\n" .
+          "RFF+FI:20'",
+        "RFF+LI:22'\n" .
+          $message
       );
       // file_put_contents(getcwd() . 'cache/InvoicTest.edi.txt', $message, FILE_APPEND);
     } catch (EdifactException $e) {

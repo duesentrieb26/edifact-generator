@@ -109,6 +109,9 @@ class Invoic extends Message {
 
   protected $netAmountPAT0;
 
+  /** @var string */
+  protected $invoiceAddressFiscalNumber;
+
   /** @var array */
   protected $composeKeys
   = [
@@ -128,6 +131,7 @@ class Invoic extends Message {
     'deliveryAddressVatId',
     'invoiceAddress',
     'invoiceAddressVatId',
+    'invoiceAddressFiscalNumber',
     'contactPerson',
     'mailAddress',
     'phoneNumber',
@@ -577,6 +581,25 @@ class Invoic extends Message {
     ];
 
     $this->charges[] = self::addMOASegment('8', EdiFactNumber::convert(abs($value)));
+
+    return $this;
+  }
+
+
+
+  /**
+   * Add a VAT ID to the invoice address
+   * @param mixed $vatNumber 
+   * @return $this 
+   */
+  public function setInvoiceAddressVatId($vatNumber) {
+    $this->invoiceAddressVatId = self::addRFFSegment('VA', str_replace(' ', '', $vatNumber));
+
+    return $this;
+  }
+
+  public function setInvoiceAddressFiscalNumber($fiscalNumber) {
+    $this->invoiceAddressFiscalNumber = self::addRFFSegment('FC', str_replace(' ', '', $fiscalNumber));
 
     return $this;
   }
