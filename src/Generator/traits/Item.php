@@ -66,6 +66,7 @@ trait Item {
     'deliveryNoteNumber',
     'deliveryNotePosition',
     'orderPosition',
+    'orderDate',
     'discount',
     'discountFactor',
   ];

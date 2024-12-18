@@ -348,7 +348,7 @@ final class InvoicTest extends TestCase {
       $this->assertStringContainsString("TAX+7+VAT+++:::19,00'\nMOA+150:19,11", $message);
       $this->assertStringContainsString('ALC+C++++DL', $message);
       $this->assertStringContainsString('MOA+8:149,00', $message);
-      $this->assertStringContainsString('UNT+44', $message);
+      $this->assertStringContainsString('UNT+45', $message);
     } catch (EdifactException $e) {
       fwrite(STDOUT, "\n\nINVOICE\n" . $e->getMessage());
     }
@@ -457,9 +457,9 @@ final class InvoicTest extends TestCase {
           "PRI+NTP:22,50:::1:PCE'\n" .
           "RFF+VN:545.SWEB-05622249-002'\n" .
           "RFF+AAJ:deliverNoteNumber'\n" .
-          "RFF+FI:20'",
-        "RFF+LI:22'\n" .
-          $message
+          "RFF+FI:20'\n" .
+          "RFF+LI:22'\n",
+        $message
       );
       // file_put_contents(getcwd() . 'cache/InvoicTest.edi.txt', $message, FILE_APPEND);
     } catch (EdifactException $e) {

@@ -41,6 +41,7 @@ class InvoicItemTest extends TestCase {
         ->setNetPrice(354.78)
         ->setOrderNumberWholesaler('4501532449')
         ->setDeliveryNoteNumber(931551, "2021-04-19")
+        ->setOrderDate("2021-04-10")
         ->addDiscount(-5, Item::DISCOUNT_TYPE_PERCENT, 385, 'LKW Lieferung')
         ->addDiscount(-3, Item::DISCOUNT_TYPE_PERCENT, 385, 'Sonderrabatt')
         ->addDiscountFactor(354.78, 385);
@@ -53,7 +54,15 @@ class InvoicItemTest extends TestCase {
     } catch (EdifactException $e) {
       fwrite(STDOUT, "\n\nINVOICE-ITEM\n" . $e->getMessage());
     }
-    $this->assertStringContainsString("PRI+GRP:385,00:::1:PCE'\nPRI+NTP:354,78:::1:PCE'\nRFF+VN:4501532449'\nRFF+AAJ:931551'\nDTM+2:20210419:102'", $message);
+    $this->assertStringContainsString(
+      "PRI+GRP:385,00:::1:PCE'\n" .
+        "PRI+NTP:354,78:::1:PCE'\n" .
+        "RFF+VN:4501532449'\n" .
+        "RFF+AAJ:931551'\n" .
+        "DTM+2:20210419:102'\n" .
+        "DTM+4:20210410:102'\n",
+      $message
+    );
     $this->assertStringContainsString("ALC+A++++ZZZ:::LKW Lieferung'\nPCD+3:5,00'\nMOA+8:19,25", $message);
     $this->assertStringContainsString("ALC+A++++ZZZ:::Sonderrabatt'\nPCD+3:3,00'\nMOA+8:11,55", $message);
     $this->assertStringContainsString("ALC+A++++SF'\nPCD+1:0,9215'\nMOA+8:30,22", $message);
