@@ -16,7 +16,9 @@ use EDI\Generator\Interchange;
 use EDI\Generator\Invoic;
 use EDI\Generator\Orders;
 use EDI\Generator\Ordrsp;
+use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
+use SebastianBergmann\RecursionContext\InvalidArgumentException;
 
 class OrdersTest extends TestCase {
 
@@ -49,13 +51,22 @@ class OrdersTest extends TestCase {
     $encoder = new Encoder($interchange->addMessage($orderResponse)->getComposed(), true);
     $message = str_replace("'", "'\n", $encoder->get());
     $this->assertStringContainsString(
-      "QTY+12:5:PCE'\nDTM+17:20210420:102",
+      "QTY+12:5:PCE'\n" .
+        "RFF+VN:500.MY I-50311046-005'\n" .
+        "RFF+AAJ:test'\n" .
+        "DTM+17:20210420:102",
       $message
     );
     $this->assertStringContainsString("UNT+8+", $message);
   }
 
 
+  /**
+   * Test Orders
+   * 
+   * @throws EdifactException
+   * @return void 
+   */
   public function testOrders() {
     $interchange = new Interchange(
       'UNB-Identifier-Sender',
@@ -116,6 +127,12 @@ class OrdersTest extends TestCase {
   }
 
 
+  /**
+   * 
+   * @return void 
+   * @throws InvalidArgumentException 
+   * @throws ExpectationFailedException 
+   */
   public function testFreeText() {
     $this->assertEquals(
       'FTX+ORI++HAE::89+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commo:do ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et ma:gnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, :ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat mas:sa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate \'',

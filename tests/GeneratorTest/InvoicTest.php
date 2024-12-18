@@ -450,15 +450,30 @@ final class InvoicTest extends TestCase {
           "IMD+++SP:::ERSS Typ 200 Wei'\n" .
           "IMD+++ZU:::Brauchwasserspeicher  - EEK?: B'\n" .
           "QTY+12:5:PCE'\n" .
-          "DTM+2:20180123:102'\n" .
           "DTM+35:20180123:102'\n" .
           "FTX+INV++::89+this is a longer description for testing inside item position'\n" .
           "PRI+GRP:26,78:::1:PCE'\n" .
           "PRI+NTP:22,50:::1:PCE'\n" .
           "RFF+VN:545.SWEB-05622249-002'\n" .
+          "DTM+4:20180123:102'\n" .
+          "RFF+LI:22'\n" .
           "RFF+AAJ:deliverNoteNumber'\n" .
-          "RFF+FI:20'\n" .
-          "RFF+LI:22'\n",
+          "DTM+2:20180123:102'\n" .
+          "RFF+FI:20'\n",
+
+        // "LIN+1++articleId:MF'\n" .
+        //   "IMD+++SP:::ERSS Typ 200 Wei'\n" .
+        //   "IMD+++ZU:::Brauchwasserspeicher  - EEK?: B'\n" .
+        //   "QTY+12:5:PCE'\n" .
+        //   "DTM+35:20180123:102'\n" .
+        //   "FTX+INV++::89+this is a longer description for testing inside item position'\n" .
+        //   "PRI+GRP:26,78:::1:PCE'\n" .
+        //   "PRI+NTP:22,50:::1:PCE'\n" .
+        //   "RFF+VN:545.SWEB-05622249-002'\n" .
+        //   "DTM+4:20180123:102'\n" .
+        //   "RFF+LI:22'\n" .
+        //   "RFF+AAJ:deliverNoteNumber'\n" .
+        //   "RFF+FI:20'\n",
         $message
       );
       // file_put_contents(getcwd() . 'cache/InvoicTest.edi.txt', $message, FILE_APPEND);

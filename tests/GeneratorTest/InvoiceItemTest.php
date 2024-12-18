@@ -42,6 +42,7 @@ class InvoicItemTest extends TestCase {
         ->setOrderNumberWholesaler('4501532449')
         ->setDeliveryNoteNumber(931551, "2021-04-19")
         ->setOrderDate("2021-04-10")
+        ->setOrderPosition(1000)
         ->addDiscount(-5, Item::DISCOUNT_TYPE_PERCENT, 385, 'LKW Lieferung')
         ->addDiscount(-3, Item::DISCOUNT_TYPE_PERCENT, 385, 'Sonderrabatt')
         ->addDiscountFactor(354.78, 385);
@@ -58,9 +59,10 @@ class InvoicItemTest extends TestCase {
       "PRI+GRP:385,00:::1:PCE'\n" .
         "PRI+NTP:354,78:::1:PCE'\n" .
         "RFF+VN:4501532449'\n" .
+        "DTM+4:20210410:102'\n" .
+        "RFF+LI:1000'\n" .
         "RFF+AAJ:931551'\n" .
-        "DTM+2:20210419:102'\n" .
-        "DTM+4:20210410:102'\n",
+        "DTM+2:20210419:102'\n",
       $message
     );
     $this->assertStringContainsString("ALC+A++++ZZZ:::LKW Lieferung'\nPCD+3:5,00'\nMOA+8:19,25", $message);
