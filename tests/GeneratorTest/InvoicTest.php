@@ -452,8 +452,8 @@ final class InvoicTest extends TestCase {
           "QTY+12:5:PCE'\n" .
           "DTM+35:20180123:102'\n" .
           "FTX+INV++::89+this is a longer description for testing inside item position'\n" .
-          "PRI+GRP:26,78:::1:PCE'\n" .
           "PRI+NTP:22,50:::1:PCE'\n" .
+          "PRI+GRP:26,78:::1:PCE'\n" .
           "RFF+VN:545.SWEB-05622249-002'\n" .
           "DTM+4:20180123:102'\n" .
           "RFF+LI:22'\n" .

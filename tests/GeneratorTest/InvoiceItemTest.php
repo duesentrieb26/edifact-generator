@@ -56,8 +56,8 @@ class InvoicItemTest extends TestCase {
       fwrite(STDOUT, "\n\nINVOICE-ITEM\n" . $e->getMessage());
     }
     $this->assertStringContainsString(
-      "PRI+GRP:385,00:::1:PCE'\n" .
-        "PRI+NTP:354,78:::1:PCE'\n" .
+      "PRI+NTP:354,78:::1:PCE'\n" .
+        "PRI+GRP:385,00:::1:PCE'\n" .
         "RFF+VN:4501532449'\n" .
         "DTM+4:20210410:102'\n" .
         "RFF+LI:1000'\n" .
