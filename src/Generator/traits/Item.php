@@ -63,10 +63,10 @@ trait Item {
     'grossPrice',
     'netPrice',
     'orderNumberWholesaler',
+    'orderDate',
+    'orderPosition',
     'deliveryNoteNumber',
     'deliveryNotePosition',
-    'orderPosition',
-    'orderDate',
     'discount',
     'discountFactor',
   ];
