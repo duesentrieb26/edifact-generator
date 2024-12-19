@@ -2,7 +2,7 @@
   "name": "duesentrieb26/edifact-generator",
   "description": "EDIFACT message generators",
   "type": "library",
-  "version": "0.0.67",
+  "version": "0.0.68",
   "scripts": {
     "test": "phpunit"
   },
