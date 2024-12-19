@@ -379,6 +379,18 @@ trait Item {
   }
 
   /**
+   * Set the delivery date for an item
+   * @param string|\DateTime $deliveryDate
+   * @param int              $type
+   * @param int              $format
+   */
+  public function setDeliveryDate($deliveryDate, $type = EdifactDate::TYPE_DELIVERY_DATE_REQUESTED, $format = EdifactDate::DATE) {
+    $this->deliveryDate = $this->addDTMSegment($deliveryDate, $type, $format);
+
+    return $this;
+  }
+
+  /**
    * @return array
    */
   public function getDeliveryNoteDate() {
