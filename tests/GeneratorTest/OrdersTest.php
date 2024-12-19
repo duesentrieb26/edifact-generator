@@ -39,6 +39,7 @@ class OrdersTest extends TestCase {
         ->setPosition(1, 'articleId')
         ->setQuantity(5)
         ->setDeliveryNoteNumber("test")
+        ->setDeliveryDate('2021-04-19')
         ->setOrderNumberWholesaler('500.MY I-50311046-005')
         ->setDeliveryNoteDate('2021-04-20', EdifactDate::TYPE_DELIVERY_DATE_ESTIMATED)
       ;
@@ -52,12 +53,13 @@ class OrdersTest extends TestCase {
     $message = str_replace("'", "'\n", $encoder->get());
     $this->assertStringContainsString(
       "QTY+12:5:PCE'\n" .
+        "DTM+2:20210419:102'\n" .
         "RFF+VN:500.MY I-50311046-005'\n" .
         "RFF+AAJ:test'\n" .
         "DTM+17:20210420:102",
       $message
     );
-    $this->assertStringContainsString("UNT+8+", $message);
+    $this->assertStringContainsString("UNT+9+", $message);
   }
 
 

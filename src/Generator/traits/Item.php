@@ -21,6 +21,9 @@ trait Item {
   protected $quantity;
 
   /** @var array */
+  protected $deliveryDate;
+
+  /** @var array */
   protected $orderNumberWholesaler;
 
   /** @var array */
