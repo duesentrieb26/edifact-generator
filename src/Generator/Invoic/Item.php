@@ -133,16 +133,22 @@ class Item extends Base {
     $value,
     $discountType = self::DISCOUNT_TYPE_PERCENT,
     $valueBeforeDiscount = 0,
-    $discountText = ''
+    $discountText = '',
+    $serviceCode = ''
   ) {
     if (!is_array($this->discount)) {
       $this->discount = [];
     }
 
+    if (!empty($serviceCode)) {
+      $code = $serviceCode;
+    } else {
+      $code = $discountType == self::DISCOUNT_TYPE_PERCENT ? 'SF' : 'DI';
+    }
 
-    $discountType == self::DISCOUNT_TYPE_PERCENT ? 'SF' : 'DI';
+    $c214 = [$code];
     if (!empty($discountText)) {
-      $discountType = 'ZZZ';
+      $c214 = [$code, '', '', $discountText];
     }
 
     array_push(
@@ -153,12 +159,7 @@ class Item extends Base {
         '',
         '',
         '',
-        [
-          $discountType,
-          '',
-          '',
-          $discountText,
-        ],
+        $c214,
       ]
     );
 

@@ -51,7 +51,7 @@ final class InvoicTest extends TestCase {
         ->setAdditionalText('')
         ->setGrossPrice(840.0);
       $item
-        ->addDiscount(-2.0, Invoic\Item::DISCOUNT_TYPE_PERCENT, 840, 'Grundrabatt')
+        ->addDiscount(-2.0, Invoic\Item::DISCOUNT_TYPE_PERCENT, 840, 'Grundrabatt', 'TD')
         ->addDiscountFactor(823.20, 840);
 
       $invoice->addItem($item);
@@ -65,7 +65,7 @@ final class InvoicTest extends TestCase {
     $message = str_replace("'", "'\n", $encoder->get());
     $this->assertStringContainsString("PRI+GRP:840,00:::1:PCE'", $message);
     $this->assertStringContainsString(
-      "ALC+A++++ZZZ:::Grundrabatt'\nPCD+3:2,00'\nMOA+8:16,80'\nALC+A++++SF'\nPCD+1:0,9800'\nMOA+8:16,80'",
+      "ALC+A++++TD:::Grundrabatt'\nPCD+3:2,00'\nMOA+8:16,80'\nALC+A++++SF'\nPCD+1:0,9800'\nMOA+8:16,80'",
       $message
     );
     $this->assertStringContainsString("UNT+13+", $message);
@@ -329,11 +329,9 @@ final class InvoicTest extends TestCase {
         ->setTax(19, 19.11);
 
       $invoice->compose();
-      //      print_r($invoice->getComposed());exit;
       $encoder = new Encoder($interchange->addMessage($invoice)->getComposed(), true);
       $encoder->setUNA(":+,? '");
       $message = str_replace("'", "'\n", $encoder->get());
-      //      fwrite(STDOUT, "\n\nINVOICE\n" . $message);
 
 
       $this->assertStringContainsString("UNB+UNOC:3+UNB-Identifier-Sender+UNB-Identifier-Receiver+", $message);
