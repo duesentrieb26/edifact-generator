@@ -9,8 +9,8 @@
 
 namespace EDI\Generator;
 
-use EDI\Generator\Invoic\Item;
 use EDI\Generator\Traits\ContactPerson;
+use EDI\Generator\Traits\DeliveryTerms;
 use EDI\Generator\Traits\NameAndAddress;
 
 /**
@@ -23,6 +23,7 @@ use EDI\Generator\Traits\NameAndAddress;
 class Invoic extends Message {
   use
     ContactPerson,
+    DeliveryTerms,
     NameAndAddress;
 
   /**
@@ -129,6 +130,7 @@ class Invoic extends Message {
     'representativeAddressVatId',
     'deliveryAddress',
     'deliveryAddressVatId',
+    'deliveryTerms',
     'invoiceAddress',
     'invoiceAddressVatId',
     'invoiceAddressFiscalNumber',

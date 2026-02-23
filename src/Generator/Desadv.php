@@ -4,6 +4,7 @@ namespace EDI\Generator;
 
 use EDI\Generator\Desadv\Package;
 use EDI\Generator\Traits\ContactPerson;
+use EDI\Generator\Traits\DeliveryTerms;
 use EDI\Generator\Traits\NameAndAddress;
 use EDI\Generator\Traits\TransportData;
 
@@ -15,6 +16,7 @@ use EDI\Generator\Traits\TransportData;
 class Desadv extends Message {
     use ContactPerson,
         NameAndAddress,
+        DeliveryTerms,
         TransportData;
 
     const DELIVERY_ADVICE = '22E';
@@ -42,6 +44,7 @@ class Desadv extends Message {
         'manufacturerAddress',
         'wholesalerAddress',
         'deliveryAddress',
+        'deliveryTerms',
         'contactPerson',
         'mailAddress',
         'phoneNumber',

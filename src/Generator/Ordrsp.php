@@ -10,6 +10,7 @@
 namespace EDI\Generator;
 
 use EDI\Generator\Traits\ContactPerson;
+use EDI\Generator\Traits\DeliveryTerms;
 use EDI\Generator\Traits\NameAndAddress;
 
 /**
@@ -20,6 +21,7 @@ use EDI\Generator\Traits\NameAndAddress;
  */
 class Ordrsp extends Message {
   use ContactPerson,
+    DeliveryTerms,
     NameAndAddress;
 
   /** @var array */
@@ -80,6 +82,7 @@ class Ordrsp extends Message {
     'deliveryAddressMailAddress',
     'deliveryAddressPhoneNumber',
     'deliveryAddressFaxNumber',
+    'deliveryTerms',
     'allowanceOrCharge',
     'allowanceOrChargeMoa',
     'transportData',
