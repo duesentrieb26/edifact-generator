@@ -1,126 +1,180 @@
-The classes provided by this package give a fluent interface which simplifies the encoding of an EDI (mainly UN/EDIFACT) message.
+# EDIFACT Generator
 
-The resulting array can be encoded in a valid message with EDI\Encoder class provided by [https://github.com/PHPEdifact/edifact](https://github.com/PHPEdifact/edifact).
+A PHP library that provides fluent interfaces for generating UN/EDIFACT messages.
 
-Each message type extends a generic Message class which provides common helpers.
+The resulting array structures can be encoded into valid EDI messages using the [`sabas/edifact`](https://github.com/PHPEdifact/edifact) encoder package.
 
-See [SAMPLES.md](SAMPLES.md) for code examples using this library.
+## Installation
 
-
-
-start vscode in a dev container
-to run  the tests
 ```bash
-composer test
+composer require duesentrieb26/edifact-generator
 ```
 
+### Requirements
 
-Generator for ediFACT messages
-=
+- PHP 8.2+
+- [sabas/edifact](https://github.com/PHPEdifact/edifact) ~0.7.0
 
-Message types
--
+## Supported Message Types
 
-- DESADV
-- ORDERS
-- ORDRSP
-- INVOIC
-- CALINF
-- CODECO
-- COPARN
-- COPINO
-- COPRAR
-- VERMAS
-- WESTIM
+| Type | Description |
+|------|-------------|
+| **INVOIC** | Invoice message |
+| **ORDERS** | Purchase order |
+| **ORDRSP** | Purchase order response |
+| **DESADV** | Dispatch advice (shipping notification) |
+| **CALINF** | Vessel call information |
+| **CODECO** | Container gate-in/gate-out report |
+| **COPARN** | Container announcement |
+| **COPINO** | Container pre-notification / dispatch order |
+| **COPRAR** | Container discharge/loading order |
+| **VERMAS** | Verified gross mass (VGM) transmission |
+| **WESTIM** | Container MNR/repair estimate |
 
+## Quick Start
 
-Messages can be generated in object style
+Messages are built using a fluent interface and then composed into an interchange envelope:
 
-
-
-```
+```php
 <?php
 
 use EDI\Encoder;
 use EDI\Generator\Interchange;
+use EDI\Generator\Invoic;
 use EDI\Generator\Invoic\Item;
 
+// 1. Create the interchange envelope
 $interchange = new Interchange(
     'UNB-Identifier-Sender',
     'UNB-Identifier-Receiver'
 );
-$interchange->setCharset('UNOC')
-    ->setCharsetVersion('3');
+$interchange->setCharset('UNOC', '3');
 
+// 2. Build the message
+$invoice = new Invoic();
 $invoice
     ->setInvoiceNumber('INV12345')
-    ->setInvoiceDate($this->getDateTime())
-    ->setDeliveryDate($this->getDateTime())
-    ->setReductionOfFeesText('reduction')
-    ->setExcludingVatText('excluding Vat text with more as 70 characters used for testing')
-    ->setInvoiceDescription('invoiceDescription')
-    ->setManufacturerAddress(
-        'Name 1',
-        'Name 2',
-        'Name 3',
-        'Street',
-        '99999',
-        'city',
-        'DE'
-    )->setWholesalerAddress(
-        'Name 1',
-        'Name 2',
-        'Name 3',
-        'Street',
-        '99999',
-        'city',
-        'DE'
-    )->setDeliveryAddress(
-        'Name 1',
-        'Name 2',
-        'Name 3',
-        'Street',
-        '99999',
-        'city',
-        'DE'
-    )->setContactPerson('John Doe')
+    ->setInvoiceDate('20240115')
+    ->setDeliveryDate('20240110')
+    ->setInvoiceDescription('Monthly invoice')
+    ->setManufacturerAddress('Company A', 'Dept.', '', 'Main St. 1', '10115', 'Berlin', 'DE')
+    ->setWholesalerAddress('Company B', '', '', 'Market Ave. 5', '20095', 'Hamburg', 'DE')
+    ->setDeliveryAddress('Company B', 'Warehouse', '', 'Dock Rd. 12', '20095', 'Hamburg', 'DE')
+    ->setContactPerson('John Doe')
     ->setMailAddress('john.doe@company.com')
     ->setPhoneNumber('+49123456789')
-    ->setFaxNumber('+49123456789-11')
     ->setVatNumber('DE 123456789')
     ->setCurrency('EUR');
+
+// 3. Add line items
 $item = new Item();
 $item
-    ->setPosition(1, 'articleId')
+    ->setPosition(1, 'ART-001')
     ->setQuantity(5)
-    ->setAdditionalText('additionalText')
-    ->setInvoiceDescription('this is a longer description for testing inside item position')
     ->setNetPrice(22.50)
-    ->setGrossPrice(26.775)
-    ->setOrderNumberWholeSaler('545.SWEB-05622249-002')
-    ->setOrderDate($this->getDateTime())
-    ->setDeliveryNotePosition(20)
-    ->setDeliveryNoteNumber('deliverNoteNumber')
-    ->setDeliveryNoteDate($this->getDateTime());
-$item->addDiscount(-20.34, Item::DISCOUNT_TYPE_ABSOLUTE);
-$item->addDiscount(3);
+    ->setGrossPrice(26.78)
+    ->setOrderNumberWholeSaler('PO-2024-001')
+    ->setOrderDate('20240105');
 
 $invoice->addItem($item);
 
-
+// 4. Set totals
 $invoice
-    ->setTotalPositionsAmount(100.22)
-    ->setBasisAmount(80)
-    ->setTaxableAmount(80)
-    ->setPayableAmount(100.22)
-    ->setTax(19, 19.11);
+    ->setTotalPositionsAmount(112.50)
+    ->setBasisAmount(112.50)
+    ->setTaxableAmount(112.50)
+    ->setPayableAmount(133.88)
+    ->setTax(19, 21.38);
 
+// 5. Compose and encode
 $invoice->compose();
 
-$encoder = new Encoder($interchange->addMessage($invoice)->getComposed(), true);
+$encoder = new Encoder(
+    $interchange->addMessage($invoice)->getComposed(),
+    true
+);
 $encoder->setUNA(":+,? '");
 
-$message = $encoder->get();
-
-            
+$ediMessage = $encoder->get();
 ```
+
+## Message Flow
+
+1. Create an `Interchange` instance with sender/receiver identifiers
+2. Create a message instance (e.g. `Invoic`, `Orders`, `Desadv`)
+3. Use fluent setters to populate message data
+4. Add items or containers to the message (if applicable)
+5. Call `compose()` on the message
+6. Add the message to the interchange with `addMessage()`
+7. Call `getComposed()` on the interchange to get the final array
+8. Pass the array to `EDI\Encoder` to generate the EDI output
+
+## More Examples
+
+See [SAMPLES.md](SAMPLES.md) for detailed code examples covering VERMAS, COPINO, COPARN, CODECO, COPRAR, and WESTIM message types.
+
+## Architecture
+
+### Class Hierarchy
+
+```
+Base
+  ├── Message (abstract base for all message types)
+  │     ├── Invoic
+  │     ├── Desadv
+  │     ├── Orders
+  │     ├── Ordrsp
+  │     ├── Calinf
+  │     ├── Codeco
+  │     ├── Coparn
+  │     ├── Copino
+  │     ├── Coprar
+  │     ├── Vermas
+  │     └── Westim
+  │
+  ├── Item classes (Invoic\Item, Orders\Item, Ordrsp\Item, Desadv\Item)
+  ├── Container classes (Codeco\Container, Coprar\Container, Vermas\Container)
+  ├── Desadv\Package / Desadv\PackageItem
+  └── Westim\Damage
+
+Interchange (UNB/UNZ envelope wrapper)
+```
+
+### Traits
+
+Reusable functionality is extracted into traits:
+
+- **ContactPerson** -- contact information (name, email, phone, fax)
+- **NameAndAddress** -- NAD segment generation for addresses
+- **ItemPrice** -- pricing information for line items
+- **Item** -- generic item functionality
+- **TransportData** -- shipping and transport details
+- **DeliveryTerms** -- delivery terms and conditions
+
+### Helpers
+
+- **EdifactDate** -- converts PHP date strings to EDIFACT date formats
+- **EdiFactNumber** -- converts numeric values to EDIFACT number format
+- **EdifactException** -- custom exception class for validation errors
+
+## Development
+
+### Running Tests
+
+```bash
+composer test
+```
+
+Run a specific test file:
+
+```bash
+vendor/bin/phpunit tests/GeneratorTest/InvoicTest.php
+```
+
+### Dev Container
+
+The project includes a dev container configuration for VS Code. Open the project in a dev container to get a pre-configured PHP environment.
+
+## License
+
+This project is licensed under the [LGPL-3.0+](LICENSE) license.
