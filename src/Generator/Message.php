@@ -236,15 +236,25 @@ class Message extends Base {
    */
   public static function addFTXSegment($text, $qualifier, $reference = '') {
     $textLines = self::splitTextOnWordBoundary($text, 70, 5);
+
+    // C107 TEXT REFERENCE: 4441 (free text identification) + 3055 (code list
+    // responsible agency, constant "89" = ITEK). The standard EDIFACT D.96B
+    // C107 also has a 1131 code list identification between them, but no
+    // common INVOIC profile (EANCOM, ITEK35, EDITEC) uses 1131. Emitting an
+    // empty middle component (e.g. "HAE::89") fails ITEK35-strict parsers,
+    // which expect either "HAE:89" or no C107 at all.
+    if ($reference === '' || $reference === null) {
+      $c107 = '';
+    }
+    else {
+      $c107 = [$reference, '89'];
+    }
+
     return [
       'FTX',
       $qualifier,
       '',
-      [
-        $reference,
-        '',
-        '89',
-      ],
+      $c107,
       $textLines,
     ];
   }

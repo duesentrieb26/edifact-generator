@@ -104,7 +104,7 @@ final class InvoicTest extends TestCase {
    */
   public function testFreeText() {
     $this->assertEquals(
-      'FTX+OSI++HAE::89+reduction of fees text\'',
+      'FTX+OSI++HAE:89+reduction of fees text\'',
       (new Encoder(
         [
           Invoic::addFTXSegment(
@@ -449,7 +449,7 @@ final class InvoicTest extends TestCase {
           "IMD+++ZU:::Brauchwasserspeicher  - EEK?: B'\n" .
           "QTY+12:5:PCE'\n" .
           "DTM+35:20180123:102'\n" .
-          "FTX+INV++::89+this is a longer description for testing inside item position'\n" .
+          "FTX+INV+++this is a longer description for testing inside item position'\n" .
           "PRI+NTP:22,50:::1:PCE'\n" .
           "PRI+GRP:26,78:::1:PCE'\n" .
           "RFF+VN:545.SWEB-05622249-002'\n" .
