@@ -481,6 +481,54 @@ final class InvoicTest extends TestCase {
   }
 
   /**
+   * @throws EdifactException
+   */
+  public function testHeaderAndAmountGetters() {
+    $invoice = (new Invoic())
+      ->setInvoiceNumber('RE123')
+      ->setInvoiceDate($this->getDateTime())
+      ->setDeliveryDate($this->getDateTime())
+      ->setReductionOfFeesText('Reduction')
+      ->setExcludingVatText('Excluding VAT')
+      ->setInvoiceDescription('Description')
+      ->setVatNumber('DE 123 456 789')
+      ->setCurrency()
+      ->setTotalPositionsAmount(100)
+      ->setBasisAmount(10.5)
+      ->setTaxableAmount('20,25')
+      ->setPayableAmount(30);
+
+    $this->assertEquals(['BGM', ['380', '', '89'], 'RE123', 9], $invoice->getInvoiceNumber());
+    $this->assertEquals(['DTM', ['3', '20180123', 102]], $invoice->getInvoiceDate());
+    $this->assertEquals(['DTM', ['35', '20180123', 102]], $invoice->getDeliveryDate());
+    $this->assertEquals(['FTX', 'OSI', '', ['HAE', '89'], ['Reduction']], $invoice->getReductionOfFeesText());
+    $this->assertEquals(['FTX', 'OSI', '', ['ROU', '89'], ['Excluding VAT']], $invoice->getExcludingVatText());
+    $this->assertEquals(['FTX', 'OSI', '', '', ['Description']], $invoice->getInvoiceDescription());
+    $this->assertEquals(['RFF', ['VA', 'DE123456789']], $invoice->getVatNumber());
+    $this->assertEquals(['CUX', ['2', 'EUR']], $invoice->getCurrency());
+    $this->assertEquals(['MOA', ['79', '100,00']], $invoice->getTotalPositionsAmount());
+    $this->assertEquals(['MOA', ['56', '10,50']], $invoice->getBasisAmount());
+    $this->assertEquals(['MOA', ['125', '20,25']], $invoice->getTaxableAmount());
+    $this->assertEquals(['MOA', ['9', '30,00']], $invoice->getPayableAmount());
+  }
+
+  /**
+   * @throws EdifactException
+   */
+  public function testVatNumberAndCustomerVatNumber() {
+    $invoice = (new Invoic())
+      ->setVatNumber('DE 123')
+      ->setCustomerVatNumber('ATU 123');
+
+    $this->assertEquals(['RFF', ['VA', 'DE123']], $invoice->getVatNumber());
+    $this->assertEquals(['RFF', ['FC', 'ATU123']], $invoice->getCustomerVatNumber());
+
+    $encoder = new Encoder($invoice->compose()->getComposed(), true);
+    $encoder->setUNA(":+,? '");
+    $this->assertStringContainsString("RFF+VA:DE123'RFF+FC:ATU123'", $encoder->get());
+  }
+
+  /**
    * @return \DateTime
    */
   private function getDateTime() {

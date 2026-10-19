@@ -31,4 +31,26 @@ class InterchangeTest extends TestCase {
       fwrite(STDOUT, "\n\nINTERCHANGE\n" . $message);
     }
   }
+
+  public function testGeneratedDefaults() {
+    [$unb, $unz] = (new Interchange('SENDER', 'RECEIVER'))->getComposed();
+
+    $this->assertMatchesRegularExpression('/^\d{6}$/', $unb[4][0]);
+    $this->assertMatchesRegularExpression('/^\d{4}$/', $unb[4][1]);
+    $this->assertMatchesRegularExpression('/^I[0-9A-F]{13}$/', $unb[5]);
+    $this->assertSame(['UNZ', 0, $unb[5]], $unz);
+  }
+
+  public function testExplicitValuesAndQualifiers() {
+    $interchange = (new Interchange('SENDER', 'RECEIVER', '180123', '1000', 'REF1'))
+      ->setSenderQualifier('14')
+      ->setReceiverQualifier('ZZ');
+
+    $this->assertSame('14', $interchange->getSenderQualifier());
+    $this->assertSame('ZZ', $interchange->getReceiverQualifier());
+    $this->assertSame([
+      ['UNB', ['UNOA', '2'], ['SENDER', '14'], ['RECEIVER', 'ZZ'], ['180123', '1000'], 'REF1'],
+      ['UNZ', 0, 'REF1'],
+    ], $interchange->getComposed());
+  }
 }

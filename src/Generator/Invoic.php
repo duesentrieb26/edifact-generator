@@ -361,7 +361,7 @@ class Invoic extends Message {
    * @return array
    */
   public function getCustomerVatNumber() {
-    return $this->vatNumber;
+    return $this->customerVatNumber;
   }
 
   /**
@@ -370,7 +370,7 @@ class Invoic extends Message {
    * @return Invoic
    */
   public function setCustomerVatNumber($vatNumber) {
-    $this->vatNumber = self::addRFFSegment('FC', str_replace(' ', '', $vatNumber));
+    $this->customerVatNumber = self::addRFFSegment('FC', str_replace(' ', '', $vatNumber));
     return $this;
   }
 

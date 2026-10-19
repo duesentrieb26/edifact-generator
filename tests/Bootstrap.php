@@ -10,7 +10,7 @@ $file = __DIR__ . '/../../../autoload.php';
 if (file_exists($file)) {
     include_once $file; //autoload from main composer autoloader
 }
-error_reporting(E_ALL | E_STRICT);
+error_reporting(E_ALL);
 chdir(__DIR__);
 require('classBootstrap.php');
 Bootstrap::init();

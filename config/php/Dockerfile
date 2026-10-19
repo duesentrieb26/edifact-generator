@@ -1,5 +1,5 @@
 # Use the official PHP image with the version that matches your project requirements
-FROM php:7.2-cli
+FROM php:8.3-cli
 
 # Install system dependencies (if any)
 RUN apt-get update && apt-get install -y \
@@ -21,11 +21,8 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
 WORKDIR /app
 
 
-# Set the user to run Composer commands
-ARG COMPOSER_ALLOW_SUPERUSER=1
+# Allow Composer to run as root inside the container
+ENV COMPOSER_ALLOW_SUPERUSER=1
 
-# Install project dependencies via Composer
-RUN composer install
-
-# Command to run tests
-CMD ["./vendor/bin/phpunit", "tests/"]
+# Code is mounted at runtime (compose.yaml), so install dependencies on start, then run tests
+CMD ["sh", "-c", "composer install --no-interaction && ./vendor/bin/phpunit"]

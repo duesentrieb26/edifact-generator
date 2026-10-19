@@ -330,4 +330,30 @@ final class DesadvTest extends TestCase {
         $this->expectExceptionMessage('Invalid qualifier KMG for package weight. Only these are allowed CMK, CMQ, CMT, DZN, GRM, HLT, KGM, KTM, LTR, MMT, MTK, MTQ, NRL, MTR, PCE, PR, SET, TNE');
         $data = Package::addMEASegment(1426.56, 'AAE', 'BW', 'KMG');
     }
+
+    /**
+     * @throws EdifactException
+     */
+    public function testItemsAreComposedBeforePackages() {
+        $item = (new Desadv\Item())
+            ->setPosition(1, '4250659500284', 'EN')
+            ->setQuantity(5);
+        $package = (new Package())
+            ->setPackageQuantity(1, 'CT')
+            ->setPackageNumber('00343107380000001051')
+            ->setPackageWeight(10);
+
+        $desadv = (new Desadv(1))
+            ->setDeliveryNoteNumber(Desadv::DELIVERY_NOTE, 'LS123456789')
+            ->addItem($item)
+            ->addPackage($package)
+            ->compose();
+
+        $encoder = new Encoder($desadv->getComposed(), true);
+        $encoder->setUNA(":+,? '");
+        $message = $encoder->get();
+
+        $this->assertStringContainsString("BGM+270+LS123456789'LIN+1++4250659500284:EN'", $message);
+        $this->assertLessThan(strpos($message, "CPS+1'"), strpos($message, 'LIN+1'));
+    }
 }

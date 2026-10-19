@@ -1,6 +1,6 @@
 <?php
 
-namespace Generator;
+namespace GeneratorTest;
 
 use EDI\Encoder;
 use EDI\Generator\EdifactException;
@@ -12,11 +12,11 @@ use PHPUnit\Framework\TestCase;
 use SebastianBergmann\RecursionContext\InvalidArgumentException;
 
 /**
- * Class InvoicItemTest
+ * Class InvoiceItemTest
  *
- * @package Generator
+ * @package GeneratorTest
  */
-class InvoicItemTest extends TestCase {
+class InvoiceItemTest extends TestCase {
 
   /**
    *
