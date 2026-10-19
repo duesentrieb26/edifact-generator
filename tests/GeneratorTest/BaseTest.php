@@ -69,7 +69,7 @@ final class BaseTest extends TestCase {
   public function testAddRFFSegment() {
     $base = $this->base();
 
-    $this->assertFalse($base->rff('VA', ''));
+    $this->assertNull($base->rff('VA', ''));
     $this->assertSame(['RFF', ['VA', str_repeat('A', 35)]], $base->rff('VA', str_repeat('A', 40)));
   }
 }

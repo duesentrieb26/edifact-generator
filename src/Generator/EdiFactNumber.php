@@ -28,7 +28,11 @@ class EdiFactNumber {
             return '0,00';
         }
         if (!is_numeric($value)) {
-            $value = floatval(str_replace(',', '.', $value));
+            if (str_contains($value, ',')) {
+                // German format: dots group thousands, the comma is the decimal mark ("1.234,56")
+                $value = str_replace(['.', ','], ['', '.'], $value);
+            }
+            $value = floatval($value);
         }
 
         return number_format($value, $decimals, $format, '');

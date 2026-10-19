@@ -33,21 +33,17 @@ class OrdersTest extends TestCase {
       ->setCharsetVersion('3');
     $orderResponse = new Ordrsp();
 
-    try {
-      $item = new Ordrsp\Item();
-      $item
-        ->setPosition(1, 'articleId')
-        ->setQuantity(5)
-        ->setDeliveryNoteNumber("test")
-        ->setDeliveryDate('2021-04-19')
-        ->setOrderNumberWholesaler('500.MY I-50311046-005')
-        ->setDeliveryNoteDate('2021-04-20', EdifactDate::TYPE_DELIVERY_DATE_ESTIMATED)
-      ;
-      $orderResponse->addItem($item);
-      $orderResponse->compose();
-    } catch (EdifactException $e) {
-      fwrite(STDOUT, "\n\nORDERSP\n" . $e->getMessage());
-    }
+    $item = new Ordrsp\Item();
+    $item
+      ->setPosition(1, 'articleId')
+      ->setQuantity(5)
+      ->setDeliveryNoteNumber("test")
+      ->setDeliveryDate('2021-04-19')
+      ->setOrderNumberWholesaler('500.MY I-50311046-005')
+      ->setDeliveryNoteDate('2021-04-20', EdifactDate::TYPE_DELIVERY_DATE_ESTIMATED)
+    ;
+    $orderResponse->addItem($item);
+    $orderResponse->compose();
 
     $encoder = new Encoder($interchange->addMessage($orderResponse)->getComposed(), true);
     $message = str_replace("'", "'\n", $encoder->get());
@@ -79,53 +75,50 @@ class OrdersTest extends TestCase {
       ->setCharsetVersion('3');
     $orders = new Orders();
 
-    try {
-      $orders
-        ->setOrderNumber('AB76104')
-        ->setOrderDescription('OrderDescription')
-        ->setCollectiveOrderNumber('Collective1234')
-        ->setInternalIdentifier('processId:1234')
-        ->setObjectNumber('objectNumber1234')
-        ->setObjectDescription1('objectDescription1')
-        ->setObjectDescription2('objectDescription2')
-        ->setContactPerson('John Doe')
-        ->setMailAddress('john.doe@company.com')
-        ->setPhoneNumber('+49123456789')
-        ->setFaxNumber('+49123456789-11')
-        ->setDeliveryAddress(
-          'Name 1',
-          'Name 2',
-          'Name 3',
-          'Street',
-          '99999',
-          'city',
-          'DE'
-        )
-        ->setTransportData('TrackingCode1234')
-        ->setDeliveryTerms('CAF');
+    $orders
+      ->setOrderNumber('AB76104')
+      ->setOrderDescription('OrderDescription')
+      ->setCollectiveOrderNumber('Collective1234')
+      ->setInternalIdentifier('processId:1234')
+      ->setObjectNumber('objectNumber1234')
+      ->setObjectDescription1('objectDescription1')
+      ->setObjectDescription2('objectDescription2')
+      ->setContactPerson('John Doe')
+      ->setMailAddress('john.doe@company.com')
+      ->setPhoneNumber('+49123456789')
+      ->setFaxNumber('+49123456789-11')
+      ->setDeliveryAddress(
+        'Name 1',
+        'Name 2',
+        'Name 3',
+        'Street',
+        '99999',
+        'city',
+        'DE'
+      )
+      ->setTransportData('TrackingCode1234')
+      ->setDeliveryTerms('CAF');
 
-      $item = new Orders\Item();
-      $item
-        ->setPosition(
-          '1',
-          '8290123'
-        )
-        ->setQuantity('3')
-        ->setOrderNumberWholesaler('MyOrderNumber')
-        ->setAdditionalText('this is an additional text information for article');
-      $orders->addItem($item);
-      $orders->compose();
+    $item = new Orders\Item();
+    $item
+      ->setPosition(
+        '1',
+        '8290123'
+      )
+      ->setQuantity('3')
+      ->setOrderNumberWholesaler('MyOrderNumber')
+      ->setAdditionalText('this is an additional text information for article');
+    $orders->addItem($item);
+    $orders->compose();
 
 
-      $encoder = new Encoder($interchange->addMessage($orders)->getComposed(), true);
-      $encoder->setUNA(":+,? '");
+    $encoder = new Encoder($interchange->addMessage($orders)->getComposed(), true);
+    $encoder->setUNA(":+,? '");
 
-      $message = str_replace("'", "'\n", $encoder->get());
+    $message = str_replace("'", "'\n", $encoder->get());
 
-      $this->assertStringContainsString('UNT+20', $message);
-    } catch (EdifactException $e) {
-      fwrite(STDOUT, "\n\nORDERS\n" . $e->getMessage());
-    }
+    $this->assertStringContainsString("RFF+ACD:Collective1234'", $message);
+    $this->assertStringContainsString('UNT+21', $message);
   }
 
 

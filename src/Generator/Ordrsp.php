@@ -64,9 +64,9 @@ class Ordrsp extends Message {
     'orderInstruction',
     'additionalReferenceNumber',
     'transportDocumentNumber',
+    'projectNumber',
     'beneficiaryReference',
     'beneficiaryReference2',
-    'orderInstruction',
     'manufacturerAddress',
     'manufacturerAddressContactPerson',
     'manufacturerAddressMailAddress',
@@ -132,6 +132,7 @@ class Ordrsp extends Message {
    * @throws EdifactException
    */
   public function compose($msgStatus = null) {
+    $this->messageContent = [];
     $this->composeByKeys();
 
     foreach ($this->items as $item) {

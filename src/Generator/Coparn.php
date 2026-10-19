@@ -2,7 +2,11 @@
 
 namespace EDI\Generator;
 
+use EDI\Generator\Traits\Cargo;
+
 class Coparn extends Message {
+    use Cargo;
+
     private $dtmSend;
     private $messageSender;
     private $messageReceiver;
@@ -19,18 +23,11 @@ class Coparn extends Message {
     private $messageCF;
     private $cntr;
     private $cntrAmount;
-    private $weight;
-    private $weightTime;
-    private $dangerous;
-    private $temperature;
-    private $dimensions;
 
     public function __construct($messageID = null, $identifier = 'COPARN', $version = 'D', $release = '00B', $controllingAgency = 'UN', $association = 'SMDG20') {
         parent::__construct($identifier, $version, $release, $controllingAgency, $messageID, $association);
 
         $this->dtmSend = self::dtmSegment(137, date('YmdHi'));
-
-        $this->containers = [];
     }
 
     /*
@@ -142,84 +139,6 @@ class Coparn extends Message {
         return $this;
     }
 
-    /*
-     * VGM information
-     *
-     */
-    public function setVGM($weight, $weightTime) {
-        $this->weight = ['MEA', 'AAE', 'VGM', ['KGM', $weight]];
-        $this->weightTime = self::dtmSegment(798, $weightTime);
-        return $this;
-    }
-
-    /*
-     * Weight information
-     *
-     */
-    public function setGrossWeight($weight) {
-        $this->weight = ['MEA', 'AAE', 'G', ['KGM', $weight]];
-        return $this;
-    }
-
-    /*
-     * Cargo category
-     *
-     */
-    public function setCargoCategory($text) {
-        $this->cargo = ['FTX', 'AAA', '', '', $text];
-        return $this;
-    }
-
-    /*
-     * DEPRECATED
-     */
-    public function setDangerous($hazardClass, $hazardCode) {
-        $this->addDangerous($hazardClass, $hazardCode);
-        return $this;
-    }
-
-    public function addDangerous($hazardClass, $hazardCode, $flashpoint = null, $packingGroup = null) {
-        if ($this->dangerous === null) {
-            $this->dangerous = [];
-        }
-
-        $dgs = ['DGS', 'IMD', $hazardClass, $hazardCode];
-        if ($flashpoint !== null) {
-            $dgs[] = [$flashpoint, 'CEL'];
-            if ($packingGroup !== null) {
-                $dgs[] = [$packingGroup, 'CEL'];
-            }
-        }
-
-        $this->dangerous[] = $dgs;
-        return $this;
-    }
-
-    public function setTemperature($setDegrees) {
-        $this->temperature = ['TMP', '2', [$setDegrees, 'CEL']];
-        return $this;
-    }
-
-    public function setOverDimensions($front = '', $back = '', $right = '', $left = '', $height = '') {
-        $this->dim = [];
-        if ($front !== '') {
-            $this->dimensions[] = ['DIM', '5', ['CMT', $front]];
-        }
-        if ($back !== '') {
-            $this->dimensions[] = ['DIM', '6', ['CMT', $back]];
-        }
-        if ($right !== '') {
-            $this->dimensions[] = ['DIM', '7', ['CMT', '', $right]];
-        }
-        if ($left !== '') {
-            $this->dimensions[] = ['DIM', '8', ['CMT', '', $left]];
-        }
-        if ($height !== '') {
-            $this->dimensions[] = ['DIM', '13', ['CMT', '', '', $height]];
-        }
-        return $this;
-    }
-
     public function compose($msgStatus = 5, $documentCode = 126) {
         $this->messageContent = [
             ['BGM', $documentCode, $this->messageID, $msgStatus, 'AB']
@@ -239,7 +158,7 @@ class Coparn extends Message {
         $this->messageContent[] = $this->messageCF;
         $this->messageContent[] = $this->cntr;
         $this->messageContent[] = $this->bookingSequence;
-        if ($this->cntr  === '') {
+        if ($this->cntr === null) {
             $this->messageContent[] = $this->cntrAmount;
         }
         $this->messageContent[] = ['TMD', '3'];

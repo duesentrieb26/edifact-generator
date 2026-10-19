@@ -42,23 +42,19 @@ final class InvoicTest extends TestCase {
       ->setCharsetVersion('3');
     $invoice = new Invoic();
 
-    try {
-      $item = new Invoic\Item();
-      $item
-        ->setPosition(1, 'articleId')
-        ->setQuantity(5)
-        ->setNetPrice(823.20)
-        ->setAdditionalText('')
-        ->setGrossPrice(840.0);
-      $item
-        ->addDiscount(-2.0, Invoic\Item::DISCOUNT_TYPE_PERCENT, 840, 'Grundrabatt', 'TD')
-        ->addDiscountFactor(823.20, 840);
+    $item = new Invoic\Item();
+    $item
+      ->setPosition(1, 'articleId')
+      ->setQuantity(5)
+      ->setNetPrice(823.20)
+      ->setAdditionalText('')
+      ->setGrossPrice(840.0);
+    $item
+      ->addDiscount(-2.0, Invoic\Item::DISCOUNT_TYPE_PERCENT, 840, 'Grundrabatt', 'TD')
+      ->addDiscountFactor(823.20, 840);
 
-      $invoice->addItem($item);
-      $invoice->compose();
-    } catch (EdifactException $e) {
-      fwrite(STDOUT, "\n\nINVOICE\n" . $e->getMessage());
-    }
+    $invoice->addItem($item);
+    $invoice->compose();
 
     $encoder = new Encoder($interchange->addMessage($invoice)->getComposed(), true);
 
@@ -198,20 +194,16 @@ final class InvoicTest extends TestCase {
       ->setCharsetVersion('3');
     $invoice = new Invoic();
 
-    try {
-      $invoice
-        ->setRepresentativeAddress(
-          'tester'
-        )
-        ->setRepresentativeAddressTaxNumber('327/5787/3111')
-        ->addCashDiscount('2020-04-20', 3)
-        ->addCashDiscount('2020-04-27', 1)
-        ->addNetAmount(26, '2020-05-01')
-        ->addCharges(320);
-      $invoice->compose();
-    } catch (EdifactException $e) {
-      fwrite(STDOUT, "\n\nINVOICE\n" . $e->getMessage());
-    }
+    $invoice
+      ->setRepresentativeAddress(
+        'tester'
+      )
+      ->setRepresentativeAddressTaxNumber('327/5787/3111')
+      ->addCashDiscount('2020-04-20', 3)
+      ->addCashDiscount('2020-04-27', 1)
+      ->addNetAmount(26, '2020-05-01')
+      ->addCharges(320);
+    $invoice->compose();
     $encoder = new Encoder($interchange->addMessage($invoice)->getComposed(), true);
 
     $message = str_replace("'", "'\n", $encoder->get());
@@ -245,111 +237,107 @@ final class InvoicTest extends TestCase {
       ->setCharsetVersion('3');
     $invoice = new Invoic();
 
-    try {
-      $invoice
-        ->setInvoiceNumber('INV12345')
-        ->setInvoiceDate($this->getDateTime())
-        ->setDeliveryDate($this->getDateTime())
-        ->setReductionOfFeesText('reduction')
-        ->setExcludingVatText('excluding Vat text with more as 70 characters used for testing')
-        ->setInvoiceDescription('invoiceDescription')
-        ->setManufacturerAddress(
-          'Name 1',
-          'Name 2',
-          'Name 3',
-          'Street',
-          '99999',
-          'city',
-          'DE',
-          '9',
-          'MFADDRESS',
-          'DE123456789MF'
-        )->setWholesalerAddress(
-          'Name 1',
-          'Name 2',
-          'Name 3',
-          'Street',
-          '99999',
-          'city',
-          'DE',
-          '9',
-          '4250724100005'
-        )->setRepresentativeAddress(
-          'Name 1',
-          'Name 2',
-          'Name 3',
-          'Street',
-          '99999',
-          'city',
-          'DE',
-          '9',
-          '4260257750004'
-        )->setDeliveryAddress(
-          'Name 1',
-          'Name 2',
-          'Name 3',
-          'Street',
-          '99999',
-          'city',
-          'DE'
-        )->setContactPerson('John Doe')
-        ->setMailAddress('john.doe@company.com')
-        ->setPhoneNumber('+49123456789')
-        ->setFaxNumber('+49123456789-11')
-        ->setVatNumber('DE 123456789')
-        ->setCurrency('EUR');
-      $item = new Invoic\Item();
-      $item
-        ->setPosition(1, 'articleId')
-        ->setQuantity(5)
-        ->setSpecificationText('specificText')
-        ->setAdditionalText(
-          'specificText and this is a longer description for testing inside item position, array_push($subArray, $segmentData);, array_push($subArray, $segmentData);, array_push($subArray, $segmentData);'
-        )
-        ->setInvoiceDescription('this is a longer description for testing inside item position')
-        ->setNetPrice(22.50)
-        ->setGrossPrice(26.775)
-        ->setOrderNumberWholeSaler('545.SWEB-05622249-002')
-        ->setOrderDate($this->getDateTime())
-        ->setDeliveryNotePosition(20)
-        ->setDeliveryNoteNumber('deliverNoteNumber')
-        ->setDeliveryNoteDate($this->getDateTime())
-        ->setDeliveryDate($this->getDateTime());
+    $invoice
+      ->setInvoiceNumber('INV12345')
+      ->setInvoiceDate($this->getDateTime())
+      ->setDeliveryDate($this->getDateTime())
+      ->setReductionOfFeesText('reduction')
+      ->setExcludingVatText('excluding Vat text with more as 70 characters used for testing')
+      ->setInvoiceDescription('invoiceDescription')
+      ->setManufacturerAddress(
+        'Name 1',
+        'Name 2',
+        'Name 3',
+        'Street',
+        '99999',
+        'city',
+        'DE',
+        '9',
+        'MFADDRESS',
+        'DE123456789MF'
+      )->setWholesalerAddress(
+        'Name 1',
+        'Name 2',
+        'Name 3',
+        'Street',
+        '99999',
+        'city',
+        'DE',
+        '9',
+        '4250724100005'
+      )->setRepresentativeAddress(
+        'Name 1',
+        'Name 2',
+        'Name 3',
+        'Street',
+        '99999',
+        'city',
+        'DE',
+        '9',
+        '4260257750004'
+      )->setDeliveryAddress(
+        'Name 1',
+        'Name 2',
+        'Name 3',
+        'Street',
+        '99999',
+        'city',
+        'DE'
+      )->setContactPerson('John Doe')
+      ->setMailAddress('john.doe@company.com')
+      ->setPhoneNumber('+49123456789')
+      ->setFaxNumber('+49123456789-11')
+      ->setVatNumber('DE 123456789')
+      ->setCurrency('EUR');
+    $item = new Invoic\Item();
+    $item
+      ->setPosition(1, 'articleId')
+      ->setQuantity(5)
+      ->setSpecificationText('specificText')
+      ->setAdditionalText(
+        'specificText and this is a longer description for testing inside item position, array_push($subArray, $segmentData);, array_push($subArray, $segmentData);, array_push($subArray, $segmentData);'
+      )
+      ->setInvoiceDescription('this is a longer description for testing inside item position')
+      ->setNetPrice(22.50)
+      ->setGrossPrice(26.775)
+      ->setOrderNumberWholeSaler('545.SWEB-05622249-002')
+      ->setOrderDate($this->getDateTime())
+      ->setDeliveryNotePosition(20)
+      ->setDeliveryNoteNumber('deliverNoteNumber')
+      ->setDeliveryNoteDate($this->getDateTime())
+      ->setDeliveryDate($this->getDateTime());
 
 
-      $invoice->addItem($item);
+    $invoice->addItem($item);
 
-      $invoice->addCharges('149');
+    $invoice->addCharges('149');
 
-      $invoice
-        ->setTotalPositionsAmount(100.22)
-        ->setBasisAmount(80)
-        ->setTaxableAmount(80)
-        ->setPayableAmount(100.22)
-        ->setTax(19, 19.11);
+    $invoice
+      ->setTotalPositionsAmount(100.22)
+      ->setBasisAmount(80)
+      ->setTaxableAmount(80)
+      ->setPayableAmount(100.22)
+      ->setTax(19, 19.11);
 
-      $invoice->compose();
-      $encoder = new Encoder($interchange->addMessage($invoice)->getComposed(), true);
-      $encoder->setUNA(":+,? '");
-      $message = str_replace("'", "'\n", $encoder->get());
+    $invoice->compose();
+    $encoder = new Encoder($interchange->addMessage($invoice)->getComposed(), true);
+    $encoder->setUNA(":+,? '");
+    $message = str_replace("'", "'\n", $encoder->get());
 
 
-      $this->assertStringContainsString("UNB+UNOC:3+UNB-Identifier-Sender+UNB-Identifier-Receiver+", $message);
-      $this->assertStringContainsString(
-        "NAD+SU+MFADDRESS::9++Name 1:Name 2:Name 3+Street+city++99999+DE'\nRFF+VA:DE123456789MF'\n",
-        $message
-      );
+    $this->assertStringContainsString("UNB+UNOC:3+UNB-Identifier-Sender+UNB-Identifier-Receiver+", $message);
+    $this->assertStringContainsString(
+      "NAD+SU+MFADDRESS::9++Name 1:Name 2:Name 3+Street+city++99999+DE'\nRFF+VA:DE123456789MF'\n",
+      $message
+    );
 
-      $this->assertStringContainsString("NAD+WS+", $message);
-      $this->assertStringContainsString("NAD+AB+", $message);
-      $this->assertStringContainsString("LIN+1++articleId:MF'\nIMD+++SP:::specificText", $message);
-      $this->assertStringContainsString("TAX+7+VAT+++:::19,00'\nMOA+150:19,11", $message);
-      $this->assertStringContainsString('ALC+C++++DL', $message);
-      $this->assertStringContainsString('MOA+8:149,00', $message);
-      $this->assertStringContainsString('UNT+46', $message);
-    } catch (EdifactException $e) {
-      fwrite(STDOUT, "\n\nINVOICE\n" . $e->getMessage());
-    }
+    $this->assertStringContainsString("NAD+WS+", $message);
+    $this->assertStringContainsString("NAD+AB+", $message);
+    $this->assertStringContainsString("LIN+1++articleId:MF'\nIMD+++SP:::specificText", $message);
+    $this->assertStringContainsString("TAX+7+VAT+++:::19,00'\nMOA+150:19,11", $message);
+    $this->assertStringContainsString('ALC+C++++DL', $message);
+    $this->assertStringContainsString('MOA+8:149,00', $message);
+    $this->assertStringContainsString('UNT+46', $message);
   }
 
 
@@ -369,115 +357,111 @@ final class InvoicTest extends TestCase {
       ->setCharsetVersion('3');
     $invoice = new Invoic();
 
-    try {
-      $invoice
-        ->setInvoiceNumber('INV12345')
-        ->setInvoiceDate($this->getDateTime())
-        ->setDeliveryDate($this->getDateTime())
-        ->setReductionOfFeesText('reduction')
-        ->setExcludingVatText('excluding Vat text with more as 70 characters used for testing')
-        ->setInvoiceDescription('invoiceDescription')
-        ->setWholesalerAddress(
-          ' Name 1',
-          ' Name 2 ',
-          ' Name 3 ',
-          ' Street ',
-          ' 99999 ',
-          ' City ',
-          ' DE ',
-          ' 9 ',
-          ' 42507241123123 '
-        )
-        ->setInvoiceAddress(
-          ' Name 1',
-          ' Name 2 ',
-          ' Name 3 ',
-          ' Street ',
-          ' 99999 ',
-          ' City ',
-          ' DE ',
-          ' 9 ',
-          ' 42507241123123 '
-        )
-        ->setInvoiceAddressVatId('XXX-12333--DD')
-        ->setInvoiceAddressFiscalNumber('DE12343122')
-      ;
+    $invoice
+      ->setInvoiceNumber('INV12345')
+      ->setInvoiceDate($this->getDateTime())
+      ->setDeliveryDate($this->getDateTime())
+      ->setReductionOfFeesText('reduction')
+      ->setExcludingVatText('excluding Vat text with more as 70 characters used for testing')
+      ->setInvoiceDescription('invoiceDescription')
+      ->setWholesalerAddress(
+        ' Name 1',
+        ' Name 2 ',
+        ' Name 3 ',
+        ' Street ',
+        ' 99999 ',
+        ' City ',
+        ' DE ',
+        ' 9 ',
+        ' 42507241123123 '
+      )
+      ->setInvoiceAddress(
+        ' Name 1',
+        ' Name 2 ',
+        ' Name 3 ',
+        ' Street ',
+        ' 99999 ',
+        ' City ',
+        ' DE ',
+        ' 9 ',
+        ' 42507241123123 '
+      )
+      ->setInvoiceAddressVatId('XXX-12333--DD')
+      ->setInvoiceAddressFiscalNumber('DE12343122')
+    ;
 
 
 
-      $item = new Invoic\Item();
-      $item
-        ->setPosition(1, 'articleId')
-        ->setQuantity(5)
-        ->setSpecificationText('ERSS Typ 200 Weiß')
-        ->setAdditionalText(
-          'Brauchwasserspeicher  - EEK: B'
-        )
-        ->setInvoiceDescription('this is a longer description for testing inside item position')
-        ->setNetPrice(22.50)
-        ->setGrossPrice(26.775)
-        ->setOrderNumberWholeSaler('545.SWEB-05622249-002')
-        ->setOrderPosition(22)
-        ->setOrderDate($this->getDateTime())
-        ->setDeliveryNotePosition(20)
-        ->setDeliveryNoteNumber('deliverNoteNumber')
-        ->setDeliveryNoteDate($this->getDateTime())
-        ->setDeliveryDate($this->getDateTime());
-      $invoice->addItem($item);
+    $item = new Invoic\Item();
+    $item
+      ->setPosition(1, 'articleId')
+      ->setQuantity(5)
+      ->setSpecificationText('ERSS Typ 200 Weiß')
+      ->setAdditionalText(
+        'Brauchwasserspeicher  - EEK: B'
+      )
+      ->setInvoiceDescription('this is a longer description for testing inside item position')
+      ->setNetPrice(22.50)
+      ->setGrossPrice(26.775)
+      ->setOrderNumberWholeSaler('545.SWEB-05622249-002')
+      ->setOrderPosition(22)
+      ->setOrderDate($this->getDateTime())
+      ->setDeliveryNotePosition(20)
+      ->setDeliveryNoteNumber('deliverNoteNumber')
+      ->setDeliveryNoteDate($this->getDateTime())
+      ->setDeliveryDate($this->getDateTime());
+    $invoice->addItem($item);
 
 
-      $invoice->compose();
-      $encoder = new Encoder($interchange->addMessage($invoice)->getComposed(), true);
-      $encoder->setUNA(":+,? '");
-      $message = str_replace("'", "'\n", $encoder->get());
+    $invoice->compose();
+    $encoder = new Encoder($interchange->addMessage($invoice)->getComposed(), true);
+    $encoder->setUNA(":+,? '");
+    $message = str_replace("'", "'\n", $encoder->get());
 
-      $this->assertStringContainsString(
-        "NAD+WS+42507241123123::9++Name 1:Name 2:Name 3+Street+City++99999+DE'",
-        $message
-      );
+    $this->assertStringContainsString(
+      "NAD+WS+42507241123123::9++Name 1:Name 2:Name 3+Street+City++99999+DE'",
+      $message
+    );
 
-      $this->assertStringContainsString(
-        "NAD+IV+42507241123123::9++Name 1:Name 2:Name 3+Street+City++99999+DE'\n"  .
-          "RFF+VA:XXX-12333--DD'\n" .
-          "RFF+FC:DE12343122'",
-        $message
-      );
+    $this->assertStringContainsString(
+      "NAD+IV+42507241123123::9++Name 1:Name 2:Name 3+Street+City++99999+DE'\n"  .
+        "RFF+VA:XXX-12333--DD'\n" .
+        "RFF+FC:DE12343122'",
+      $message
+    );
 
-      $this->assertStringContainsString(
-        "LIN+1++articleId:MF'\n" .
-          "IMD+++SP:::ERSS Typ 200 Wei'\n" .
-          "IMD+++ZU:::Brauchwasserspeicher  - EEK?: B'\n" .
-          "QTY+12:5:PCE'\n" .
-          "DTM+35:20180123:102'\n" .
-          "FTX+INV+++this is a longer description for testing inside item position'\n" .
-          "PRI+NTP:22,50:::1:PCE'\n" .
-          "PRI+GRP:26,78:::1:PCE'\n" .
-          "RFF+VN:545.SWEB-05622249-002'\n" .
-          "DTM+4:20180123:102'\n" .
-          "RFF+LI:22'\n" .
-          "RFF+AAJ:deliverNoteNumber'\n" .
-          "DTM+2:20180123:102'\n" .
-          "RFF+FI:20'\n",
+    $this->assertStringContainsString(
+      "LIN+1++articleId:MF'\n" .
+        "IMD+++SP:::ERSS Typ 200 Weiss'\n" .
+        "IMD+++ZU:::Brauchwasserspeicher  - EEK?: B'\n" .
+        "QTY+12:5:PCE'\n" .
+        "DTM+35:20180123:102'\n" .
+        "FTX+INV+++this is a longer description for testing inside item position'\n" .
+        "PRI+NTP:22,50:::1:PCE'\n" .
+        "PRI+GRP:26,78:::1:PCE'\n" .
+        "RFF+VN:545.SWEB-05622249-002'\n" .
+        "DTM+4:20180123:102'\n" .
+        "RFF+LI:22'\n" .
+        "RFF+AAJ:deliverNoteNumber'\n" .
+        "DTM+2:20180123:102'\n" .
+        "RFF+FI:20'\n",
 
-        // "LIN+1++articleId:MF'\n" .
-        //   "IMD+++SP:::ERSS Typ 200 Wei'\n" .
-        //   "IMD+++ZU:::Brauchwasserspeicher  - EEK?: B'\n" .
-        //   "QTY+12:5:PCE'\n" .
-        //   "DTM+35:20180123:102'\n" .
-        //   "FTX+INV++::89+this is a longer description for testing inside item position'\n" .
-        //   "PRI+GRP:26,78:::1:PCE'\n" .
-        //   "PRI+NTP:22,50:::1:PCE'\n" .
-        //   "RFF+VN:545.SWEB-05622249-002'\n" .
-        //   "DTM+4:20180123:102'\n" .
-        //   "RFF+LI:22'\n" .
-        //   "RFF+AAJ:deliverNoteNumber'\n" .
-        //   "RFF+FI:20'\n",
-        $message
-      );
-      // file_put_contents(getcwd() . 'cache/InvoicTest.edi.txt', $message, FILE_APPEND);
-    } catch (EdifactException $e) {
-      fwrite(STDOUT, "\n\nINVOICE\n" . $e->getMessage());
-    }
+      // "LIN+1++articleId:MF'\n" .
+      //   "IMD+++SP:::ERSS Typ 200 Wei'\n" .
+      //   "IMD+++ZU:::Brauchwasserspeicher  - EEK?: B'\n" .
+      //   "QTY+12:5:PCE'\n" .
+      //   "DTM+35:20180123:102'\n" .
+      //   "FTX+INV++::89+this is a longer description for testing inside item position'\n" .
+      //   "PRI+GRP:26,78:::1:PCE'\n" .
+      //   "PRI+NTP:22,50:::1:PCE'\n" .
+      //   "RFF+VN:545.SWEB-05622249-002'\n" .
+      //   "DTM+4:20180123:102'\n" .
+      //   "RFF+LI:22'\n" .
+      //   "RFF+AAJ:deliverNoteNumber'\n" .
+      //   "RFF+FI:20'\n",
+      $message
+    );
+    // file_put_contents(getcwd() . 'cache/InvoicTest.edi.txt', $message, FILE_APPEND);
   }
 
   /**
@@ -535,5 +519,31 @@ final class InvoicTest extends TestCase {
     return (new \DateTime())
       ->setDate(2018, 1, 23)
       ->setTime(10, 0, 0);
+  }
+
+  /**
+   * @throws EdifactException
+   */
+  public function testComposeTwiceGivesTheSameMessage() {
+    $invoice = (new Invoic(1))
+      ->setInvoiceNumber('RE123')
+      ->addItem((new Invoic\Item())->setPosition(1, 'articleId')->setQuantity(5));
+
+    $first = $invoice->compose()->getComposed();
+
+    $this->assertSame($first, $invoice->compose()->getComposed());
+  }
+
+  /**
+   * @throws EdifactException
+   */
+  public function testEmptyOptionalReferenceIsSkipped() {
+    $segments = (new Invoic(1))
+      ->setInvoiceNumber('RE123')
+      ->setVatNumber('')
+      ->compose()
+      ->getComposed();
+
+    $this->assertSame(['UNH', 'BGM', 'UNS', 'UNT'], array_column($segments, 0));
   }
 }

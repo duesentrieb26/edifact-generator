@@ -61,4 +61,11 @@ class EdifactNumberTest extends TestCase {
             EdiFactNumber::convert(null)
         );
     }
+
+    public function testNumberGermanThousands() {
+        $this->assertEquals(
+            '1234,56',
+            EdiFactNumber::convert('1.234,56')
+        );
+    }
 }

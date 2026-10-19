@@ -15,8 +15,6 @@ class Calinf extends Message {
         parent::__construct($identifier, $version, $release, $controllingAgency, $messageID, $association);
 
         $this->dtmSend = self::dtmSegment(137, date('YmdHi'));
-
-        $this->containers = [];
     }
 
     /*
@@ -32,7 +30,7 @@ class Calinf extends Message {
      * Message sender (usually the vessel agent)
      *
      */
-    public function setSender($code, $name) {
+    public function setMessageSender($code, $name) {
         $this->messageSender = ['NAD', 'MS', $code, $name];
         return $this;
     }
@@ -41,7 +39,7 @@ class Calinf extends Message {
      * Message receiver (usually the terminal)
      *
      */
-    public function setReceiver($code, $name) {
+    public function setMessageReceiver($code, $name) {
         $this->messageReceiver = ['NAD', 'MR', $code, $name];
         return $this;
     }

@@ -65,4 +65,19 @@ class EdifactDateTest extends TestCase
         );
     }
 
+    public function testImpossibleDateThrows()
+    {
+        $this->expectException(\EDI\Generator\EdifactException::class);
+        EdifactDate::get('2018-02-30');
+    }
+
+    public function testShippingWeekUsesIsoYear()
+    {
+        $this->assertEquals('201901', EdifactDate::get('2018-12-31', EdifactDate::SHIPPING_WEEK));
+    }
+
+    public function testDateTimeImmutable()
+    {
+        $this->assertEquals('20180123', EdifactDate::get(new \DateTimeImmutable('2018-01-23')));
+    }
 }

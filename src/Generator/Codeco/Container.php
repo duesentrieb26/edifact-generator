@@ -2,16 +2,18 @@
 
 namespace EDI\Generator\Codeco;
 
+use EDI\Generator\Traits\BookingAndSeal;
+
 class Container {
+    use BookingAndSeal;
 
     private $cntr;
-    private $bkg;
 
     private $weight;
-    private $seal;
     private $effectiveDate;
 
     private $modeOfTransport;
+    private $destination;
 
     public function __construct() {
     }
@@ -23,31 +25,6 @@ class Container {
      */
     public function setContainer($number, $size, $statusCode, $fullEmptyIndicator) {
         $this->cntr = \EDI\Generator\Message::eqdSegment('CN', $number, [$size, '6346', '306'], '', $statusCode, $fullEmptyIndicator);
-        return $this;
-    }
-
-    /*
-     *
-     */
-    public function setBooking($booking, $sequence = null) {
-        $this->bkg = \EDI\Generator\Message::rffSegment('BN', $booking);
-        return $this;
-    }
-
-    /*
-     *
-     */
-    public function setBillOfLading($bl) {
-        $this->bkg = \EDI\Generator\Message::rffSegment('BM', $bl);
-        return $this;
-    }
-
-    /*
-     * $seal = free text
-     * $sealIssuer = DE 9303
-     */
-    public function setSeal($seal, $sealIssuer) {
-        $this->seal = ['SEL', [$seal, $sealIssuer]];
         return $this;
     }
 
@@ -95,6 +72,9 @@ class Container {
             $composed[] = $this->bkg;
         }
         $composed[] = $this->effectiveDate;
+        if ($this->destination !== null) {
+            $composed[] = $this->destination;
+        }
         if ($this->weight !== null) {
             $composed[] = $this->weight;
         }

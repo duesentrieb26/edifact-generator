@@ -186,14 +186,8 @@ class Desadv extends Message {
      * @throws EdifactException
      */
     public function compose($msgStatus = null) {
+        $this->messageContent = [];
         $this->composeByKeys();
-
-        foreach ($this->items as $item) {
-            $composed = $item->compose();
-            foreach ($composed as $entry) {
-                $this->messageContent[] = $entry;
-            }
-        }
 
         $totalPackages = count($this->packages);
         $packageNumber = 1;
@@ -211,6 +205,14 @@ class Desadv extends Message {
         $this->messageContent[] = Package::addCPSSegment($packageNumber);
         $this->messageContent[] = Package::addPACSegment($totalPackages, 'PN');
         $this->messageContent[] = Package::addMEASegment($totalWeight, 'AAE', 'BW');
+
+        // LIN is only allowed inside a CPS group (SG10/SG15), so items without a package belong to CPS+1
+        foreach ($this->items as $item) {
+            $composed = $item->compose();
+            foreach ($composed as $entry) {
+                $this->messageContent[] = $entry;
+            }
+        }
 
         foreach ($this->packages as $package) {
             $this->messageContent[] = Package::addCPSSegment($packageItemNumber, ++$packageNumber);

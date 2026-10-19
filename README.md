@@ -150,6 +150,8 @@ Reusable functionality is extracted into traits:
 - **Item** -- generic item functionality
 - **TransportData** -- shipping and transport details
 - **DeliveryTerms** -- delivery terms and conditions
+- **Cargo** -- weight, VGM, cargo category, dangerous goods, temperature and over-dimensions (COPARN, COPRAR container)
+- **BookingAndSeal** -- booking, bill of lading and seal (CODECO and COPRAR containers)
 
 ### Helpers
 

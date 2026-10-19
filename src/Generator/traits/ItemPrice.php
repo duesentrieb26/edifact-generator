@@ -46,7 +46,6 @@ trait ItemPrice {
      */
     public function setGrossPrice($grossPrice) {
         $this->grossPrice = self::addPRISegment('GRP', $grossPrice);
-        $this->addKeyToCompose('grossPrice');
         return $this;
     }
 
@@ -63,7 +62,6 @@ trait ItemPrice {
      */
     public function setNetPrice($netPrice) {
         $this->netPrice = self::addPRISegment('NTP', $netPrice);
-        $this->addKeyToCompose('netPrice');
         return $this;
     }
 }

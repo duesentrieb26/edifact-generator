@@ -35,46 +35,43 @@ class OrdrspTest extends TestCase {
             ->setCharsetVersion('3');
         $ordrsp = new Ordrsp();
 
-        try {
-            $ordrsp->setOrderConfirmationNumber('AB1234567')
-                ->setOrderConfirmationDate(new \DateTime())
-                ->setDeliveryDate(new \DateTime())
-                ->setOrderNumber('HERS1234567')
-                ->setManufacturerAddress(
-                    'Name 1',
-                    'Name 2',
-                    'Name 3',
-                    'Street',
-                    '99999',
-                    'city',
-                    'DE'
-                )
-                ->setWholesalerAddress(
-                    'Name 1',
-                    'Name 2',
-                    'Name 3',
-                    'Street',
-                    '99999',
-                    'city',
-                    'DE'
-                )
-                ->setContactPerson('John Doe')
-                ->setMailAddress('john.doe@company.com')
-                ->setPhoneNumber('+49123456789')
-                ->setFaxNumber('+49123456789-11')
-                ->setDeliveryAddress(
-                    'Name 1',
-                    'Name 2',
-                    'Name 3',
-                    'Street',
-                    '99999',
-                    'city',
-                    'DE'
-                )
-                ->setPositionSeparator()
-                ->compose();
-        } catch (EdifactException $e) {
-        }
+        $ordrsp->setOrderConfirmationNumber('AB1234567')
+            ->setOrderConfirmationDate(new \DateTime())
+            ->setDeliveryDate(new \DateTime())
+            ->setOrderNumber('HERS1234567')
+            ->setManufacturerAddress(
+                'Name 1',
+                'Name 2',
+                'Name 3',
+                'Street',
+                '99999',
+                'city',
+                'DE'
+            )
+            ->setWholesalerAddress(
+                'Name 1',
+                'Name 2',
+                'Name 3',
+                'Street',
+                '99999',
+                'city',
+                'DE'
+            )
+            ->setContactPerson('John Doe')
+            ->setMailAddress('john.doe@company.com')
+            ->setPhoneNumber('+49123456789')
+            ->setFaxNumber('+49123456789-11')
+            ->setDeliveryAddress(
+                'Name 1',
+                'Name 2',
+                'Name 3',
+                'Street',
+                '99999',
+                'city',
+                'DE'
+            )
+            ->setPositionSeparator()
+            ->compose();
 
         $encoder = new Encoder($interchange->addMessage($ordrsp)->getComposed(), true);
         $encoder->setUNA(":+,? '");
@@ -120,8 +117,7 @@ class OrdrspTest extends TestCase {
                 'characters'
             ],
             [
-                'city that is longer than 35',
-                'characters'
+                'city that is longer than 35 charact'
             ],
             [
                 ''
@@ -134,5 +130,24 @@ class OrdrspTest extends TestCase {
             ]
         ];
         $this->assertEquals($expected, $deliveryAddress);
+    }
+
+    public function testSegmentsAreSentOnce() {
+        $item = (new Ordrsp\Item())
+            ->setPosition(1, 'articleId')
+            ->setGrossPrice(10);
+        $ordrsp = (new Ordrsp())
+            ->setOrderConfirmationNumber('AB123')
+            ->setOrderInstruction('Bitte liefern')
+            ->setProjectNumber('P-1');
+        $ordrsp->addItem($item);
+
+        $encoder = new Encoder($ordrsp->compose()->getComposed(), true);
+        $encoder->setUNA(":+,? '");
+        $message = $encoder->get();
+
+        $this->assertSame(1, substr_count($message, 'FTX+ORI'));
+        $this->assertSame(1, substr_count($message, 'PRI+GRP'));
+        $this->assertStringContainsString("RFF+AEP:P-1'", $message);
     }
 }

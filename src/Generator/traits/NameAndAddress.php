@@ -133,8 +133,9 @@ trait NameAndAddress {
       $partyId,
       '',
       $name,
-      Message::splitTextOnWordBoundary(trim((string) $street), 35, 5),
-      Message::splitTextOnWordBoundary(trim((string) $city), 35, 5),
+      // C059 street has 4 components; city (3164) is a simple element and must not be split
+      Message::splitTextOnWordBoundary(trim((string) $street), 35, 4),
+      [self::maxChars($city)],
       [
         '',
       ],

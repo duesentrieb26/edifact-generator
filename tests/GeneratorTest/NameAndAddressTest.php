@@ -83,4 +83,18 @@ final class NameAndAddressTest extends TestCase {
     $this->assertEquals(['RFF', ['VA', 'DE555']], $segments[1]);
     $this->assertEquals(['RFF', ['FC', '12/345678']], $segments[2]);
   }
+
+  public function testCityIsNotSplitAndStreetHasAtMostFourLines() {
+    $address = $this->address()->setDeliveryAddress(
+      'Name',
+      '',
+      '',
+      str_repeat('Streetname ', 20),
+      '12345',
+      'Frankfurt am Main Höchst Industriepark Gebäude C'
+    )->getDeliveryAddress();
+
+    $this->assertCount(4, $address[5]);
+    $this->assertSame(['Frankfurt am Main Höchst Industriep'], $address[6]);
+  }
 }

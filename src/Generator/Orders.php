@@ -57,6 +57,7 @@ class Orders extends Message {
         'deliveryDate',
         'orderDescription',
         'orderNotification',
+        'collectiveOrderNumber',
         'internalIdentifier',
         'objectNumber',
         'objectDescription1',
@@ -114,6 +115,7 @@ class Orders extends Message {
      * @throws EdifactException
      */
     public function compose($msgStatus = null) {
+        $this->messageContent = [];
         $this->composeByKeys();
 
         foreach ($this->items as $item) {

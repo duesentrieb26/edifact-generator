@@ -31,30 +31,26 @@ class InvoiceItemTest extends TestCase {
 
     $invoice = new Invoic();
     $message = "";
-    try {
-      $invoice
-        ->setInvoiceNumber('INV12345');
-      $item = new Item();
-      $item
-        ->setPosition(2, 'articleId')
-        ->setGrossPrice(385)
-        ->setNetPrice(354.78)
-        ->setOrderNumberWholesaler('4501532449')
-        ->setDeliveryNoteNumber(931551, "2021-04-19")
-        ->setOrderDate("2021-04-10")
-        ->setOrderPosition(1000)
-        ->addDiscount(-5, Item::DISCOUNT_TYPE_PERCENT, 385, 'LKW Lieferung', 'TD')
-        ->addDiscount(-3, Item::DISCOUNT_TYPE_PERCENT, 385, 'Sonderrabatt', 'TD')
-        ->addDiscountFactor(354.78, 385);
+    $invoice
+      ->setInvoiceNumber('INV12345');
+    $item = new Item();
+    $item
+      ->setPosition(2, 'articleId')
+      ->setGrossPrice(385)
+      ->setNetPrice(354.78)
+      ->setOrderNumberWholesaler('4501532449')
+      ->setDeliveryNoteNumber(931551, "2021-04-19")
+      ->setOrderDate("2021-04-10")
+      ->setOrderPosition(1000)
+      ->addDiscount(-5, Item::DISCOUNT_TYPE_PERCENT, 385, 'LKW Lieferung', 'TD')
+      ->addDiscount(-3, Item::DISCOUNT_TYPE_PERCENT, 385, 'Sonderrabatt', 'TD')
+      ->addDiscountFactor(354.78, 385);
 
-      $invoice->addItem($item);
-      $invoice->compose();
-      $encoder = new Encoder($interchange->addMessage($invoice)->getComposed(), true);
-      $encoder->setUNA(":+,? '");
-      $message = str_replace("'", "'\n", $encoder->get());
-    } catch (EdifactException $e) {
-      fwrite(STDOUT, "\n\nINVOICE-ITEM\n" . $e->getMessage());
-    }
+    $invoice->addItem($item);
+    $invoice->compose();
+    $encoder = new Encoder($interchange->addMessage($invoice)->getComposed(), true);
+    $encoder->setUNA(":+,? '");
+    $message = str_replace("'", "'\n", $encoder->get());
     $this->assertStringContainsString(
       "PRI+NTP:354,78:::1:PCE'\n" .
         "PRI+GRP:385,00:::1:PCE'\n" .
@@ -83,26 +79,22 @@ class InvoiceItemTest extends TestCase {
 
     $invoice = new Invoic();
     $message = "";
-    try {
-      $invoice
-        ->setInvoiceNumber('INV12345');
-      $item = new Item();
-      $item
-        ->setPosition(2, 'articleId')
-        ->setSpecificationText("JPSRR Typ 1000 B montiert (Ø850)")
-        ->setGrossPrice(385)
-        ->setNetPrice(354.78)
-        ->setOrderNumberWholesaler('4501532449')
-        ->addDiscountFactor(354.78, 385);
+    $invoice
+      ->setInvoiceNumber('INV12345');
+    $item = new Item();
+    $item
+      ->setPosition(2, 'articleId')
+      ->setSpecificationText("JPSRR Typ 1000 B montiert (Ø850)")
+      ->setGrossPrice(385)
+      ->setNetPrice(354.78)
+      ->setOrderNumberWholesaler('4501532449')
+      ->addDiscountFactor(354.78, 385);
 
-      $invoice->addItem($item);
-      $invoice->compose();
-      $encoder = new Encoder($interchange->addMessage($invoice)->getComposed(), true);
-      $encoder->setUNA(":+,? '");
-      $message = str_replace("'", "'\n", $encoder->get());
-    } catch (EdifactException $e) {
-      fwrite(STDOUT, "\n\nINVOICE-ITEM\n" . $e->getMessage());
-    }
+    $invoice->addItem($item);
+    $invoice->compose();
+    $encoder = new Encoder($interchange->addMessage($invoice)->getComposed(), true);
+    $encoder->setUNA(":+,? '");
+    $message = str_replace("'", "'\n", $encoder->get());
     $this->assertStringContainsString("IMD+++SP:::JPSRR Typ 1000 B montiert (850)", $message);
   }
 
@@ -201,20 +193,17 @@ class InvoiceItemTest extends TestCase {
       'sa quis enim. Donec pede justo, fringill',
     ], $item->getAdditionalText());
 
-    try {
-      $composed = $item->compose();
-      $this->assertEquals(8, count($composed));
-      $this->assertEquals([
-        'IMD',
-        '',
-        '',
-        'ZU',
-        '',
-        '89',
-        'am felis, ultricies nec, pellentesque eu'
-      ], $composed[5]);
-    } catch (EdifactException $e) {
-    }
+    $composed = $item->compose();
+    $this->assertEquals(8, count($composed));
+    $this->assertEquals([
+      'IMD',
+      '',
+      '',
+      'ZU',
+      '',
+      '89',
+      'am felis, ultricies nec, pellentesque eu'
+    ], $composed[5]);
   }
 
   /**
@@ -229,19 +218,16 @@ class InvoiceItemTest extends TestCase {
       ' adipiscing elit. Aenean commodo ligula ',
     ], $item->getSpecificationText());
 
-    try {
-      $composed = $item->compose();
-      $this->assertEquals(2, count($composed));
-      $this->assertEquals([
-        'IMD',
-        '',
-        '',
-        'ZU',
-        '89',
-        ' adipiscing elit. Aenean commodo ligula '
-      ], $composed[1]);
-    } catch (EdifactException $e) {
-    }
+    $composed = $item->compose();
+    $this->assertEquals(2, count($composed));
+    $this->assertEquals([
+      'IMD',
+      '',
+      '',
+      'ZU',
+      '89',
+      ' adipiscing elit. Aenean commodo ligula '
+    ], $composed[1]);
   }
 
 
@@ -251,6 +237,42 @@ class InvoiceItemTest extends TestCase {
     $this->assertEquals(
       $line,
       $encoder->get()
+    );
+  }
+
+  public function testQuantityKeepsDecimals() {
+    $this->assertEquals(['QTY', ['12', 5, 'PCE']], (new Item())->setQuantity(5)->getQuantity());
+    $this->assertEquals(['QTY', ['12', '2,500', 'KGM']], (new Item())->setQuantity(2.5, 'KGM')->getQuantity());
+  }
+
+  public function testAbsoluteDiscountUsesTheAmount() {
+    $this->assertEquals([
+      ['ALC', 'A', '', '', '', ['DI']],
+      ['MOA', ['8', '5,00']],
+    ], (new Item())->addDiscount(-5, Item::DISCOUNT_TYPE_ABSOLUTE, 200)->compose());
+  }
+
+  public function testSetTotalKeepsDiscounts() {
+    $item = (new Item())
+      ->setPosition(1, 'articleId')
+      ->addDiscount(-2, Item::DISCOUNT_TYPE_PERCENT, 100)
+      ->setTotal(98)
+      ->setTotal(100, 125);
+
+    $this->assertEquals([
+      ['LIN', 1, '', ['articleId', 'MF']],
+      ['ALC', 'A', '', '', '', ['SF']],
+      ['PCD', ['3', '2,00']],
+      ['MOA', ['8', '2,00']],
+      ['MOA', [8, '98,00']],
+      ['MOA', [125, '100,00']],
+    ], $item->compose());
+  }
+
+  public function testUmlautsAreTransliterated() {
+    $this->assertEquals(
+      [['IMD', '', '', ['ZU', '', '', 'Groesse Oelfilter fuer Kaese']]],
+      (new Item())->setAdditionalText('Größe Ölfilter für Käse')->getAdditionalText()
     );
   }
 }

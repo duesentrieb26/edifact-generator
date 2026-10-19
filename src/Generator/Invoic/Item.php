@@ -41,6 +41,9 @@ class Item extends Base {
   protected $discountFactor;
 
   /** @var array */
+  protected $totals;
+
+  /** @var array */
   protected $productInformation;
 
   /** @var array */
@@ -140,10 +143,11 @@ class Item extends Base {
       $this->discount = [];
     }
 
+    $isPercent = $discountType == self::DISCOUNT_TYPE_PERCENT;
     if (!empty($serviceCode)) {
       $code = $serviceCode;
     } else {
-      $code = $discountType == self::DISCOUNT_TYPE_PERCENT ? 'SF' : 'DI';
+      $code = $isPercent ? 'SF' : 'DI';
     }
 
     $c214 = [$code];
@@ -163,23 +167,26 @@ class Item extends Base {
       ]
     );
 
-    array_push(
-      $this->discount,
-      [
-        'PCD',
+    // an absolute discount has no percentage, its value is the amount itself
+    if ($isPercent) {
+      array_push(
+        $this->discount,
         [
-          '3',
-          EdiFactNumber::convert(abs($value)),
-        ],
-      ]
-    );
+          'PCD',
+          [
+            '3',
+            EdiFactNumber::convert(abs($value)),
+          ],
+        ]
+      );
+    }
 
 
     array_push(
       $this->discount,
       self::addMOASegment(
         '8',
-        $valueBeforeDiscount * (abs($value) / 100)
+        $isPercent ? $valueBeforeDiscount * (abs($value) / 100) : abs($value)
       )
     );
 
@@ -245,11 +252,17 @@ class Item extends Base {
   /**
    * @param     $total
    * @param int $segment
+   *
+   * @return $this
    */
   public function setTotal($total, $segment = 8) {
-    $index = 'discount' . $this->discountIndex++;
-    $this->{$index} = self::addMOASegment($segment, $total);
-    $this->addKeyToCompose($index);
+    if (!is_array($this->totals)) {
+      $this->totals = [];
+      $this->addKeyToCompose('totals');
+    }
+    $this->totals[] = self::addMOASegment($segment, $total);
+
+    return $this;
   }
 
 

@@ -3,8 +3,6 @@
 namespace EDI\Generator;
 
 class Copino extends Message {
-    private $sender;
-    private $receiver;
     private $transporter;
     private $vessel;
     private $port;
@@ -100,7 +98,7 @@ class Copino extends Message {
             self::rffSegment('XXX', 1)
         ];
 
-        if (count($this->transporter) > 0) {
+        if ($this->transporter !== null) {
             $this->messageContent[] = $this->transporter;
         }
         $this->messageContent[] = $this->port;

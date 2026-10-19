@@ -114,6 +114,7 @@ class Interchange {
    * Format the Interchange segments
    *
    * @return Interchange
+   * @throws EdifactException if a message was added without calling its compose()
    */
   public function compose() {
     $temp = [];
@@ -147,6 +148,9 @@ class Interchange {
     ];
 
     foreach ($this->messages as $msg) {
+      if ($msg->getComposed() === null) {
+        throw new EdifactException(get_class($msg) . ' is not composed, call compose() before adding it to the interchange');
+      }
       foreach ($msg->getComposed() as $i) {
         $temp[] = $i;
       }

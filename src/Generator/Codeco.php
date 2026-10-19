@@ -3,8 +3,6 @@
 namespace EDI\Generator;
 
 class Codeco extends Message {
-    private $sender;
-    private $receiver;
     private $messageCF;
 
     private $containers;

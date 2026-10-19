@@ -18,7 +18,7 @@ vendor/bin/phpunit --filter testMethodName tests/GeneratorTest/InvoicTest.php  #
 CI (`.github/workflows/test.yml`) runs PHPUnit 12 on PHP 8.3 on every push. A dev container (`.devcontainer/`) and `compose.yaml` provide a PHP 8.3 environment; `docker compose run --rm php` installs dependencies and runs the tests.
 
 ### Versioning
-`./bump_version.sh` increments the patch version in `composer.json`, commits, creates a git tag and runs `git push origin --tags` (tags only, the branch is not pushed). Releases are a separate "Bump version to x.y.z" commit after the feature commit. The script uses GNU `grep -P` and `sed -i`, so it fails with the stock macOS tools.
+`./bump_version.sh` increments the patch version in `composer.json`, commits, creates an annotated git tag and pushes only that tag (`git push origin <version>`; the branch is not pushed). Releases are a separate "Bump version to x.y.z" commit after the feature commit. The script runs with `set -euo pipefail` and works with GNU and macOS sed.
 
 ## Architecture
 
@@ -58,12 +58,12 @@ Two styles exist; follow whichever the class you are editing uses.
 - Static segment builders live in `Message` (`dtmSegment`, `rffSegment`, `locSegment`, `eqdSegment`, `tdtSegment`, `addFTXSegment`) and `Base` (`addRFFSegment`, `addDTMSegment`, `addBGMSegment`, `addMOASegment`, `addPATSegment`, `addPCDSegment`, `addPIASegment`).
 
 ### Traits
-Traits are in `src/Generator/traits/` (lowercase directory) under namespace `EDI\Generator\Traits`: `ContactPerson`, `NameAndAddress`, `ItemPrice`, `Item`, `TransportData`, `DeliveryTerms`. PSR-4 would look for `Traits/`, so they load only through the `classmap` entry in `composer.json`. Run `composer dump-autoload` after adding a file there.
+Traits are in `src/Generator/traits/` (lowercase directory) under namespace `EDI\Generator\Traits`: `ContactPerson`, `NameAndAddress`, `ItemPrice`, `Item`, `TransportData`, `DeliveryTerms`, and for the container messages `Cargo` (Coparn, Coprar\Container) and `BookingAndSeal` (Codeco\Container, Coprar\Container). PSR-4 would look for `Traits/`, so they load only through the `classmap` entry in `composer.json`. Run `composer dump-autoload` after adding a file there.
 
 ## Testing
 
 - Tests live in `tests/GeneratorTest/` (namespace `GeneratorTest`), bootstrapped by `tests/Bootstrap.php`.
-- Coverage exists only for Invoic, Orders, Ordrsp, Desadv, Interchange, Base, the NameAndAddress and ContactPerson traits (tested via anonymous classes extending `Base`), the date/number helpers and text splitting. The container messages have no tests.
+- Coverage exists only for Invoic, Orders, Ordrsp, Desadv, Interchange, Base, the NameAndAddress and ContactPerson traits (tested via anonymous classes extending `Base`), the date/number helpers, text splitting and the container messages (one test per SAMPLES.md example).
 - Typical test: build an `Interchange` and a message, `compose()`, encode with `EDI\Encoder`, then assert on the encoded EDI string or segment arrays.
 
 ## Code Style

@@ -10,26 +10,22 @@ use PHPUnit\Framework\TestCase;
 class InterchangeTest extends TestCase {
   public function testInterchange() {
 
-    try {
 
-      $interchange = new Interchange(
-        '1234567890128',
-        '4260352060008'
-      );
-      $interchange->setCharset('UNOC')
-        ->setCharsetVersion('3')
-        ->setSenderQualifier('14')
-        ->setReceiverQualifier('14');
+    $interchange = new Interchange(
+      '1234567890128',
+      '4260352060008'
+    );
+    $interchange->setCharset('UNOC')
+      ->setCharsetVersion('3')
+      ->setSenderQualifier('14')
+      ->setReceiverQualifier('14');
 
 
-      $encoder = new Encoder($interchange->getComposed(), true);
-      $encoder->setUNA(":+,? '");
+    $encoder = new Encoder($interchange->getComposed(), true);
+    $encoder->setUNA(":+,? '");
 
-      $message = str_replace("'", "'\n", $encoder->get());
-      $this->assertStringContainsString('UNB+UNOC:3+1234567890128:14+4260352060008:14+' . date('ymd') . ':' . date('Hi'), $message);
-    } catch (EdifactException $e) {
-      fwrite(STDOUT, "\n\nINTERCHANGE\n" . $message);
-    }
+    $message = str_replace("'", "'\n", $encoder->get());
+    $this->assertStringContainsString('UNB+UNOC:3+1234567890128:14+4260352060008:14+' . date('ymd') . ':' . date('Hi'), $message);
   }
 
   public function testGeneratedDefaults() {
@@ -52,5 +48,14 @@ class InterchangeTest extends TestCase {
       ['UNB', ['UNOA', '2'], ['SENDER', '14'], ['RECEIVER', 'ZZ'], ['180123', '1000'], 'REF1'],
       ['UNZ', 0, 'REF1'],
     ], $interchange->getComposed());
+  }
+
+  public function testUncomposedMessageThrows() {
+    $interchange = (new Interchange('SENDER', 'RECEIVER'))
+      ->addMessage((new \EDI\Generator\Invoic())->setInvoiceNumber('RE123'));
+
+    $this->expectException(EdifactException::class);
+    $this->expectExceptionMessage('EDI\Generator\Invoic is not composed');
+    $interchange->getComposed();
   }
 }

@@ -136,11 +136,11 @@ class Base {
    * @param string, $functionCode
    * @param $identifier
    *
-   * @return array|bool
+   * @return array|null null for an empty identifier, so composeByKeys() skips the segment
    */
   protected function addRFFSegment($functionCode, $identifier) {
     if (empty($identifier)) {
-      return false;
+      return null;
     }
 
     return [

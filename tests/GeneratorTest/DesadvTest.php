@@ -29,13 +29,10 @@ final class DesadvTest extends TestCase {
      */
     public function testDeliverNoteNumber() {
         $desadv = new Desadv();
-        try {
-            $desadv->setDeliveryNoteNumber(
-                Desadv::DELIVERY_NOTE,
-                'LS123456789'
-            );
-        } catch (EdifactException $e) {
-        }
+        $desadv->setDeliveryNoteNumber(
+            Desadv::DELIVERY_NOTE,
+            'LS123456789'
+        );
         $array = $desadv->getDeliverNoteNumber();
         $this->assertEquals([
             'BGM',
@@ -162,142 +159,137 @@ final class DesadvTest extends TestCase {
         $interchange->setCharset('UNOC')
             ->setCharsetVersion('3');
 
-        try {
-            $desadv = (new Desadv(1))
-                ->setSender('UNB-Identifier-Sender')
-                ->setReceiver('RECEIVer')
-                ->setDeliveryNoteNumber(Desadv::DELIVERY_NOTE_ADVICE, 'LS123456789')
-                ->setDeliveryNoteDate($this->getDateTime())
-                ->setDeliveryDate($this->getDateTime())
-                ->setShippingDate($this->getDateTime()->add(new DateInterval('P1D')))
-                ->setWholesalerAddress(
-                    'Name 1 WS',
-                    'Name 2 WS',
-                    'Name 3 WS',
-                    'Street WS',
-                    '99999',
-                    'city WS',
-                    'DE'
-                )
-                ->setContactPerson('John Doe')
-                ->setMailAddress('john.doe@company.com')
-                ->setPhoneNumber('+49123456789')
-                ->setFaxNumber('+49123456789-11')
-                ->setDeliveryAddress(
-                    'Name 1 DA',
-                    'Name 2 DA',
-                    'Name 3 DA',
-                    'Street DA',
-                    '99999',
-                    'city DA',
-                    'DE'
-                );
+        $desadv = (new Desadv(1))
+            ->setSender('UNB-Identifier-Sender')
+            ->setReceiver('RECEIVer')
+            ->setDeliveryNoteNumber(Desadv::DELIVERY_NOTE_ADVICE, 'LS123456789')
+            ->setDeliveryNoteDate($this->getDateTime())
+            ->setDeliveryDate($this->getDateTime())
+            ->setShippingDate($this->getDateTime()->add(new DateInterval('P1D')))
+            ->setWholesalerAddress(
+                'Name 1 WS',
+                'Name 2 WS',
+                'Name 3 WS',
+                'Street WS',
+                '99999',
+                'city WS',
+                'DE'
+            )
+            ->setContactPerson('John Doe')
+            ->setMailAddress('john.doe@company.com')
+            ->setPhoneNumber('+49123456789')
+            ->setFaxNumber('+49123456789-11')
+            ->setDeliveryAddress(
+                'Name 1 DA',
+                'Name 2 DA',
+                'Name 3 DA',
+                'Street DA',
+                '99999',
+                'city DA',
+                'DE'
+            );
 
 
-            $desadv->setTransportData(16789, 30, '31S');
+        $desadv->setTransportData(16789, 30, '31S');
 
-            $pos = 1;
-            $package = new Package();
-            $package
-                ->setPackageQuantity(3, 'CT')
-                ->setPackageNumber('00343107380000001051')
-                ->setPackageWeight(925.328);
-
-
-            $packageItem1 = new PackageItem();
-            $packageItem1
-                ->setPackageContent($pos++, '8290123XX', 'MF', 3)
-                ->setDeliveryNoteNumber('123444', 10, $this->getDateTime()->add(new DateInterval('P10D')))
-                ->setOrderNumber('123456789', 10);
-            $package->addItem($packageItem1);
+        $pos = 1;
+        $package = new Package();
+        $package
+            ->setPackageQuantity(3, 'CT')
+            ->setPackageNumber('00343107380000001051')
+            ->setPackageWeight(925.328);
 
 
-            $packageItem2 = new PackageItem();
-            $packageItem2
-                ->setPackageContent($pos++, '8290123YY', 'EN', 20)
-                ->setDeliveryNoteNumber('123444', 20, $this->getDateTime()->add(new DateInterval('P10D')))
-                ->setOrderNumber('123456789', 20);
-            $package->addItem($packageItem2);
-            $desadv->addPackage($package);
+        $packageItem1 = new PackageItem();
+        $packageItem1
+            ->setPackageContent($pos++, '8290123XX', 'MF', 3)
+            ->setDeliveryNoteNumber('123444', 10, $this->getDateTime()->add(new DateInterval('P10D')))
+            ->setOrderNumber('123456789', 10);
+        $package->addItem($packageItem1);
 
 
-            $package2 = new Package();
-            $package2
-                ->setPackageQuantity(5, 'PN')
-                ->setPackageNumber('12345678900001')
-                ->setPackageWeight(501.234);
+        $packageItem2 = new PackageItem();
+        $packageItem2
+            ->setPackageContent($pos++, '8290123YY', 'EN', 20)
+            ->setDeliveryNoteNumber('123444', 20, $this->getDateTime()->add(new DateInterval('P10D')))
+            ->setOrderNumber('123456789', 20);
+        $package->addItem($packageItem2);
+        $desadv->addPackage($package);
 
 
-            $packageItem3 = new PackageItem();
-            $packageItem3
-                ->setPackageType('PG', 1)
-                ->setPackageContent($pos++, '4250659500284', 'EN', 5)
-                ->setDeliveryNoteNumber('123444', 30, $this->getDateTime()->add(new DateInterval('P10D')))
-                ->setOrderNumber('123456789', 30);
-            $package2->addItem($packageItem3);
-
-            $packageItem4 = new PackageItem();
-            $packageItem4
-                ->setPackageContent($pos++, '4250659500285', 'EN', 5)
-                ->setDeliveryNoteNumber('123444', 50, $this->getDateTime()->add(new DateInterval('P10D')))
-                ->setOrderNumber('123456789', 50);
-            $package2->addItem($packageItem4);
+        $package2 = new Package();
+        $package2
+            ->setPackageQuantity(5, 'PN')
+            ->setPackageNumber('12345678900001')
+            ->setPackageWeight(501.234);
 
 
-            $packageItem5 = new PackageItem();
-            $packageItem5
-                ->setPackageContent($pos++, '4250659500286', 'EN', 5)
-                ->setDeliveryNoteNumber('123444', 60, $this->getDateTime()->add(new DateInterval('P10D')))
-                ->setOrderNumber('123456789', 60);
-            $package2->addItem($packageItem5);
+        $packageItem3 = new PackageItem();
+        $packageItem3
+            ->setPackageType('PG', 1)
+            ->setPackageContent($pos++, '4250659500284', 'EN', 5)
+            ->setDeliveryNoteNumber('123444', 30, $this->getDateTime()->add(new DateInterval('P10D')))
+            ->setOrderNumber('123456789', 30);
+        $package2->addItem($packageItem3);
+
+        $packageItem4 = new PackageItem();
+        $packageItem4
+            ->setPackageContent($pos++, '4250659500285', 'EN', 5)
+            ->setDeliveryNoteNumber('123444', 50, $this->getDateTime()->add(new DateInterval('P10D')))
+            ->setOrderNumber('123456789', 50);
+        $package2->addItem($packageItem4);
 
 
-            $desadv->addPackage($package2);
-
-            $package3 = new Package();
-            $package3
-                ->setPackageQuantity(5, 'PN')
-                ->setPackageNumber('12345678900002')
-                ->setPackageWeight(501.234);
-
-
-            $packageItem6 = new PackageItem();
-            $packageItem6
-                ->setPackageContent($pos++, '4250659500287', 'EN', 5);
+        $packageItem5 = new PackageItem();
+        $packageItem5
+            ->setPackageContent($pos++, '4250659500286', 'EN', 5)
+            ->setDeliveryNoteNumber('123444', 60, $this->getDateTime()->add(new DateInterval('P10D')))
+            ->setOrderNumber('123456789', 60);
+        $package2->addItem($packageItem5);
 
 
-            $package3->addItem($packageItem6);
+        $desadv->addPackage($package2);
 
-            $desadv->addPackage($package3);
+        $package3 = new Package();
+        $package3
+            ->setPackageQuantity(5, 'PN')
+            ->setPackageNumber('12345678900002')
+            ->setPackageWeight(501.234);
 
-            $desadv->compose();
 
-            $encoder = new Encoder($interchange->addMessage($desadv)->getComposed(), true);
-            $encoder->setUNA(":+,? '");
+        $packageItem6 = new PackageItem();
+        $packageItem6
+            ->setPackageContent($pos++, '4250659500287', 'EN', 5);
 
-            $message = str_replace("'", "'\n", $encoder->get());
-            // fwrite(STDOUT, "\n\nDESADV\n" . $message);
 
-            $this->assertStringContainsString('BGM+351+LS123456789', $message);
-            $this->assertStringContainsString('TDT+13+16789+30+31S', $message);
-            $this->assertStringContainsString('DTM+137', $message);
-            $this->assertStringContainsString('DTM+11', $message);
-            $this->assertStringContainsString('DTM+17', $message);
-            $this->assertStringContainsString('CTA++', $message);
-            $this->assertStringContainsString('COM+', $message);
-            $this->assertStringContainsString('GIN+BJ+00343107380000001051', $message);
-            $this->assertStringContainsString('GIN+BJ+12345678900001', $message);
-            $this->assertStringContainsString("CPS+1'\nPAC+3++PN'\nMEA+AAE+BW+KGM:1927,79", $message);
-            $this->assertStringContainsString("CPS+2+1'\nPAC+3++CT", $message);
-            $this->assertStringContainsString("CPS+3+1'\nPAC+5++PN'\nMEA+AAE+BW+KGM:501,23'\nPCI+33E'", $message);
-            $this->assertStringContainsString("LIN+1++8290123XX:MF'\nQTY+12:3:PCE'\nRFF+VN:123456789'\nRFF+LI:10'\nRFF+AAJ:123444'\nRFF+FI:10", $message);
-            $this->assertStringContainsString("LIN+2++8290123YY:EN'\n", $message);
-            $this->assertStringContainsString("LIN+3++4250659500284:EN'\n", $message);
-            $this->assertStringContainsString("LIN+5++4250659500286:EN'\nQTY+12:5:PCE'\nRFF+VN:123456789'\nRFF+LI:60'\nRFF+AAJ:123444'\nRFF+FI:60'", $message);
-        } catch (EdifactException $e) {
-            fwrite(STDOUT, "\n\nDESADV\n" . $e->getMessage());
-            fwrite(STDOUT, "\n\nDESADV\n" . $e->getTraceAsString());
-        }
+        $package3->addItem($packageItem6);
+
+        $desadv->addPackage($package3);
+
+        $desadv->compose();
+
+        $encoder = new Encoder($interchange->addMessage($desadv)->getComposed(), true);
+        $encoder->setUNA(":+,? '");
+
+        $message = str_replace("'", "'\n", $encoder->get());
+        // fwrite(STDOUT, "\n\nDESADV\n" . $message);
+
+        $this->assertStringContainsString('BGM+351+LS123456789', $message);
+        $this->assertStringContainsString('TDT+13+16789+30+31S', $message);
+        $this->assertStringContainsString('DTM+137', $message);
+        $this->assertStringContainsString('DTM+11', $message);
+        $this->assertStringContainsString('DTM+17', $message);
+        $this->assertStringContainsString('CTA++', $message);
+        $this->assertStringContainsString('COM+', $message);
+        $this->assertStringContainsString('GIN+BJ+00343107380000001051', $message);
+        $this->assertStringContainsString('GIN+BJ+12345678900001', $message);
+        $this->assertStringContainsString("CPS+1'\nPAC+3++PN'\nMEA+AAE+BW+KGM:1927,79", $message);
+        $this->assertStringContainsString("CPS+2+1'\nPAC+3++CT", $message);
+        $this->assertStringContainsString("CPS+3+1'\nPAC+5++PN'\nMEA+AAE+BW+KGM:501,23'\nPCI+33E'", $message);
+        $this->assertStringContainsString("LIN+1++8290123XX:MF'\nQTY+12:3:PCE'\nRFF+VN:123456789'\nRFF+LI:10'\nRFF+AAJ:123444'\nRFF+FI:10", $message);
+        $this->assertStringContainsString("LIN+2++8290123YY:EN'\n", $message);
+        $this->assertStringContainsString("LIN+3++4250659500284:EN'\n", $message);
+        $this->assertStringContainsString("LIN+5++4250659500286:EN'\nQTY+12:5:PCE'\nRFF+VN:123456789'\nRFF+LI:60'\nRFF+AAJ:123444'\nRFF+FI:60'", $message);
     }
 
 
@@ -334,7 +326,7 @@ final class DesadvTest extends TestCase {
     /**
      * @throws EdifactException
      */
-    public function testItemsAreComposedBeforePackages() {
+    public function testItemsAreComposedInsideTheFirstCps() {
         $item = (new Desadv\Item())
             ->setPosition(1, '4250659500284', 'EN')
             ->setQuantity(5);
@@ -353,7 +345,7 @@ final class DesadvTest extends TestCase {
         $encoder->setUNA(":+,? '");
         $message = $encoder->get();
 
-        $this->assertStringContainsString("BGM+270+LS123456789'LIN+1++4250659500284:EN'", $message);
-        $this->assertLessThan(strpos($message, "CPS+1'"), strpos($message, 'LIN+1'));
+        $this->assertStringContainsString("CPS+1'PAC+1++PN'MEA+AAE+BW+KGM:10,00'LIN+1++4250659500284:EN'", $message);
+        $this->assertLessThan(strpos($message, "CPS+2+1'"), strpos($message, 'LIN+1'));
     }
 }

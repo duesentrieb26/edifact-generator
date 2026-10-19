@@ -71,6 +71,9 @@ class Message extends Base {
       $this->messageType,
     ];
 
+    // hand-built messages add optional segments as null when their setter was never called
+    $this->messageContent = array_values(array_filter($this->messageContent));
+
     if (count($this->messageContent) == 0) {
       throw new EdifactException('no content available for message');
     }

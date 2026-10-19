@@ -4,6 +4,7 @@ namespace EDI\Generator\Traits;
 
 use EDI\Generator\Base;
 use EDI\Generator\EdifactDate;
+use EDI\Generator\EdiFactNumber;
 use EDI\Generator\Message;
 
 
@@ -80,6 +81,8 @@ trait Item {
    * @throws \EDI\Generator\EdifactException
    */
   public function compose() {
+    $this->messageContent = [];
+
     return $this->composeByKeys($this->composeKeys);
   }
 
@@ -154,8 +157,8 @@ trait Item {
       'QTY',
       [
         '12',
-        intval($quantity),
-        //        EdiFactNumber::convert($quantity, 3, EdiFactNumber::DECIMAL_POINT),
+        // whole numbers stay integers (QTY+12:5:PCE), fractions keep 3 decimals (QTY+12:2,500:KGM)
+        is_numeric($quantity) && floor($quantity) == $quantity ? intval($quantity) : EdiFactNumber::convert($quantity, 3),
         $unit,
       ],
     ];
@@ -292,6 +295,8 @@ trait Item {
    * @param string  $string
    */
   public function clearUTF8chars($string) {
+    // transliterate German letters first, the regex below drops every non-ASCII byte
+    $string = strtr((string) $string, ['ä' => 'ae', 'ö' => 'oe', 'ü' => 'ue', 'Ä' => 'Ae', 'Ö' => 'Oe', 'Ü' => 'Ue', 'ß' => 'ss']);
     return preg_replace('/[[:^print:]]/', '', ($string));
     // return preg_replace('/[\x00-\x1F\x80-\xFF]/', '', ($string));
   }

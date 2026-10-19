@@ -204,6 +204,7 @@ class Invoic extends Message {
    * @throws EdifactException
    */
   public function compose($msgStatus = null) {
+    $this->messageContent = [];
     $this->composeByKeys();
 
     foreach ($this->items as $item) {

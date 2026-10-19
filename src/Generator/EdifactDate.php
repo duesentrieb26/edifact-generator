@@ -22,7 +22,8 @@ class EdifactDate {
   const DATETIME_FORMAT = 'YmdHi';
 
   const SHIPPING_WEEK = 616;
-  const SHIPPING_WEEK_FORMAT = 'YW';
+  // ISO year (o), not calendar year (Y): 2018-12-31 is in week 01 of 2019
+  const SHIPPING_WEEK_FORMAT = 'oW';
 
   const SHIPPING_UNDEFINED = 999;
   const SHIPPING_UNDEFINED_FORMAT = "";
@@ -76,13 +77,13 @@ class EdifactDate {
   }
 
   /**
-   * @param string|\DateTime $string
-   * @param integer          $format
+   * @param string|\DateTimeInterface $string
+   * @param integer                   $format
    *
-   * @return bool|\DateTime
+   * @return bool|\DateTimeInterface
    */
   public static function parseFormat($string, $format = self::DATE) {
-    if ($string instanceof \DateTime) {
+    if ($string instanceof \DateTimeInterface) {
       return $string;
     }
 
@@ -102,6 +103,13 @@ class EdifactDate {
         break;
     }
 
-    return \DateTime::createFromFormat($parseFormat, $string);
+    $dateTime = \DateTime::createFromFormat($parseFormat, $string);
+    // createFromFormat rolls impossible dates over (2018-02-30 -> 2018-03-02) and only warns
+    $errors = \DateTime::getLastErrors();
+    if ($errors && $errors['warning_count'] > 0) {
+      return false;
+    }
+
+    return $dateTime;
   }
 }

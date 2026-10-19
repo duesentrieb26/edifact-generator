@@ -138,6 +138,8 @@ class Package extends Base {
    * @throws \EDI\Generator\EdifactException
    */
   public function compose() {
+    $this->messageContent = [];
+
     return $this->composeByKeys($this->composeKeys);
   }
 

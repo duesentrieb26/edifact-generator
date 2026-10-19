@@ -2,20 +2,16 @@
 
 namespace EDI\Generator\Coprar;
 
+use EDI\Generator\Traits\BookingAndSeal;
+use EDI\Generator\Traits\Cargo;
+
 class Container {
+    use BookingAndSeal, Cargo;
 
     private $cntr;
-    private $bkg;
     private $pol;
     private $pod;
     private $fnd;
-    private $weight;
-    private $weightTime;
-    private $seal;
-    private $cargo;
-    private $dangerous;
-    private $temperature;
-    private $dimensions;
     private $containerOperator;
 
     public function __construct() {
@@ -28,22 +24,6 @@ class Container {
      */
     public function setContainer($number, $size, $statusCode, $fullEmptyIndicator) {
         $this->cntr = \EDI\Generator\Message::eqdSegment('CN', $number, [$size, '102', '5'], '', $statusCode, $fullEmptyIndicator);
-        return $this;
-    }
-
-    /*
-     *
-     */
-    public function setBooking($booking, $sequence = null) {
-        $this->bkg = \EDI\Generator\Message::rffSegment('BN', $booking);
-        return $this;
-    }
-
-    /*
-     *
-     */
-    public function setBillOfLading($bl) {
-        $this->bkg = \EDI\Generator\Message::rffSegment('BM', $bl);
         return $this;
     }
 
@@ -71,94 +51,6 @@ class Container {
      */
     public function setFND($loc) {
         $this->fnd = \EDI\Generator\Message::locSegment(7, [$loc, 139, 6]);
-        return $this;
-    }
-
-    /*
-     * VGM information
-     *
-     */
-    public function setVGM($weight, $weightTime) {
-        $this->weight = ['MEA', 'AAE', 'VGM', ['KGM', $weight]];
-        $this->weightTime = \EDI\Generator\Message::dtmSegment(798, $weightTime);
-        return $this;
-    }
-
-    /*
-     * Weight information
-     *
-     */
-    public function setGrossWeight($weight) {
-        $this->weight = ['MEA', 'AAE', 'G', ['KGM', $weight]];
-        return $this;
-    }
-
-    /*
-     * $seal = free text
-     * $sealIssuer = DE 9303
-     */
-    public function setSeal($seal, $sealIssuer) {
-        $this->seal = ['SEL', [$seal, $sealIssuer]];
-        return $this;
-    }
-
-
-    /*
-     * Cargo category
-     *
-     */
-    public function setCargoCategory($text) {
-        $this->cargo = ['FTX', 'AAA', '', '', $text];
-        return $this;
-    }
-
-    /*
-     * DEPRECATED
-     */
-    public function setDangerous($hazardClass, $hazardCode) {
-        $this->addDangerous($hazardClass, $hazardCode);
-        return $this;
-    }
-
-    public function addDangerous($hazardClass, $hazardCode, $flashpoint = null, $packingGroup = null) {
-        if ($this->dangerous === null) {
-            $this->dangerous = [];
-        }
-
-        $dgs = ['DGS', 'IMD', $hazardClass, $hazardCode];
-        if ($flashpoint !== null) {
-            $dgs[] = [$flashpoint, 'CEL'];
-            if ($packingGroup !== null) {
-                $dgs[] = [$packingGroup, 'CEL'];
-            }
-        }
-
-        $this->dangerous[] = $dgs;
-        return $this;
-    }
-
-    public function setTemperature($setDegrees) {
-        $this->temperature = ['TMP', '2', [$setDegrees, 'CEL']];
-        return $this;
-    }
-
-    public function setOverDimensions($front = '', $back = '', $right = '', $left = '', $height = '') {
-        $this->dim = [];
-        if ($front !== '') {
-            $this->dimensions[] = ['DIM', '5', ['CMT', $front]];
-        }
-        if ($back !== '') {
-            $this->dimensions[] = ['DIM', '6', ['CMT', $back]];
-        }
-        if ($right !== '') {
-            $this->dimensions[] = ['DIM', '7', ['CMT', '', $right]];
-        }
-        if ($left !== '') {
-            $this->dimensions[] = ['DIM', '8', ['CMT', '', $left]];
-        }
-        if ($height !== '') {
-            $this->dimensions[] = ['DIM', '13', ['CMT', '', '', $height]];
-        }
         return $this;
     }
 

@@ -80,7 +80,7 @@ class Westim extends Message {
      * Full or Empty
      */
     public function setFullEmpty($fullEmpty) {
-        $this->_fullEmpty = ['CUI', '', '', 'E'];
+        $this->_fullEmpty = ['CUI', '', '', $fullEmpty];
         return $this;
     }
 
@@ -104,13 +104,11 @@ class Westim extends Message {
      *
      */
     public function setTotalMessageAmounts($grandTotal, $authorizedAmount = null, $taxRate = null) {
-        $this->_totalMessageAmounts = ['TMA', $grandTotal];
-        if ($authorizedAmount !== null) {
-            $this->_totalMessageAmounts[] = ['TMA', $grandTotal, '', '', '', '', $authorizedAmount];
+        $tma = ['TMA', $grandTotal, '', '', '', '', $authorizedAmount ?? '', '', $taxRate ?? ''];
+        while (end($tma) === '') {
+            array_pop($tma);
         }
-        if ($taxRate !== null) {
-            $this->_totalMessageAmounts[] = ['TMA', $grandTotal, '', '', '', '', $authorizedAmount, '', $taxRate];
-        }
+        $this->_totalMessageAmounts = $tma;
         return $this;
     }
 
