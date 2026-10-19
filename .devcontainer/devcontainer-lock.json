@@ -1,0 +1,9 @@
+{
+  "features": {
+    "ghcr.io/devcontainers-contrib/features/composer:1": {
+      "version": "1.0.1",
+      "resolved": "ghcr.io/devcontainers-extra/features/composer@sha256:92bd9a7d6b294cdf231e7c4c36897da20e09e65d580db516d768c8b309496a76",
+      "integrity": "sha256:92bd9a7d6b294cdf231e7c4c36897da20e09e65d580db516d768c8b309496a76"
+    }
+  }
+}
