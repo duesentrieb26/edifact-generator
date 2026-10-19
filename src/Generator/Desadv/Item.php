@@ -12,7 +12,9 @@ namespace EDI\Generator\Desadv;
 use EDI\Generator\Base;
 
 /**
- * Class Item
+ * DESADV line item without a package (LIN group with QTY, IMD, RFF and DTM segments).
+ * All setters come from the Item trait.
+ *
  * @package EDI\Generator\Desadv
  */
 class Item extends Base {

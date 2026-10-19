@@ -9,8 +9,11 @@ use EDI\Generator\Traits\NameAndAddress;
 use EDI\Generator\Traits\TransportData;
 
 /**
- * Class Desadv
- * @url http://www.unece.org/trade/untdid/d96b/trmd/desadv_s.htm
+ * DESADV (despatch advice) message: announces a delivery with its header data,
+ * addresses, transport details and the packed goods (CPS/PAC/LIN groups).
+ * Defaults to D.96B with the ITEK35 association.
+ *
+ * @link http://www.unece.org/trade/untdid/d96b/trmd/desadv_s.htm
  * @package EDI\Generator
  */
 class Desadv extends Message {
@@ -19,23 +22,26 @@ class Desadv extends Message {
         DeliveryTerms,
         TransportData;
 
+    /** Document type 22E: delivery advice */
     const DELIVERY_ADVICE = '22E';
+    /** Document type 270: delivery note */
     const DELIVERY_NOTE = '270';
+    /** Document type 351: despatch advice */
     const DELIVERY_NOTE_ADVICE = '351';
 
-    /** @var array */
+    /** @var array|null BGM segment with document type and delivery note number */
     protected $deliveryNoteNumber;
-    /** @var array */
+    /** @var array|null DTM segment, qualifier 137 (document date) */
     protected $deliveryNoteDate;
-    /** @var array */
+    /** @var array|null DTM segment, qualifier 17 (estimated delivery date) */
     protected $shippingDate;
-    /** @var array */
+    /** @var array|null DTM segment, qualifier 11 (despatch date) */
     protected $deliveryDate;
-    /** @var Item[] */
+    /** @var \EDI\Generator\Desadv\Item[] line items that are not packed in a package */
     protected $items;
-    /** @var Package[] */
+    /** @var Package[] packages, each emitted as its own CPS group */
     protected $packages = [];
-    /** @var array  */
+    /** @var string[] property names composed in this order into the message header */
     protected $composeKeys = [
         'deliveryNoteNumber',
         'deliveryNoteDate',
@@ -53,13 +59,14 @@ class Desadv extends Message {
     ];
 
     /**
-     * Desadv constructor.
-     * @param null $messageId
-     * @param string $identifier
-     * @param string|null $version
-     * @param string|null $release
-     * @param string|null $controllingAgency
-     * @param string|null $association
+     * Creates a DESADV message.
+     *
+     * @param string|null $messageId         message reference (UNH 0062), generated when null
+     * @param string      $identifier        message type
+     * @param string      $version           message version number
+     * @param string      $release           message release number
+     * @param string      $controllingAgency controlling agency
+     * @param string      $association       association assigned code
      */
     public function __construct(
         $messageId = null,
@@ -82,7 +89,11 @@ class Desadv extends Message {
     }
 
     /**
-     * @param $item Item
+     * Adds a line item without a package; it is emitted inside the first CPS group.
+     *
+     * @param \EDI\Generator\Desadv\Item $item
+     *
+     * @return $this
      */
     public function addItem($item) {
         $this->items[] = $item;
@@ -92,7 +103,11 @@ class Desadv extends Message {
 
 
     /**
-     * @param $item Package
+     * Adds a package with its package items; each package becomes its own CPS group.
+     *
+     * @param Package $item
+     *
+     * @return $this
      */
     public function addPackage($item) {
         $this->packages[] = $item;
@@ -101,11 +116,13 @@ class Desadv extends Message {
     }
 
     /**
-     * Set deliver note number
-     * @param string $documentType
-     * @param $number
+     * Sets the document type and delivery note number (BGM segment).
+     *
+     * @param string $documentType one of DELIVERY_ADVICE (22E), DELIVERY_NOTE (270), DELIVERY_NOTE_ADVICE (351)
+     * @param string $number       delivery note number
+     *
      * @return $this
-     * @throws EdifactException
+     * @throws EdifactException if the document type is not allowed
      */
     public function setDeliveryNoteNumber($documentType, $number) {
         $this->isAllowed($documentType, [
@@ -119,23 +136,30 @@ class Desadv extends Message {
     }
 
     /**
-     * @return array
+     * Returns the BGM segment with the delivery note number.
+     *
+     * @return array|null
      */
     public function getDeliverNoteNumber() {
         return $this->deliveryNoteNumber;
     }
 
     /**
-     * @return array
+     * Returns the shipping date (DTM segment, qualifier 17).
+     *
+     * @return array|null
      */
     public function getShippingDate() {
         return $this->shippingDate;
     }
 
     /**
-     * @param string|\DateTime $shippingDate
+     * Sets the shipping date (DTM segment, qualifier 17).
+     *
+     * @param string|\DateTimeInterface $shippingDate date as 'Y-m-d' string or date object
+     *
      * @return $this
-     * @throws EdifactException
+     * @throws EdifactException if the date is invalid
      */
     public function setShippingDate($shippingDate) {
         $this->shippingDate = $this->addDTMSegment($shippingDate, '17');
@@ -144,16 +168,21 @@ class Desadv extends Message {
     }
 
     /**
-     * @return array
+     * Returns the delivery date (DTM segment, qualifier 11).
+     *
+     * @return array|null
      */
     public function getDeliveryDate() {
         return $this->deliveryDate;
     }
 
     /**
-     * @param string|\DateTime $deliveryDate
+     * Sets the delivery date (DTM segment, qualifier 11).
+     *
+     * @param string|\DateTimeInterface $deliveryDate date as 'Y-m-d' string or date object
+     *
      * @return $this
-     * @throws EdifactException
+     * @throws EdifactException if the date is invalid
      */
     public function setDeliveryDate($deliveryDate) {
         $this->deliveryDate = $this->addDTMSegment($deliveryDate, '11');
@@ -162,16 +191,21 @@ class Desadv extends Message {
     }
 
     /**
-     * @return array
+     * Returns the delivery note date (DTM segment, qualifier 137).
+     *
+     * @return array|null
      */
     public function getDeliveryNoteDate() {
         return $this->deliveryNoteDate;
     }
 
     /**
-     * @param string|\DateTime $deliveryNoteDate
+     * Sets the delivery note date (DTM segment, qualifier 137).
+     *
+     * @param string|\DateTimeInterface $deliveryNoteDate date as 'Y-m-d' string or date object
+     *
      * @return $this
-     * @throws EdifactException
+     * @throws EdifactException if the date is invalid
      */
     public function setDeliveryNoteDate($deliveryNoteDate) {
         $this->deliveryNoteDate = $this->addDTMSegment($deliveryNoteDate, '137');
@@ -181,9 +215,13 @@ class Desadv extends Message {
 
 
     /**
-     * @param null $msgStatus
+     * Builds the message: header segments, the consignment CPS group with total
+     * package count and weight, unpacked items, then one CPS group per package.
+     *
+     * @param mixed $msgStatus unused
+     *
      * @return $this
-     * @throws EdifactException
+     * @throws EdifactException if a header segment is invalid or the message is empty
      */
     public function compose($msgStatus = null) {
         $this->messageContent = [];

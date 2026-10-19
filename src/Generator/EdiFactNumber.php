@@ -10,7 +10,8 @@
 namespace EDI\Generator;
 
 /**
- * Class EdiFactNumber
+ * Formats numbers for EDIFACT data elements such as amounts, prices and percentages.
+ *
  * @package EDI\Generator
  */
 class EdiFactNumber {
@@ -18,9 +19,14 @@ class EdiFactNumber {
     const DECIMAL_POINT = '.';
 
     /**
-     * @param string|float|double $value
-     * @param int $decimals
-     * @param string $format
+     * Formats a number with a fixed number of decimals and no thousands separator.
+     *
+     * Strings with a decimal comma, also in German format ("1.234,56"), are accepted.
+     *
+     * @param string|int|float|null $value    Number; null gives '0,00'
+     * @param int                   $decimals Number of decimals
+     * @param string                $format   Decimal mark: DECIMAL_COMMA (default) or DECIMAL_POINT
+     *
      * @return string
      */
     public static function convert($value, $decimals = 2, $format = self::DECIMAL_COMMA) {

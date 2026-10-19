@@ -3,27 +3,28 @@
 namespace EDI\Generator;
 
 /**
- * Class Message
+ * Base class of all EDIFACT messages. Holds the message identifier, wraps the
+ * composed segments in UNH/UNT and provides builders for shared segments.
  *
  * @package EDI\Generator
  */
 class Message extends Base {
 
-  /** @var string */
+  /** @var string Message reference number, sent in UNH and UNT */
   protected $messageID;
 
-  /** @var array string */
+  /** @var string[] Message identifier (UNH S009): type, version, release, agency, association */
   protected $messageType;
 
   /**
-   * Message constructor.
+   * Creates a message with its UNH message identifier.
    *
-   * @param      $identifier
-   * @param      $version
-   * @param null $release
-   * @param null $controllingAgency
-   * @param null $messageID
-   * @param null $association
+   * @param string      $identifier        Message type, e.g. INVOIC or ORDERS
+   * @param string      $version           Message version number, e.g. D
+   * @param string|null $release           Release number, e.g. 96B
+   * @param string|null $controllingAgency Controlling agency, e.g. UN; only added when $release is set
+   * @param string|null $messageID         Message reference number; a unique id is generated when null
+   * @param string|null $association       Association assigned code, e.g. ITEK35
    */
   public function __construct(
     $identifier,
@@ -58,10 +59,14 @@ class Message extends Base {
   }
 
   /**
-   * @param null $msgStatus
+   * Wraps the collected segments in UNH and UNT and stores the result for getComposed().
+   *
+   * Empty entries (optional segments that were never set) are dropped first.
+   *
+   * @param mixed $msgStatus Not used
    *
    * @return $this
-   * @throws EdifactException
+   * @throws EdifactException If the message has no content
    */
   public function compose($msgStatus = null) {
     $temp = [];
@@ -95,9 +100,13 @@ class Message extends Base {
 
 
   /**
-   * DTM segment
-   * $type = 7 (actual date time), 132 (estimated date time), 137 (message date time), 798 (weight date time)
-   * $format = 203 (CCYYMMDDHHII)
+   * Builds a date/time segment (DTM) from an already formatted date.
+   *
+   * @param string|int $type      Qualifier (DE 2005): 7 actual, 132 estimated, 137 message date, 798 weight date
+   * @param string     $dtmString Date in the given format
+   * @param int        $format    Format code (DE 2379), default 203 (CCYYMMDDHHMM)
+   *
+   * @return array
    */
   public static function dtmSegment($type, $dtmString, $format = 203) {
     return [
@@ -111,9 +120,12 @@ class Message extends Base {
   }
 
   /**
-   * RFF segment
-   * $functionCode = DE 1153
-   * $identifier = max 35 alphanumeric chars
+   * Builds a reference segment (RFF) without length checks.
+   *
+   * @param string     $functionCode Reference qualifier (DE 1153)
+   * @param string|int $identifier   Reference, max 35 alphanumeric characters
+   *
+   * @return array
    */
   public static function rffSegment($functionCode, $identifier) {
     return [
@@ -126,10 +138,13 @@ class Message extends Base {
   }
 
   /**
-   * LOC segment
-   * $qualifier = DE 3227
-   * $firstLoc = preferred [locode, 139, 6]
-   * $secondaryLoc = preferred [locode, 139, 6] (if needed)
+   * Builds a place/location segment (LOC).
+   *
+   * @param string|int        $qualifier    Location qualifier (DE 3227)
+   * @param array|string      $firstLoc     Location, preferably [locode, 139, 6]
+   * @param array|string|null $secondaryLoc Related location, e.g. [terminal, 'TER', 'ZZZ']; omitted when null
+   *
+   * @return array
    */
   public static function locSegment($qualifier, $firstLoc, $secondaryLoc = null) {
     $loc = [
@@ -144,13 +159,18 @@ class Message extends Base {
   }
 
   /**
-   * EQD segment
-   * $eqpType = DE 8053 (for a container CN)
-   * $eqpIdentification = for a container [A-Z]{3}U\d{7}
-   * $dimension = [XXXX, 102, 5]
-   * $supplier = DE 8077, but usually empty
-   * $statusCode = DE 8249
-   * $fullEmptyIndicatorCode = DE 8169
+   * Builds an equipment details segment (EQD).
+   *
+   * Optional elements are appended only when not null; pass '' to keep the position of a later element.
+   *
+   * @param string            $eqpType                Equipment type (DE 8053), CN for a container
+   * @param string|array      $eqpIdentification      Equipment id; for a container [A-Z]{3}U\d{7}
+   * @param string|array      $dimension              Size and type, e.g. [size type code, 102, 5]
+   * @param string|null       $supplier               Equipment supplier (DE 8077), usually empty
+   * @param string|int|null   $statusCode             Equipment status (DE 8249)
+   * @param string|int|null   $fullEmptyIndicatorCode Full/empty indicator (DE 8169)
+   *
+   * @return array
    */
   public static function eqdSegment(
     $eqpType,
@@ -179,15 +199,18 @@ class Message extends Base {
   }
 
   /**
-   * TDT segment
-   * $stageQualifier = DE 8051
-   * $journeyIdentifier = max 17 alphanumeric chars
-   * $modeOfTransport = DE 8067 (not used)
-   * $transportMeans = DE 8179 (not used)
-   * $carrier
-   * $transitDirection = DE 8101 (not used)
-   * $$excessTransportation = DE 8457 (not used)
-   * $transportationIdentification
+   * Builds a transport details segment (TDT) with all elements.
+   *
+   * @param string|int   $stageQualifier               Transport stage qualifier (DE 8051)
+   * @param string       $journeyIdentifier            Voyage or journey number, max 17 alphanumeric characters
+   * @param string|array $modeOfTransport              Mode of transport (DE 8067)
+   * @param string|array $transportMeans               Type of means of transport (DE 8179)
+   * @param string|array $carrier                      Carrier, e.g. [code, 172, 20]
+   * @param string       $transitDirection             Transit direction (DE 8101)
+   * @param string       $excessTransportation         Excess transportation information (DE 8457)
+   * @param string|array $transportationIdentification Means of transport, e.g. [call sign, 103, '', vessel name]
+   *
+   * @return array
    */
   public static function tdtSegment(
     $stageQualifier,
@@ -213,10 +236,12 @@ class Message extends Base {
   }
 
   /**
-   * @param $stageQualifier
-   * @param $journeyIdentifier
-   * @param $modeOfTransport
-   * @param $transportMeans
+   * Builds a transport details segment (TDT) with only the first four elements.
+   *
+   * @param string|int   $stageQualifier    Transport stage qualifier (DE 8051)
+   * @param string       $journeyIdentifier Voyage or journey number, max 17 alphanumeric characters
+   * @param string|array $modeOfTransport   Mode of transport (DE 8067)
+   * @param string|array $transportMeans    Type of means of transport (DE 8179)
    *
    * @return array
    */
@@ -231,9 +256,11 @@ class Message extends Base {
   }
 
   /**
-   * @param string $text
-   * @param string $qualifier
-   * @param string $reference
+   * Builds a free text segment (FTX); the text is split on word boundaries into up to 5 lines of 70 characters.
+   *
+   * @param string|null $text      Free text; text beyond 5 lines is dropped
+   * @param string      $qualifier Text subject qualifier (DE 4451), e.g. OSI, INV, ORI, DIN
+   * @param string|null $reference Free text identification (DE 4441), sent as C107 [reference, 89]; no C107 when empty
    *
    * @return array
    */
@@ -263,18 +290,18 @@ class Message extends Base {
   }
 
   /**
-   * Split text into lines no longer than $lineLength characters,
+   * Splits text into lines no longer than $lineLength characters,
    * preferring whitespace boundaries. Single tokens longer than
    * $lineLength are hard-cut so no text is silently dropped.
    *
    * UTF-8 safe: counts characters, not bytes, so multibyte characters
    * (umlauts etc.) stay intact across line boundaries.
    *
-   * @param string|null $text
-   * @param int         $lineLength  max characters per line (>0)
-   * @param int|null    $maxLines    optional cap on number of lines
+   * @param string|null $text       Text to split
+   * @param int         $lineLength Maximum characters per line (> 0)
+   * @param int|null    $maxLines   Optional cap on the number of lines; further lines are dropped
    *
-   * @return string[]
+   * @return string[] Lines; empty for empty text
    */
   public static function splitTextOnWordBoundary($text, $lineLength, $maxLines = null) {
     if ($text === null || $text === '' || $lineLength < 1) {

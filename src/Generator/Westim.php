@@ -2,25 +2,51 @@
 
 namespace EDI\Generator;
 
+/**
+ * WESTIM message (container damage and repair estimate), version 0 without release or agency.
+ *
+ * A depot sends a repair estimate for one container with its damages, work and costs.
+ *
+ * @package EDI\Generator
+ */
 class Westim extends Message {
+    /** @var string|null transaction date as YYMMDD, also used in RFF+EST */
     private $_day;
+    /** @var string|null estimate reference number, also the message reference */
     private $_estimateReference;
 
+    /** @var array|null DTM+ATR segment, transaction date and time */
     private $_dtmATR;
+    /** @var array|null ACA segment, currency */
     private $_currency;
+    /** @var array|null LBR segment, labour rate */
     private $_labourRate;
+    /** @var array|null NAD+DED segment, sender */
     private $_nadDED;
+    /** @var array|null NAD+LED segment, receiver */
     private $_nadLED;
+    /** @var array|null EQF+CON segment, container */
     private $_equipment;
+    /** @var array|null CUI segment, full/empty indicator */
     private $_fullEmpty;
 
+    /** @var Westim\Damage[] damages with their repair work and cost */
     private $_damages;
 
+    /** @var array|null CTO segment, cost totals */
     private $_costTotals;
+    /** @var array|null TMA segment, total message amounts */
     private $_totalMessageAmounts;
 
-    /*
-     * messageID needs to be the estimate reference number
+    /**
+     * Creates the estimate; the estimate reference is also used as message reference.
+     *
+     * @param string|null $estimateReference estimate reference number
+     * @param string      $identifier        message type
+     * @param string      $version           message version
+     * @param string|null $release           message release
+     * @param string|null $controllingAgency controlling agency
+     * @param string|null $association       association assigned code
      */
     public function __construct($estimateReference = null, $identifier = 'WESTIM', $version = '0', $release = null, $controllingAgency = null, $association = null) {
         parent::__construct($identifier, $version, $release, $controllingAgency, $estimateReference, $association);
@@ -30,8 +56,13 @@ class Westim extends Message {
         $this->_damages = [];
     }
 
-    /*
-     * $day = YYMMDD (used also in RFF+EST)
+    /**
+     * Sets the transaction date and optional time (DTM+ATR segment).
+     *
+     * @param string      $day  date as YYMMDD, also used in RFF+EST
+     * @param string|null $time time as HHMM
+     *
+     * @return $this
      */
     public function setTransactionDate($day, $time = null) {
         $this->_day = $day;
@@ -43,24 +74,37 @@ class Westim extends Message {
         return $this;
     }
 
-    /*
-     * $currency = XXX (three letter code)
+    /**
+     * Sets the currency (ACA segment).
+     *
+     * @param string $currency three-letter ISO 4217 currency code
+     *
+     * @return $this
      */
     public function setCurrency($currency) {
         $this->_currency = ['ACA', $currency, ['STD', 0]];
         return $this;
     }
 
-    /*
-     * $labourRate = \d+.\d{2}
+    /**
+     * Sets the labour rate (LBR segment).
+     *
+     * @param string $labourRate labour rate with two decimals, e.g. 25.00
+     *
+     * @return $this
      */
     public function setLabourRate($labourRate) {
         $this->_labourRate = ['LBR', $labourRate];
         return $this;
     }
 
-    /*
-     * Can be equal to the sender and receiver ID in UNH
+    /**
+     * Sets sender (NAD+DED segment) and receiver (NAD+LED segment); they can equal the IDs in UNB.
+     *
+     * @param string $from sender identification
+     * @param string $to   receiver identification
+     *
+     * @return $this
      */
     public function setPartners($from, $to) {
         $this->_nadDED = ['NAD', 'DED', $from];
@@ -68,40 +112,70 @@ class Westim extends Message {
         return $this;
     }
 
-    /*
-     * Container number separated between letters and numbers
+    /**
+     * Sets the container (EQF+CON segment); the container number is split into owner code and serial.
+     *
+     * @param string     $ownerCode          owner code, the letters of the container number
+     * @param string     $serial             serial number, the digits of the container number
+     * @param string     $isoSize            ISO size and type code, e.g. 22G1
+     * @param int|string $maximumGrossWeight maximum gross weight in kilograms
+     *
+     * @return $this
      */
     public function setContainer($ownerCode, $serial, $isoSize, $maximumGrossWeight = 0) {
         $this->_equipment = ['EQF', 'CON', [$ownerCode, $serial], $isoSize, ['MGW', $maximumGrossWeight, 'KGM']];
         return $this;
     }
 
-    /*
-     * Full or Empty
+    /**
+     * Sets whether the container is full or empty (CUI segment).
+     *
+     * @param string $fullEmpty F = full, E = empty
+     *
+     * @return $this
      */
     public function setFullEmpty($fullEmpty) {
         $this->_fullEmpty = ['CUI', '', '', $fullEmpty];
         return $this;
     }
 
-    /*
-     * Full or Empty
+    /**
+     * Adds a damage with its repair work and cost.
+     *
+     * @param Westim\Damage $damage damage (DAM, WOR, COS segments)
+     *
+     * @return $this
      */
     public function addDamage(Westim\Damage $damage) {
         $this->_damages[] = $damage;
         return $this;
     }
 
-    /*
+    /**
+     * Sets the cost totals of the estimate (CTO segment).
      *
+     * @param string           $responsibility responsibility code, who pays
+     * @param string|int|float $labour         labour cost
+     * @param string|int|float $material       material cost
+     * @param string|int|float $handling       handling cost
+     * @param string|int|float $tax            tax amount
+     * @param string|int|float $invoiceAmount  invoice amount
+     *
+     * @return $this
      */
     public function setCostTotals($responsibility, $labour, $material, $handling, $tax, $invoiceAmount) {
         $this->_costTotals = ['CTO', $responsibility, $labour, $material, $handling, $tax, $invoiceAmount];
         return $this;
     }
 
-    /*
+    /**
+     * Sets the total amounts of the estimate (TMA segment); empty trailing elements are left out.
      *
+     * @param string|int|float      $grandTotal       grand total, element 1
+     * @param string|int|float|null $authorizedAmount authorized amount, element 6
+     * @param string|int|float|null $taxRate          tax rate, element 8
+     *
+     * @return $this
      */
     public function setTotalMessageAmounts($grandTotal, $authorizedAmount = null, $taxRate = null) {
         $tma = ['TMA', $grandTotal, '', '', '', '', $authorizedAmount ?? '', '', $taxRate ?? ''];
@@ -112,6 +186,15 @@ class Westim extends Message {
         return $this;
     }
 
+    /**
+     * Builds the message segments (DTM, RFF+EST, ACA, LBR, NAD, EQF, CUI, ECI, the damages, CTO, TMA)
+     * and wraps them in UNH/UNT.
+     *
+     * @param null $msgStatus unused, kept for compatibility with Message::compose()
+     *
+     * @return $this
+     * @throws EdifactException when the message has no content
+     */
     public function compose($msgStatus = null) {
         $this->messageContent = [];
 

@@ -12,7 +12,9 @@ namespace EDI\Generator\Ordrsp;
 use EDI\Generator\Base;
 
 /**
- * Class Item
+ * One line item of an ORDRSP message (LIN with quantity, texts, dates and references
+ * from the Item trait, plus gross and net prices from the ItemPrice trait).
+ *
  * @package EDI\Generator\Ordrsp
  */
 class Item extends Base {

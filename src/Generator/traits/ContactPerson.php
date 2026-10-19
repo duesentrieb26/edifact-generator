@@ -3,23 +3,27 @@
 namespace EDI\Generator\Traits;
 
 /**
- * Trait ContactPerson
+ * Contact person (CTA segment) with e-mail, phone and fax (COM segments).
+ * Used by Desadv, Invoic, Orders and Ordrsp. With a prefix the values are stored
+ * per address, e.g. deliveryAddressContactPerson (declared in NameAndAddress).
  *
  * @package EDI\Generator\Traits
  */
 trait ContactPerson
 {
-  /** @var array */
+  /** @var array|null CTA segment */
   protected $contactPerson;
-  /** @var array */
+  /** @var array|null COM segment, qualifier EM (e-mail) */
   protected $mailAddress;
-  /** @var array */
+  /** @var array|null COM segment, qualifier TE (telephone) */
   protected $phoneNumber;
-  /** @var array */
+  /** @var array|null COM segment, qualifier FX (fax) */
   protected $faxNumber;
 
   /**
-   * @return array
+   * Returns the contact person (CTA segment), or null if not set.
+   *
+   * @return array|null
    */
   public function getContactPerson()
   {
@@ -27,9 +31,11 @@ trait ContactPerson
   }
 
   /**
-   * @param string      $contactPerson
-   * @param string      $section
-   * @param null|string $prefix used for prefixing the variableName deliveryAddressContactPerson
+   * Sets the contact person (CTA segment). Empty names are ignored.
+   *
+   * @param string      $contactPerson name of the contact
+   * @param string      $section       contact function code (DE 3139), also used as department code
+   * @param null|string $prefix        address property prefix, e.g. 'deliveryAddress' stores it in deliveryAddressContactPerson
    *
    * @return $this
    */
@@ -57,7 +63,9 @@ trait ContactPerson
   }
 
   /**
-   * @return array
+   * Returns the e-mail address (COM segment, EM), or null if not set.
+   *
+   * @return array|null
    */
   public function getMailAddress()
   {
@@ -65,9 +73,10 @@ trait ContactPerson
   }
 
   /**
-   * @param string      $mailAddress
+   * Sets the e-mail address (COM segment, qualifier EM). Empty values are ignored.
    *
-   * @param null|string $prefix
+   * @param string      $mailAddress e-mail address
+   * @param null|string $prefix      address property prefix, e.g. 'deliveryAddress' stores it in deliveryAddressMailAddress
    *
    * @return $this
    */
@@ -93,7 +102,9 @@ trait ContactPerson
   }
 
   /**
-   * @return array
+   * Returns the phone number (COM segment, TE), or null if not set.
+   *
+   * @return array|null
    */
   public function getPhoneNumber()
   {
@@ -101,9 +112,10 @@ trait ContactPerson
   }
 
   /**
-   * @param string      $phoneNumber
+   * Sets the phone number (COM segment, qualifier TE). Empty values are ignored.
    *
-   * @param null|string $prefix
+   * @param string      $phoneNumber phone number
+   * @param null|string $prefix      address property prefix, e.g. 'deliveryAddress' stores it in deliveryAddressPhoneNumber
    *
    * @return $this
    */
@@ -129,7 +141,9 @@ trait ContactPerson
   }
 
   /**
-   * @return array
+   * Returns the fax number (COM segment, FX), or null if not set.
+   *
+   * @return array|null
    */
   public function getFaxNumber()
   {
@@ -137,9 +151,10 @@ trait ContactPerson
   }
 
   /**
-   * @param string      $faxNumber
+   * Sets the fax number (COM segment, qualifier FX). Empty values are ignored.
    *
-   * @param null|string $prefix
+   * @param string      $faxNumber fax number
+   * @param null|string $prefix    address property prefix, e.g. 'deliveryAddress' stores it in deliveryAddressFaxNumber
    *
    * @return $this
    */

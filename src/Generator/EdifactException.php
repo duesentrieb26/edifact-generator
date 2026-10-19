@@ -10,7 +10,9 @@
 namespace EDI\Generator;
 
 /**
- * Class EdifactException
+ * Thrown when a message cannot be built from the given data, e.g. an unknown code,
+ * an invalid date or a message without content.
+ *
  * @package EDI\Generator
  */
 class EdifactException extends \Exception {

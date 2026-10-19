@@ -12,8 +12,10 @@ namespace EDI\Generator\Orders;
 use EDI\Generator\Base;
 
 /**
- * Class Item
- * @package EDI\Generator\Ordrsp
+ * One line item of an ORDERS message (LIN with quantity, texts, dates and references).
+ * All setters come from the Item trait.
+ *
+ * @package EDI\Generator\Orders
  */
 class Item extends Base {
     use \EDI\Generator\Traits\Item;

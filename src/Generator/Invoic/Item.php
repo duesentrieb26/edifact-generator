@@ -17,49 +17,56 @@ use EDI\Generator\EdiFactNumber;
 use EDI\Generator\Message;
 
 /**
- * Class Item
+ * One line item of an INVOIC message: LIN with quantity, texts and references from the
+ * Item trait, plus prices (PRI), allowances and charges (ALC/PCD/MOA) and product information (PIA).
  *
  * @package EDI\Generator\Invoic
  */
 class Item extends Base {
+  /** Discount given as a percentage of the value before discount. */
   const DISCOUNT_TYPE_PERCENT = 'percent';
+  /** Discount given as an absolute amount. */
   const DISCOUNT_TYPE_ABSOLUTE = 'absolute';
 
   use \EDI\Generator\Traits\Item;
 
-  /** @var array */
+  /** @var array|null FTX segment, item description (qualifier INV) */
   protected $invoiceDescription;
-  /** @var array */
+  /** @var array|null PRI segment, gross price (qualifier GRP) */
   protected $grossPrice;
-  /** @var array */
+  /** @var array|null PRI segment, net price (qualifier NTP) */
   protected $netPrice;
 
-  /** @var array */
+  /** @var array[]|null ALC, PCD and MOA segments of all discounts and surcharges */
   protected $discount;
 
-  /** @var array */
+  /** @var array[]|null ALC, PCD and MOA segments of the overall discount factor */
   protected $discountFactor;
 
-  /** @var array */
+  /** @var array[]|null MOA segments added with setTotal() */
   protected $totals;
 
-  /** @var array */
+  /** @var array|null PIA segment with the EAN */
   protected $productInformation;
 
-  /** @var array */
+  /** @var array|null DTM segment, delivery date of the item */
   protected $deliveryDate;
 
   /**
-   * @return array
+   * Returns the item description (FTX segment).
+   *
+   * @return array|null
    */
   public function getInvoiceDescription() {
     return $this->invoiceDescription;
   }
 
   /**
-   * @param string $invoiceDescription
+   * Sets the item description (FTX segment, qualifier INV).
    *
-   * @return Item
+   * @param string $invoiceDescription free text, split into lines of 70 characters
+   *
+   * @return $this
    */
   public function setInvoiceDescription($invoiceDescription) {
     $this->invoiceDescription = Message::addFTXSegment($invoiceDescription, 'INV');
@@ -68,12 +75,14 @@ class Item extends Base {
 
 
   /**
-   * @param        $qualifier
-   * @param        $value
-   * @param int    $priceBase
-   * @param string $priceBaseUnit
+   * Builds a price segment (PRI).
    *
-   * @return array
+   * @param string           $qualifier     price qualifier, e.g. GRP (gross) or NTP (net)
+   * @param string|int|float $value         price, "1.234,56" strings are accepted
+   * @param int              $priceBase     quantity the price refers to
+   * @param string           $priceBaseUnit unit of the price base quantity
+   *
+   * @return array PRI segment
    */
   public static function addPRISegment($qualifier, $value, $priceBase = 1, $priceBaseUnit = 'PCE') {
     return [
@@ -90,16 +99,20 @@ class Item extends Base {
   }
 
   /**
-   * @return array
+   * Returns the gross price (PRI segment, qualifier GRP).
+   *
+   * @return array|null
    */
   public function getGrossPrice() {
     return $this->grossPrice;
   }
 
   /**
-   * @param string $grossPrice
+   * Sets the gross price per piece (PRI segment, qualifier GRP).
    *
-   * @return Item
+   * @param string|int|float $grossPrice price, "1.234,56" strings are accepted
+   *
+   * @return $this
    */
   public function setGrossPrice($grossPrice) {
     $this->grossPrice = self::addPRISegment('GRP', $grossPrice);
@@ -107,16 +120,20 @@ class Item extends Base {
   }
 
   /**
-   * @return array
+   * Returns the net price (PRI segment, qualifier NTP).
+   *
+   * @return array|null
    */
   public function getNetPrice() {
     return $this->netPrice;
   }
 
   /**
-   * @param string $netPrice
+   * Sets the net price per piece (PRI segment, qualifier NTP).
    *
-   * @return Item
+   * @param string|int|float $netPrice price, "1.234,56" strings are accepted
+   *
+   * @return $this
    */
   public function setNetPrice($netPrice) {
     $this->netPrice = self::addPRISegment('NTP', $netPrice);
@@ -125,12 +142,17 @@ class Item extends Base {
   }
 
   /**
-   * @param float  $value Positive for extra charge and negative for discount
-   * @param string $discountType
-   * @param int    $valueBeforeDiscount
-   * @param string $discountText
+   * Adds a discount or surcharge: ALC segment, PCD+3 with the percentage (percent type only)
+   * and MOA+8 with the amount. Can be called several times.
    *
-   * @return Item
+   * @param string|int|float $value               percentage or amount; positive for a surcharge (ALC+C),
+   *                                              zero or negative for a discount (ALC+A)
+   * @param string           $discountType        DISCOUNT_TYPE_PERCENT or DISCOUNT_TYPE_ABSOLUTE
+   * @param string|int|float $valueBeforeDiscount amount the percentage is applied to (percent type only)
+   * @param string           $discountText        optional description in the ALC segment
+   * @param string           $serviceCode         special service code; default SF (percent) or DI (absolute)
+   *
+   * @return $this
    */
   public function addDiscount(
     $value,
@@ -195,11 +217,14 @@ class Item extends Base {
 
 
   /**
-   * @param $value
-   * @param $valueBeforeDiscount
+   * Sets the overall discount factor of the item: ALC+SF (A for a discount, C for a surcharge),
+   * PCD+1 with the factor (4 decimals) and MOA+8 with the difference. Replaces an earlier factor.
+   *
+   * @param string|int|float $valueAfterDiscount  value after all discounts
+   * @param string|int|float $valueBeforeDiscount value before discounts; 0 sends no segments
    *
    * @return $this
-   * @throws EdifactException
+   * @throws EdifactException if $valueBeforeDiscount is 0 but $valueAfterDiscount is greater than 0
    */
   public function addDiscountFactor($valueAfterDiscount, $valueBeforeDiscount) {
     $this->discountFactor = [];
@@ -250,8 +275,10 @@ class Item extends Base {
 
 
   /**
-   * @param     $total
-   * @param int $segment
+   * Adds a monetary amount (MOA segment) at the end of the item. Can be called several times.
+   *
+   * @param string|int|float $total   amount, "1.234,56" strings are accepted
+   * @param string|int       $segment MOA qualifier, default 8 (allowance or charge amount)
    *
    * @return $this
    */
@@ -267,11 +294,11 @@ class Item extends Base {
 
 
   /**
-   * EAN Nummer
+   * Sets the EAN of the item (PIA segment), sent at the end of the item.
    *
-   * @param $ean
+   * @param string $ean EAN/GTIN
    *
-   * @return self
+   * @return $this
    */
   public function addProductInformation($ean) {
     $this->productInformation = self::addPIASegment($ean);
@@ -281,12 +308,14 @@ class Item extends Base {
   }
 
   /**
-   * @param     $deliveryDate
-   * @param int $type
-   * @param int $formatQuantifier
+   * Sets the delivery date of the item (DTM segment).
+   *
+   * @param string|\DateTimeInterface $deliveryDate     date as "Y-m-d" string or date object
+   * @param int                       $type             DTM qualifier, default 35 (actual delivery date)
+   * @param int                       $formatQuantifier EdifactDate format code, default 102 (CCYYMMDD)
    *
    * @return $this
-   * @throws \EDI\Generator\EdifactException
+   * @throws \EDI\Generator\EdifactException if the date is invalid
    */
   public function setDeliveryDate(
     $deliveryDate,

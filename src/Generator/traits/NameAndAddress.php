@@ -5,92 +5,96 @@ namespace EDI\Generator\Traits;
 use EDI\Generator\Message;
 
 /**
- * Trait NameAndAddress
+ * Name and address segments (NAD) for manufacturer, wholesaler, delivery, invoice and
+ * representative party, plus their VAT IDs (RFF) and the properties that ContactPerson
+ * fills when called with an address prefix. Used by Desadv, Invoic, Orders and Ordrsp.
  *
+ * @link http://www.unece.org/trade/untdid/d96b/trsd/trsdnad.htm
  * @package EDI\Generator\Traits
  */
 trait NameAndAddress {
-  /** @var array */
+  /** @var array|null NAD segment of the manufacturer (SU) */
   protected $manufacturerAddress;
-  /** @var array */
+  /** @var array|null CTA segment of the manufacturer (SU) contact */
   protected $manufacturerAddressContactPerson;
-  /** @var array */
+  /** @var array|null COM segment (EM) of the manufacturer (SU) contact */
   protected $manufacturerAddressMailAddress;
-  /** @var array */
+  /** @var array|null COM segment (TE) of the manufacturer (SU) contact */
   protected $manufacturerAddressPhoneNumber;
-  /** @var array */
+  /** @var array|null COM segment (FX) of the manufacturer (SU) contact */
   protected $manufacturerAddressFaxNumber;
-  /** @var array */
+  /** @var array|null RFF segment (VA) with the VAT ID of the manufacturer (SU) */
   protected $manufacturerAddressVatId;
 
-  /** @var array */
+  /** @var array|null NAD segment of the wholesaler (WS) */
   protected $wholesalerAddress;
-  /** @var array */
+  /** @var array|null CTA segment of the wholesaler (WS) contact */
   protected $wholesalerAddressContactPerson;
-  /** @var array */
+  /** @var array|null COM segment (EM) of the wholesaler (WS) contact */
   protected $wholesalerAddressMailAddress;
-  /** @var array */
+  /** @var array|null COM segment (TE) of the wholesaler (WS) contact */
   protected $wholesalerAddressPhoneNumber;
-  /** @var array */
+  /** @var array|null COM segment (FX) of the wholesaler (WS) contact */
   protected $wholesalerAddressFaxNumber;
-  /** @var array */
+  /** @var array|null RFF segment (VA) with the VAT ID of the wholesaler (WS) */
   protected $wholesalerAddressVatId;
 
-  /** @var array */
+  /** @var array|null NAD segment of the delivery address (ST) */
   protected $deliveryAddress;
-  /** @var array */
+  /** @var array|null CTA segment of the delivery address (ST) contact */
   protected $deliveryAddressContactPerson;
-  /** @var array */
+  /** @var array|null COM segment (EM) of the delivery address (ST) contact */
   protected $deliveryAddressMailAddress;
-  /** @var array */
+  /** @var array|null COM segment (TE) of the delivery address (ST) contact */
   protected $deliveryAddressPhoneNumber;
-  /** @var array */
+  /** @var array|null COM segment (FX) of the delivery address (ST) contact */
   protected $deliveryAddressFaxNumber;
-  /** @var array */
+  /** @var array|null RFF segment (VA) with the VAT ID of the delivery address (ST) */
   protected $deliveryAddressVatId;
 
-  /** @var array */
+  /** @var array|null NAD segment of the invoice address (IV) */
   protected $invoiceAddress;
-  /** @var array */
+  /** @var array|null CTA segment of the invoice address (IV) contact */
   protected $invoiceAddressContactPerson;
-  /** @var array */
+  /** @var array|null COM segment (EM) of the invoice address (IV) contact */
   protected $invoiceAddressMailAddress;
-  /** @var array */
+  /** @var array|null COM segment (TE) of the invoice address (IV) contact */
   protected $invoiceAddressPhoneNumber;
-  /** @var array */
+  /** @var array|null COM segment (FX) of the invoice address (IV) contact */
   protected $invoiceAddressFaxNumber;
-  /** @var array */
+  /** @var array|null RFF segment (VA) with the VAT ID of the invoice address (IV) */
   protected $invoiceAddressVatId;
 
-  /** @var array */
+  /** @var array[]|null NAD segment of the representative (AB), followed by its RFF segments */
   protected $representativeAddress;
-  /** @var array */
+  /** @var array|null CTA segment of the representative (AB) contact */
   protected $representativeAddressContactPerson;
-  /** @var array */
+  /** @var array|null COM segment (EM) of the representative (AB) contact */
   protected $representativeAddressMailAddress;
-  /** @var array */
+  /** @var array|null COM segment (TE) of the representative (AB) contact */
   protected $representativeAddressPhoneNumber;
-  /** @var array */
+  /** @var array|null COM segment (FX) of the representative (AB) contact */
   protected $representativeAddressFaxNumber;
-  /** @var array */
+  /** @var array|null unused, the representative VAT ID is added to $representativeAddress */
   protected $representativeAddressVatId;
 
 
   /**
-   * @param string $name1
-   * @param string $name2
-   * @param string $name3
-   * @param string $street
-   * @param string $zipCode
-   * @param string $city
-   * @param string $countryCode
-   * @param string $managingOrganisation
-   * @param string $type
-   * @param string $sender
+   * Builds a NAD segment with party ID, name, street, city, postal code and country.
    *
-   * @return array
-   * @url http://www.unece.org/trade/untdid/d96b/trsd/trsdnad.htm
+   * @param string      $name1                first name line, cut to 35 characters
+   * @param string      $name2                second name line, omitted when empty
+   * @param string      $name3                third name line, omitted when empty
+   * @param string      $street               street, split on word boundaries into up to 4 lines of 35 characters
+   * @param string      $zipCode              postal code, cut to 9 characters
+   * @param string      $city                 city, cut to 35 characters
+   * @param string      $countryCode          ISO 3166 country code, cut to 2 characters
+   * @param string      $managingOrganisation code list agency of the party ID (DE 3055), e.g. 9 (GS1) or ZZZ (mutually defined)
+   * @param string      $type                 party qualifier (DE 3035), e.g. SU, WS, ST, IV, AB
+   * @param string|null $sender               party ID; null uses the message sender, '' omits it
    *
+   * @return array NAD segment
+   * @link http://www.unece.org/trade/untdid/d96b/trsd/trsdnad.htm
    */
   public function addNameAndAddress(
     $name1,
@@ -149,10 +153,12 @@ trait NameAndAddress {
   }
 
   /**
-   * @param $gln
-   * @param $type
+   * Builds a NAD segment that identifies the party only by its GLN (code list agency 9 = GS1).
    *
-   * @return array
+   * @param string $gln  global location number (GLN)
+   * @param string $type party qualifier (DE 3035), e.g. SU, WS, ST, IV
+   *
+   * @return array NAD segment
    */
   public function addAddressGln($gln, $type) {
     return [
@@ -168,26 +174,39 @@ trait NameAndAddress {
 
 
   /**
-   * @return array
+   * Returns the manufacturer address (NAD segment, SU), or null if not set.
+   *
+   * @return array|null
    */
   public function getManufacturerAddress() {
     return $this->manufacturerAddress;
   }
 
   /**
-   * @return array
+   * Returns the wholesaler address (NAD segment, WS), or null if not set.
+   *
+   * @return array|null
    */
   public function getWholesalerAddress() {
     return $this->wholesalerAddress;
   }
 
+  /**
+   * Returns the representative segments (NAD AB followed by its RFF segments), or null if not set.
+   *
+   * @return array[]|null
+   */
   public function getRepresentativeAddress() {
     return $this->representativeAddress;
   }
 
 
   /**
-   * @param $gln
+   * Sets the manufacturer address as GLN only (NAD segment, SU).
+   *
+   * @param string $gln global location number (GLN)
+   *
+   * @return $this
    */
   public function setManufacturerAddressGln($gln) {
     $this->manufacturerAddress = $this->addAddressGln($gln, 'SU');
@@ -195,6 +214,13 @@ trait NameAndAddress {
     return $this;
   }
 
+  /**
+   * Sets the wholesaler address as GLN only (NAD segment, WS).
+   *
+   * @param string $gln global location number (GLN)
+   *
+   * @return $this
+   */
   public function setWholesalerAddressGln($gln) {
     $this->wholesalerAddress = $this->addAddressGln($gln, 'WS');
 
@@ -202,7 +228,11 @@ trait NameAndAddress {
   }
 
   /**
-   * @param $gln
+   * Sets the delivery address as GLN only (NAD segment, ST).
+   *
+   * @param string $gln global location number (GLN)
+   *
+   * @return $this
    */
   public function setDeliveryAddressGln($gln) {
     $this->deliveryAddress = $this->addAddressGln($gln, 'ST');
@@ -211,7 +241,11 @@ trait NameAndAddress {
   }
 
   /**
-   * @param $gln
+   * Sets the invoice address as GLN only (NAD segment, IV).
+   *
+   * @param string $gln global location number (GLN)
+   *
+   * @return $this
    */
   public function setInvoiceAddressGln($gln) {
     $this->invoiceAddress = $this->addAddressGln($gln, 'IV');
@@ -220,23 +254,27 @@ trait NameAndAddress {
   }
 
   /**
-   * @return array
+   * Returns the delivery address (NAD segment, ST), or null if not set.
+   *
+   * @return array|null
    */
   public function getDeliveryAddress() {
     return $this->deliveryAddress;
   }
 
   /**
-   * @param string      $name1
-   * @param string      $name2
-   * @param string      $name3
-   * @param string      $street
-   * @param string      $zipCode
-   * @param string      $city
-   * @param string      $countryCode
-   * @param string      $managingOrganisation
-   * @param string      $sender
-   * @param string|null $vatId
+   * Sets the manufacturer address (NAD segment, SU) and its VAT ID (RFF segment, VA).
+   *
+   * @param string      $name1                first name line, cut to 35 characters
+   * @param string      $name2                second name line, omitted when empty
+   * @param string      $name3                third name line, omitted when empty
+   * @param string      $street               street, split on word boundaries into up to 4 lines of 35 characters
+   * @param string      $zipCode              postal code, cut to 9 characters
+   * @param string      $city                 city, cut to 35 characters
+   * @param string      $countryCode          ISO 3166 country code, cut to 2 characters
+   * @param string      $managingOrganisation code list agency of the party ID (DE 3055), e.g. 9 (GS1) or ZZZ (mutually defined)
+   * @param string|null $sender               party ID; null uses the message sender, '' omits it
+   * @param string|null $vatId                VAT ID, spaces are removed; omitted when empty
    *
    * @return $this
    */
@@ -272,16 +310,18 @@ trait NameAndAddress {
   }
 
   /**
-   * @param string $name1
-   * @param string $name2
-   * @param string $name3
-   * @param string $street
-   * @param string $zipCode
-   * @param string $city
-   * @param string $countryCode
-   * @param string $managingOrganisation
-   * @param string $sender
-   * @param null   $vatId
+   * Sets the wholesaler address (NAD segment, WS) and its VAT ID (RFF segment, VA).
+   *
+   * @param string      $name1                first name line, cut to 35 characters
+   * @param string      $name2                second name line, omitted when empty
+   * @param string      $name3                third name line, omitted when empty
+   * @param string      $street               street, split on word boundaries into up to 4 lines of 35 characters
+   * @param string      $zipCode              postal code, cut to 9 characters
+   * @param string      $city                 city, cut to 35 characters
+   * @param string      $countryCode          ISO 3166 country code, cut to 2 characters
+   * @param string      $managingOrganisation code list agency of the party ID (DE 3055), e.g. 9 (GS1) or ZZZ (mutually defined)
+   * @param string|null $sender               party ID; null uses the message sender, '' omits it
+   * @param string|null $vatId                VAT ID, spaces are removed; omitted when empty
    *
    * @return $this
    */
@@ -318,16 +358,18 @@ trait NameAndAddress {
   }
 
   /**
-   * @param string $name1
-   * @param string $name2
-   * @param string $name3
-   * @param string $street
-   * @param string $zipCode
-   * @param string $city
-   * @param string $countryCode
-   * @param string $managingOrganisation
-   * @param string $sender
-   * @param null   $vatId
+   * Adds a representative (NAD segment, AB), followed by its VAT ID (RFF segment, VA).
+   *
+   * @param string      $name1                first name line, cut to 35 characters
+   * @param string      $name2                second name line, omitted when empty
+   * @param string      $name3                third name line, omitted when empty
+   * @param string      $street               street, split on word boundaries into up to 4 lines of 35 characters
+   * @param string      $zipCode              postal code, cut to 9 characters
+   * @param string      $city                 city, cut to 35 characters
+   * @param string      $countryCode          ISO 3166 country code, cut to 2 characters
+   * @param string      $managingOrganisation code list agency of the party ID (DE 3055), e.g. 9 (GS1) or ZZZ (mutually defined)
+   * @param string|null $sender               party ID; null uses the message sender, '' omits it
+   * @param string|null $vatId                VAT ID, spaces are removed; omitted when empty
    *
    * @return $this
    */
@@ -367,9 +409,11 @@ trait NameAndAddress {
   }
 
   /**
-   * @param $taxNumber
+   * Adds the tax number of the representative (RFF segment, FC) after its address.
    *
-   * @return NameAndAddress
+   * @param string $taxNumber fiscal number, spaces are removed
+   *
+   * @return $this
    */
   public function setRepresentativeAddressTaxNumber($taxNumber) {
     $this->representativeAddress[] = self::addRFFSegment('FC', str_replace(' ', '', $taxNumber));
@@ -378,16 +422,18 @@ trait NameAndAddress {
   }
 
   /**
-   * @param string $name1
-   * @param string $name2
-   * @param string $name3
-   * @param string $street
-   * @param string $zipCode
-   * @param string $city
-   * @param string $countryCode
-   * @param string $managingOrganisation
-   * @param string $sender
-   * @param null   $vatId
+   * Sets the delivery address (NAD segment, ST) and its VAT ID (RFF segment, VA).
+   *
+   * @param string      $name1                first name line, cut to 35 characters
+   * @param string      $name2                second name line, omitted when empty
+   * @param string      $name3                third name line, omitted when empty
+   * @param string      $street               street, split on word boundaries into up to 4 lines of 35 characters
+   * @param string      $zipCode              postal code, cut to 9 characters
+   * @param string      $city                 city, cut to 35 characters
+   * @param string      $countryCode          ISO 3166 country code, cut to 2 characters
+   * @param string      $managingOrganisation code list agency of the party ID (DE 3055), e.g. 9 (GS1) or ZZZ (mutually defined)
+   * @param string|null $sender               party ID; null uses the message sender, '' omits it
+   * @param string|null $vatId                VAT ID, spaces are removed; omitted when empty
    *
    * @return $this
    */
@@ -424,16 +470,18 @@ trait NameAndAddress {
   }
 
   /**
-   * @param string $name1
-   * @param string $name2
-   * @param string $name3
-   * @param string $street
-   * @param string $zipCode
-   * @param string $city
-   * @param string $countryCode
-   * @param string $managingOrganisation
-   * @param string $sender
-   * @param string $vatId
+   * Sets the invoice address (NAD segment, IV) and its VAT ID (RFF segment, VA).
+   *
+   * @param string      $name1                first name line, cut to 35 characters
+   * @param string      $name2                second name line, omitted when empty
+   * @param string      $name3                third name line, omitted when empty
+   * @param string      $street               street, split on word boundaries into up to 4 lines of 35 characters
+   * @param string      $zipCode              postal code, cut to 9 characters
+   * @param string      $city                 city, cut to 35 characters
+   * @param string      $countryCode          ISO 3166 country code, cut to 2 characters
+   * @param string      $managingOrganisation code list agency of the party ID (DE 3055), e.g. 9 (GS1) or ZZZ (mutually defined)
+   * @param string|null $sender               party ID; null uses the message sender, '' omits it
+   * @param string|null $vatId                VAT ID, spaces are removed; omitted when empty
    *
    * @return $this
    */

@@ -1,26 +1,50 @@
 <?php
 namespace EDI\Generator\Vermas;
 
+/**
+ * One container of a VERMAS message: the EQD segment group with booking, seal, verified gross mass,
+ * weighing date and method, weighing station, shipper and contact.
+ *
+ * @package EDI\Generator\Vermas
+ */
 class Container
 {
 
+    /** @var array|null EQD+CN segment, container number and size */
     private $cntr;
+    /** @var array|null RFF+BN and optional RFF+SQ segments, booking */
     private $bkg;
+    /** @var array|null SEL segment, seal */
     private $seal;
+    /** @var array|null MEA+AAE segment, verified gross mass */
     private $measures;
+    /** @var array|null DTM+798 segment, date of weighing */
     private $weighDate;
+    /** @var array|null DOC segment, weighing method and certificate */
     private $weighMethod;
+    /** @var array|null NAD+WPA segment, weighing station */
     private $spcWpa;
+    /** @var array|null NAD+SPC segment, shipper responsible for the VGM */
     private $shipper;
+    /** @var array|null CTA and optional COM segments, contact at the shipper */
     private $spcContact;
 
+    /**
+     * Creates an empty container.
+     */
     public function __construct()
     {
 
     }
 
-    /*
-     * $size = 22G1, 42G1, etc; 306 = smdg, 6436 = ISO spec
+    /**
+     * Sets the container (EQD+CN segment).
+     *
+     * @param string $number      container number
+     * @param string $size        size and type code, e.g. 22G1, 42G1 (code list 6346 = ISO 6346, agency 306 = SMDG)
+     * @param bool   $fixedFields true to also send full/empty indicator 5 (full)
+     *
+     * @return $this
      */
     public function setContainer($number, $size, $fixedFields = false)
     {
@@ -31,8 +55,13 @@ class Container
         return $this;
     }
 
-    /*
+    /**
+     * Sets the booking number (RFF+BN segment) and optionally the sequence within the booking (RFF+SQ segment).
      *
+     * @param string          $booking  booking number
+     * @param string|int|null $sequence sequence number within the booking
+     *
+     * @return $this
      */
     public function setBooking($booking, $sequence = null)
     {
@@ -45,9 +74,13 @@ class Container
         return $this;
     }
 
-    /*
-     * $seal = free text
-     * $sealIssuer = DE 9303
+    /**
+     * Sets the seal (SEL segment).
+     *
+     * @param string $seal       seal number, free text
+     * @param string $sealIssuer seal issuer (DE 9303)
+     *
+     * @return $this
      */
     public function setSeal($seal, $sealIssuer)
     {
@@ -55,10 +88,14 @@ class Container
         return $this;
     }
 
-    /*
-     * $weightMode = DE 6313
-     * $weight = free text
-     * $unit = KGM or LBS
+    /**
+     * Sets the verified gross mass (MEA+AAE segment).
+     *
+     * @param string           $weightMode measurement type (DE 6313), e.g. VGM = verified gross mass
+     * @param string|int|float $weight     weight value
+     * @param string           $unit       unit: KGM or LBS
+     *
+     * @return $this
      */
     public function setMeasures($weightMode, $weight, $unit = 'KGM')
     {
@@ -66,9 +103,13 @@ class Container
         return $this;
     }
 
-    /*
-     * $type = SM1 | SM2
-     * $cert = documentation identification
+    /**
+     * Sets the SOLAS weighing method and its certificate (DOC segment).
+     *
+     * @param string $type weighing method: SM1 or SM2
+     * @param string $cert documentation identification
+     *
+     * @return $this
      */
     public function setWeighMethod($type, $cert)
     {
@@ -76,9 +117,12 @@ class Container
         return $this;
     }
 
-    /*
-     * $type = SM1 | SM2
-     * $cert = documentation identification
+    /**
+     * Sets the date of weighing (DTM+798 segment).
+     *
+     * @param string|null $date date and time as CCYYMMDDHHMM, now when null
+     *
+     * @return $this
      */
     public function setWeighDate($date = null)
     {
@@ -90,8 +134,12 @@ class Container
     }
 
 
-    /*
-     * $spcShipper = SOLAS verified gross mass responsible party
+    /**
+     * Sets the weighing station (NAD+WPA segment).
+     *
+     * @param string $spcWpa weighing station identification
+     *
+     * @return $this
      */
     public function setWeighingStationId($spcWpa)
     {
@@ -99,8 +147,13 @@ class Container
         return $this;
     }
 
-    /*
-     * $spcShipper = SOLAS verified gross mass responsible party
+    /**
+     * Sets the shipper responsible for the SOLAS verified gross mass (NAD+SPC segment).
+     *
+     * @param string      $spcShipper shipper name
+     * @param string|null $spcCity    shipper city
+     *
+     * @return $this
      */
     public function setShipper($spcShipper, $spcCity = null)
     {
@@ -112,11 +165,15 @@ class Container
         return $this;
     }
 
-    /*
-     * $cntType: RP = responsible person (DE 3139)
-     * $cntTitle: free text
-     * $comData: free text
-     * $comType: DE 3155
+    /**
+     * Sets the contact at the shipper (CTA segment) and optionally how to reach them (COM segment).
+     *
+     * @param string      $cntType  contact function (DE 3139), e.g. RP = responsible person
+     * @param string      $cntTitle contact name, free text
+     * @param string|null $comType  communication channel (DE 3155), COM is sent only when given
+     * @param string|null $comData  address or number, free text
+     *
+     * @return $this
      */
     public function setSpcContact($cntType, $cntTitle, $comType = null, $comData = null)
     {
@@ -128,6 +185,11 @@ class Container
         return $this;
     }
 
+    /**
+     * Returns the container segments in message order (EQD, RFF, SEL, MEA, DTM, DOC, NAD, CTA, COM).
+     *
+     * @return array list of segments
+     */
     public function compose()
     {
         $composed = [];

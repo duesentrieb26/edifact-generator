@@ -10,7 +10,8 @@
 namespace EDI\Generator;
 
 /**
- * Class EdifactDate
+ * Formats dates for DTM segments (format codes, DE 2379) and holds common
+ * date/time qualifiers (DE 2005).
  *
  * @package EDI\Generator
  */
@@ -36,13 +37,15 @@ class EdifactDate {
 
 
   /**
-   * returns an valid edifact date format
+   * Formats a date in the given EDIFACT format.
    *
-   * @param string $string
-   * @param int    $format
+   * @param string|\DateTimeInterface|null $string Date; strings as 'Y-m-d', or 'Y-m-d H:i[:s]' for DATETIME
+   * @param int                            $format Format code: DATE (102, CCYYMMDD), DATETIME (203, CCYYMMDDHHMM),
+   *                                               SHIPPING_WEEK (616, CCYYWW) or SHIPPING_UNDEFINED (999, empty);
+   *                                               other codes give CCYYMMDD
    *
-   * @return string
-   * @throws EdifactException
+   * @return string Formatted date, or '' for empty input
+   * @throws EdifactException If the date cannot be parsed or does not exist
    */
   public static function get($string, $format = self::DATE) {
     if (empty($string)) {
@@ -77,10 +80,15 @@ class EdifactDate {
   }
 
   /**
-   * @param string|\DateTimeInterface $string
-   * @param integer                   $format
+   * Parses a date string; a DateTimeInterface is returned unchanged.
    *
-   * @return bool|\DateTimeInterface
+   * Impossible dates such as 2018-02-30 return false instead of rolling over.
+   *
+   * @param string|\DateTimeInterface $string Date to parse
+   * @param int                       $format DATETIME expects 'Y-m-d H:i:s' or 'Y-m-d H:i'; DATE uses the first
+   *                                          10 characters as 'Y-m-d'; all other codes expect 'Y-m-d'
+   *
+   * @return \DateTimeInterface|false
    */
   public static function parseFormat($string, $format = self::DATE) {
     if ($string instanceof \DateTimeInterface) {

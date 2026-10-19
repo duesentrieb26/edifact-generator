@@ -3,55 +3,53 @@
 namespace EDI\Generator;
 
 /**
- * Class Interchange
+ * Interchange envelope (UNB/UNZ) around one or more composed messages.
  *
  * @package EDI\Generator
  */
 class Interchange {
-  /**
-   * Interchange header parameters
-   */
+  /** @var string Interchange control reference, sent in UNB and UNZ */
   private $interchangeCode;
 
-  /** @var string */
+  /** @var string Sender identification */
   private $sender;
 
-  /** @var string */
+  /** @var string Syntax identifier, e.g. UNOA or UNOC */
   private $charset = 'UNOA';
 
-  /** @var string */
+  /** @var string Syntax version number */
   private $charsetVersion = '2';
 
-  /** @var string */
+  /** @var string Recipient identification */
   private $receiver;
 
-  /** @var string */
+  /** @var string Date of preparation (YYMMDD) */
   private $date;
 
-  /** @var string */
+  /** @var string Time of preparation (HHMM) */
   private $time;
 
-  /** @var array */
+  /** @var Message[] Composed messages in this interchange */
   private $messages;
 
-  /** @var array */
+  /** @var array|null Finished segment list, set by compose() */
   private $composed;
 
-  /** @var string */
+  /** @var string|int|null Sender identification code qualifier (DE 0007), e.g. 14 for GLN */
   private $senderQualifier;
 
-  /** @var string */
+  /** @var string|int|null Recipient identification code qualifier (DE 0007), e.g. 14 for GLN */
   private $receiverQualifier;
 
 
   /**
-   * Interchange constructor.
+   * Creates an interchange. Date, time and control reference default to now and a generated id.
    *
-   * @param string $sender
-   * @param string $receiver
-   * @param null   $date
-   * @param null   $time
-   * @param null   $interchangeCode
+   * @param string      $sender          Sender identification, e.g. a GLN
+   * @param string      $receiver        Recipient identification, e.g. a GLN
+   * @param string|null $date            Date of preparation (YYMMDD); today when null
+   * @param string|null $time            Time of preparation (HHMM); now when null
+   * @param string|null $interchangeCode Control reference (max 14 characters); generated when null
    */
   public function __construct($sender, $receiver, $date = null, $time = null, $interchangeCode = null) {
     $this->messages = [];
@@ -77,7 +75,9 @@ class Interchange {
   }
 
   /**
-   * @param $charset
+   * Sets the syntax identifier (UNB S001), e.g. UNOA or UNOC.
+   *
+   * @param string $charset Syntax identifier, e.g. UNOA or UNOC
    *
    * @return $this
    */
@@ -87,9 +87,11 @@ class Interchange {
   }
 
   /**
-   * @param string $charsetVersion
+   * Sets the syntax version number (UNB S001), e.g. 3.
    *
-   * @return Interchange
+   * @param string $charsetVersion Syntax version number
+   *
+   * @return $this
    */
   public function setCharsetVersion($charsetVersion) {
     $this->charsetVersion = $charsetVersion;
@@ -98,11 +100,11 @@ class Interchange {
 
 
   /**
-   * Add a Message to the Interchange
+   * Adds a message to the interchange. Call the message's compose() before composing the interchange.
    *
-   * @param $msg
+   * @param Message $msg Message to send in this interchange
    *
-   * @return Interchange
+   * @return $this
    */
   public function addMessage($msg) {
     $this->messages[] = $msg;
@@ -111,10 +113,10 @@ class Interchange {
   }
 
   /**
-   * Format the Interchange segments
+   * Builds the UNB and UNZ segments around the segments of all messages.
    *
-   * @return Interchange
-   * @throws EdifactException if a message was added without calling its compose()
+   * @return $this
+   * @throws EdifactException If a message was added without calling its compose()
    */
   public function compose() {
     $temp = [];
@@ -167,9 +169,10 @@ class Interchange {
   }
 
   /**
-   * Return composed message as array
+   * Returns the composed interchange as a segment array; composes it on the first call.
    *
    * @return array
+   * @throws EdifactException If a message was added without calling its compose()
    */
   public function getComposed() {
     if ($this->composed === null) {
@@ -179,16 +182,20 @@ class Interchange {
   }
 
   /**
-   * @return string
+   * Returns the sender identification code qualifier (DE 0007).
+   *
+   * @return string|int|null
    */
   public function getSenderQualifier() {
     return $this->senderQualifier;
   }
 
   /**
-   * @param string $senderQualifier
+   * Sets the sender identification code qualifier (DE 0007), e.g. 14 for GLN.
    *
-   * @return Interchange
+   * @param string|int $senderQualifier Identification code qualifier
+   *
+   * @return $this
    */
   public function setSenderQualifier($senderQualifier) {
     $this->senderQualifier = $senderQualifier;
@@ -196,16 +203,20 @@ class Interchange {
   }
 
   /**
-   * @return string
+   * Returns the recipient identification code qualifier (DE 0007).
+   *
+   * @return string|int|null
    */
   public function getReceiverQualifier() {
     return $this->receiverQualifier;
   }
 
   /**
-   * @param string $receiverQualifier
+   * Sets the recipient identification code qualifier (DE 0007), e.g. 14 for GLN.
    *
-   * @return Interchange
+   * @param string|int $receiverQualifier Identification code qualifier
+   *
+   * @return $this
    */
   public function setReceiverQualifier($receiverQualifier) {
     $this->receiverQualifier = $receiverQualifier;

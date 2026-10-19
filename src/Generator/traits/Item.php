@@ -9,53 +9,55 @@ use EDI\Generator\Message;
 
 
 /**
- * Trait Item
+ * Line item of a commerce message: LIN segment with quantity (QTY), texts (IMD),
+ * order and delivery note references (RFF) and dates (DTM).
+ * Used by Desadv\Item, Invoic\Item, Orders\Item and Ordrsp\Item.
  *
  * @package EDI\Generator\Traits
  * @mixin Base
  */
 trait Item {
 
-  /** @var array */
+  /** @var array|null LIN segment with line number and article number */
   protected $position;
 
-  /** @var array */
+  /** @var array|null QTY segment, qualifier 12 */
   protected $quantity;
 
-  /** @var array */
+  /** @var array|null DTM segment with the delivery date */
   protected $deliveryDate;
 
-  /** @var array */
+  /** @var array|null RFF segment, qualifier VN (order number of the wholesaler) */
   protected $orderNumberWholesaler;
 
-  /** @var array */
+  /** @var array|null DTM segment, qualifier 4 (order date) */
   protected $orderDate;
 
-  /** @var array */
+  /** @var array|null RFF segment, qualifier LI (order line number) */
   protected $orderPosition;
 
-  /** @var array */
+  /** @var array|null RFF segment AAJ, or a list of RFF AAJ and DTM when a delivery date was given */
   protected $deliveryNoteNumber;
 
-  /** @var array */
+  /** @var array|null DTM segment with the delivery note date */
   protected $deliveryNoteDate;
 
-  /** @var array */
+  /** @var array|null RFF segment, qualifier FI (delivery note line number) */
   protected $deliveryNotePosition;
 
-  /** @var array IMD ZU */
+  /** @var array[]|null IMD segments, type ZU (additional text) */
   protected $additionalText;
 
-  /** @var array IMD SP */
+  /** @var array[]|null IMD segments, type SP (specification) */
   protected $specificationText;
 
-  /** @var array IMD GAT */
+  /** @var array[]|null IMD segments, type ZU; not in $composeKeys, so never sent */
   protected $generatedText;
 
-  /** @var array IMD M */
+  /** @var array[]|null IMD segments, type ZU; not in $composeKeys, so never sent */
   protected $featuresText;
 
-  /** @var array */
+  /** @var string[] property names composed in this order; keys without a property in the using class are skipped */
   protected $composeKeys
   = [
     'position',
@@ -77,8 +79,10 @@ trait Item {
   ];
 
   /**
-   * @return array
-   * @throws \EDI\Generator\EdifactException
+   * Returns the item segments in compose order.
+   *
+   * @return array list of segments
+   * @throws \EDI\Generator\EdifactException if a set property holds no segment
    */
   public function compose() {
     $this->messageContent = [];
@@ -87,18 +91,22 @@ trait Item {
   }
 
   /**
-   * @return array
+   * Returns the LIN segment, or null if not set.
+   *
+   * @return array|null
    */
   public function getPosition() {
     return $this->position;
   }
 
   /**
-   * @param string $position
-   * @param string $articleNumber
-   * @param string $numberType
+   * Sets line number and article number (LIN segment).
    *
-   * @return Item
+   * @param string|int $position      line number
+   * @param string     $articleNumber article number
+   * @param string     $numberType    item number type, e.g. MF (manufacturer article number) or EN (EAN)
+   *
+   * @return $this
    */
   public function setPosition($position, $articleNumber, $numberType = 'MF') {
     $this->position = [
@@ -115,18 +123,23 @@ trait Item {
   }
 
   /**
-   * @return array
+   * Returns the quantity (QTY segment), or null if not set.
+   *
+   * @return array|null
    */
   public function getQuantity() {
     return $this->quantity;
   }
 
   /**
-   * @param string $quantity
-   * @param        $unit
+   * Sets the quantity (QTY segment, qualifier 12). Whole numbers are sent as integers,
+   * fractions with 3 decimals and a decimal comma.
    *
-   * @return Item
-   * @throws \EDI\Generator\EdifactException
+   * @param string|int|float $quantity quantity
+   * @param string           $unit     measure unit: CMK, CMQ, CMT, DZN, GRM, HLT, KGM, KTM, LTR, MMT, MTK, MTQ, MTR, NRL, PCE, PR, SET, TNE
+   *
+   * @return $this
+   * @throws \EDI\Generator\EdifactException if the unit is not allowed
    */
   public function setQuantity($quantity, $unit = 'PCE') {
     $this->isAllowed(
@@ -168,11 +181,14 @@ trait Item {
 
 
   /**
-   * @param        $description
-   * @param string $type
-   * @param string $organization
+   * Builds an IMD segment (item description). The text is split on word boundaries
+   * into at most two components of 35 characters; the rest is dropped.
    *
-   * @return array
+   * @param string $description  description text
+   * @param string $type         description type, e.g. ZU or SP
+   * @param string $organization code list responsible agency, usually empty
+   *
+   * @return array IMD segment
    */
   public static function addIMDSegment($description, $type = 'ZU', $organization = '') {
     $components = Message::splitTextOnWordBoundary(trim((string) $description), 35, 2);
@@ -195,7 +211,10 @@ trait Item {
   }
 
   /**
-   * @param $text
+   * Adds an additional text as IMD segments (type ZU): up to 320 characters in lines of 40.
+   * Empty texts are ignored; further calls append.
+   *
+   * @param string|null $text text
    *
    * @return $this
    */
@@ -208,7 +227,9 @@ trait Item {
   }
 
   /**
-   * @return array
+   * Returns the IMD segments of the additional text, or null if not set.
+   *
+   * @return array[]|null
    */
   public function getAdditionalText() {
     return $this->additionalText;
@@ -216,7 +237,10 @@ trait Item {
 
 
   /**
-   * @param             $text
+   * Adds a specification text as IMD segments (type SP): up to 80 characters in lines of 40.
+   * Further calls append.
+   *
+   * @param string|null $text text
    *
    * @return $this
    */
@@ -227,7 +251,9 @@ trait Item {
   }
 
   /**
-   * @return array
+   * Returns the IMD segments of the specification text, or null if not set.
+   *
+   * @return array[]|null
    */
   public function getSpecificationText() {
     return $this->specificationText;
@@ -235,7 +261,10 @@ trait Item {
 
 
   /**
-   * @param $text
+   * Stores a generated text as IMD segments (type ZU): up to 70 characters in lines of 35.
+   * The text is not part of $composeKeys and is therefore not sent.
+   *
+   * @param string|null $text text
    *
    * @return $this
    */
@@ -246,7 +275,9 @@ trait Item {
   }
 
   /**
-   * @return array
+   * Returns the IMD segments of the generated text, or null if not set.
+   *
+   * @return array[]|null
    */
   public function getGeneratedText() {
     return $this->generatedText;
@@ -254,18 +285,25 @@ trait Item {
 
 
   /**
-   * @param $text
+   * Stores a features text as IMD segments (type ZU): up to 70 characters in lines of 35.
+   * The text is not part of $composeKeys and is therefore not sent. Does not return $this.
+   *
+   * @param string|null $text text
+   *
+   * @return void
    */
   public function setFeaturesText($text) {
     $this->splitTexts('featuresText', $text, 70, 35);
   }
 
   /**
-   * @param string  $varName
-   * @param string  $text
-   * @param integer $maxLength
-   * @param integer $lineLength
-   * @param string  $type
+   * Cleans a text, splits it into lines and appends one IMD segment per line to a property.
+   *
+   * @param string      $varName    name of the property that collects the IMD segments
+   * @param string|null $text       text
+   * @param int         $maxLength  maximum number of characters kept
+   * @param int         $lineLength maximum characters per line
+   * @param string      $type       IMD description type
    *
    * @return $this
    */
@@ -291,8 +329,11 @@ trait Item {
   }
 
   /**
-   * clear all not printable characters from given string
-   * @param string  $string
+   * Transliterates German umlauts and ß, then removes every character that is not printable ASCII.
+   *
+   * @param string|null $string text
+   *
+   * @return string|null cleaned text, null on a regex error
    */
   public function clearUTF8chars($string) {
     // transliterate German letters first, the regex below drops every non-ASCII byte
@@ -303,16 +344,20 @@ trait Item {
 
 
   /**
-   * @return array
+   * Returns the order number of the wholesaler (RFF segment, VN), or null if not set.
+   *
+   * @return array|null
    */
   public function getOrderNumberWholesaler() {
     return $this->orderNumberWholesaler;
   }
 
   /**
-   * @param string $orderNumberWholesaler
+   * Sets the order number of the wholesaler (RFF segment, qualifier VN); omitted when empty.
    *
-   * @return Item
+   * @param string $orderNumberWholesaler order number
+   *
+   * @return $this
    */
   public function setOrderNumberWholesaler($orderNumberWholesaler) {
     $this->orderNumberWholesaler = $this->addRFFSegment('VN', $orderNumberWholesaler);
@@ -321,17 +366,21 @@ trait Item {
   }
 
   /**
-   * @return array
+   * Returns the order date (DTM segment, qualifier 4), or null if not set.
+   *
+   * @return array|null
    */
   public function getOrderDate() {
     return $this->orderDate;
   }
 
   /**
-   * @param string $orderDate
+   * Sets the order date (DTM segment, qualifier 4).
    *
-   * @return Item
-   * @throws \EDI\Generator\EdifactException
+   * @param string|\DateTimeInterface $orderDate date as 'Y-m-d' string or date object
+   *
+   * @return $this
+   * @throws \EDI\Generator\EdifactException if the date is invalid
    */
   public function setOrderDate($orderDate) {
     $this->orderDate = $this->addDTMSegment($orderDate, '4');
@@ -340,16 +389,20 @@ trait Item {
   }
 
   /**
-   * @return array
+   * Returns the order line number (RFF segment, LI), or null if not set.
+   *
+   * @return array|null
    */
   public function getOrderPosition() {
     return $this->orderPosition;
   }
 
   /**
-   * @param string $orderPosition
+   * Sets the order line number (RFF segment, qualifier LI); omitted when empty.
    *
-   * @return Item
+   * @param string|int $orderPosition line number in the order
+   *
+   * @return $this
    */
   public function setOrderPosition($orderPosition) {
     $this->orderPosition = $this->addRFFSegment('LI', $orderPosition);
@@ -358,18 +411,23 @@ trait Item {
   }
 
   /**
-   * @return array
+   * Returns the delivery note reference (RFF AAJ, with DTM when a date was given), or null if not set.
+   *
+   * @return array|null
    */
   public function getDeliveryNoteNumber() {
     return $this->deliveryNoteNumber;
   }
 
   /**
-   * @param string      $deliveryNoteNumber
-   * @param string|null $deliveryDate
+   * Sets the delivery note number (RFF segment, qualifier AAJ) and an optional delivery
+   * date (DTM segment, qualifier 2).
    *
-   * @return Item
-   * @throws \EDI\Generator\EdifactException
+   * @param string                         $deliveryNoteNumber delivery note number
+   * @param string|\DateTimeInterface|null $deliveryDate       delivery date, omitted when empty
+   *
+   * @return $this
+   * @throws \EDI\Generator\EdifactException if the date is invalid
    */
   public function setDeliveryNoteNumber($deliveryNoteNumber, $deliveryDate = null) {
     $data = $this->addRFFSegment('AAJ', $deliveryNoteNumber);
@@ -392,10 +450,14 @@ trait Item {
   }
 
   /**
-   * Set the delivery date for an item
-   * @param string|\DateTime $deliveryDate
-   * @param int              $type
-   * @param int              $format
+   * Sets the delivery date of the item (DTM segment).
+   *
+   * @param string|\DateTimeInterface $deliveryDate date, format depends on $format
+   * @param int                       $type         date qualifier, default 2 (requested delivery date)
+   * @param int                       $format       EdifactDate::DATE (102) or EdifactDate::DATETIME (203)
+   *
+   * @return $this
+   * @throws \EDI\Generator\EdifactException if the date is invalid
    */
   public function setDeliveryDate($deliveryDate, $type = EdifactDate::TYPE_DELIVERY_DATE_REQUESTED, $format = EdifactDate::DATE) {
     $this->deliveryDate = $this->addDTMSegment($deliveryDate, $type, $format);
@@ -404,18 +466,23 @@ trait Item {
   }
 
   /**
-   * @return array
+   * Returns the delivery note date (DTM segment), or null if not set.
+   *
+   * @return array|null
    */
   public function getDeliveryNoteDate() {
     return $this->deliveryNoteDate;
   }
 
   /**
-   * @param string|\DateTime $deliveryNoteDate
-   * @param int              $type
-   * @param int              $formatQuantifier
+   * Sets the delivery note date (DTM segment).
    *
-   * @return Item
+   * @param string|\DateTimeInterface $deliveryNoteDate date, format depends on $formatQuantifier
+   * @param int                       $type             date qualifier, default 2 (requested delivery date)
+   * @param int                       $formatQuantifier EdifactDate::DATE (102) or EdifactDate::DATETIME (203)
+   *
+   * @return $this
+   * @throws \EDI\Generator\EdifactException if the date is invalid
    */
   public function setDeliveryNoteDate(
     $deliveryNoteDate,
@@ -428,16 +495,20 @@ trait Item {
   }
 
   /**
-   * @return array
+   * Returns the delivery note line number (RFF segment, FI), or null if not set.
+   *
+   * @return array|null
    */
   public function getDeliveryNotePosition() {
     return $this->deliveryNotePosition;
   }
 
   /**
-   * @param string|integer $deliveryNotePosition
+   * Sets the delivery note line number (RFF segment, qualifier FI); omitted when empty.
    *
-   * @return Item
+   * @param string|int $deliveryNotePosition line number on the delivery note
+   *
+   * @return $this
    */
   public function setDeliveryNotePosition($deliveryNotePosition) {
     $this->deliveryNotePosition = $this->addRFFSegment('FI', $deliveryNotePosition);
