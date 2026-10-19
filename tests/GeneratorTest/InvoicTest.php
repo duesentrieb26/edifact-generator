@@ -546,4 +546,19 @@ final class InvoicTest extends TestCase {
 
     $this->assertSame(['UNH', 'BGM', 'UNS', 'UNT'], array_column($segments, 0));
   }
+
+  /**
+   * @throws EdifactException
+   */
+  public function testInvoiceNumberMessageFunction() {
+    $this->assertEquals(['BGM', ['380', '', '89'], 'RE1', 9], (new Invoic())->setInvoiceNumber('RE1')->getInvoiceNumber());
+    $this->assertEquals(
+      ['BGM', ['380', '', '89'], 'RE1', 1],
+      (new Invoic())->setInvoiceNumber('RE1', Invoic::TYPE_INVOICE, Invoic::TYPE_REVERSAL)->getInvoiceNumber()
+    );
+    $this->assertEquals(
+      ['BGM', ['381', '', '89'], 'GS1', 31],
+      (new Invoic())->setInvoiceNumber('GS1', Invoic::TYPE_CREDIT_NOTE, Invoic::TYPE_COPY)->getInvoiceNumber()
+    );
+  }
 }

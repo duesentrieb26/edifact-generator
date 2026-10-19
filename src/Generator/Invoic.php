@@ -248,8 +248,7 @@ class Invoic extends Message {
    *
    * @param string $invoiceNumber invoice or credit note number
    * @param string $documentType  TYPE_INVOICE, TYPE_CREDIT_NOTE, TYPE_SERVICE_CREDIT, TYPE_SERVICE_INVOICE or TYPE_BONUS
-   * @param int    $type          message function code (TYPE_ORIGINAL, TYPE_REVERSAL, TYPE_COPY);
-   *                              currently not passed on, BGM always sends 9 (original)
+   * @param int    $type          message function code (DE 1225): TYPE_ORIGINAL (9), TYPE_REVERSAL (1) or TYPE_COPY (31)
    *
    * @return $this
    * @throws EdifactException if the document type is not allowed
@@ -267,7 +266,8 @@ class Invoic extends Message {
     );
     $this->invoiceNumber = self::addBGMSegment(
       $invoiceNumber,
-      $documentType
+      $documentType,
+      $type
     );
 
     return $this;
